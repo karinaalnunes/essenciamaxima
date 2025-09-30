@@ -11,8 +11,34 @@ serve(async (req) => {
   }
 
   try {
-    const { companyName, segment, companySize, targetAudience, purpose, toneOfVoice, desiredValues } = await req.json();
+    const { conversationHistory } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY not configured');
+    }
+
+    const prompt = `Com base na seguinte conversa consultiva, extraia as informações e crie uma Missão, Visão e Valores impactantes para a empresa:
+
+CONVERSA:
+${conversationHistory}
+
+Analise a conversa e crie:
+1. MISSÃO: O propósito da empresa (por que ela existe) - 2 a 3 frases
+2. VISÃO: Onde a empresa quer chegar (futuro desejado) - 2 a 3 frases  
+3. VALORES: 3 a 5 princípios que guiam a empresa - cada um com título e descrição de 1 frase
+
+Retorne APENAS um JSON válido no formato:
+{
+  "mission": "texto da missão",
+  "vision": "texto da visão",
+  "values": [
+    {"title": "Nome do valor", "description": "Descrição breve"},
+    {"title": "Nome do valor", "description": "Descrição breve"}
+  ]
+}
+
+Seja inspirador, autêntico e alinhado com o tom identificado na conversa.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -23,22 +49,34 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          { role: 'system', content: `Você é especialista em criar Missão, Visão e Valores corporativos. Gere conteúdo profissional em português do Brasil, no tom: ${toneOfVoice}.` },
-          { role: 'user', content: `Empresa: ${companyName}\nSegmento: ${segment}\nPorte: ${companySize}\nPúblico: ${targetAudience}\nPropósito: ${purpose}\nValores desejados: ${desiredValues}\n\nGere: 1 Missão (2-3 frases), 1 Visão (2-3 frases), e exatamente 5 Valores (cada um com título e descrição de 1 frase). Retorne JSON: {mission, vision, values: [{title, description}]}` }
+          { role: 'system', content: 'Você é especialista em criar Missão, Visão e Valores corporativos. Gere conteúdo profissional em português do Brasil.' },
+          { role: 'user', content: prompt }
         ],
       }),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Lovable AI error:', errorText);
+      throw new Error(`AI API error: ${response.status}`);
+    }
+
     const data = await response.json();
     const content = data.choices[0].message.content;
-    const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
+    
+    // Clean up the response and parse JSON
+    const cleanedContent = content.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(cleanedContent);
+
+    console.log('Generated MVV:', parsed);
 
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error: any) {
-    console.error('Erro:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error) {
+    console.error('Error in generate-mvv:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
