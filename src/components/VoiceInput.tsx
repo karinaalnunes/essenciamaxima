@@ -19,6 +19,8 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
+  
+  console.log('VoiceInput v2.0 - Modo:', inputMode);
 
   const startRecording = async () => {
     try {
