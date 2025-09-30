@@ -32,6 +32,8 @@ serve(async (req) => {
     formData.append('file', blob, 'audio.webm');
     formData.append('model', 'whisper-1');
     formData.append('language', 'pt');
+    formData.append('prompt', 'Máxima IA, inteligência artificial, MVV, missão, visão, valores, empresa, negócio, estratégia, planejamento');
+    formData.append('temperature', '0');
 
     // Send to OpenAI Whisper
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {

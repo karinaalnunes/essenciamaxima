@@ -1,6 +1,8 @@
 import { useState, useRef } from "react";
 import { Button } from "./ui/button";
-import { Mic, MicOff, Loader2 } from "lucide-react";
+import { Input } from "./ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Mic, MicOff, Loader2, Keyboard, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "./ui/use-toast";
 
@@ -12,6 +14,8 @@ interface VoiceInputProps {
 export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [textInput, setTextInput] = useState("");
+  const [inputMode, setInputMode] = useState<"voice" | "text">("voice");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
@@ -96,34 +100,87 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
     }
   };
 
+  const handleTextSubmit = () => {
+    const trimmedText = textInput.trim();
+    if (!trimmedText || disabled || isProcessing) return;
+    
+    onTranscription(trimmedText);
+    setTextInput("");
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleTextSubmit();
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center gap-3">
-      <Button
-        size="lg"
-        onClick={isRecording ? stopRecording : startRecording}
-        disabled={disabled || isProcessing}
-        className={`h-16 w-16 rounded-full transition-all ${
-          isRecording 
-            ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-            : 'bg-gradient-cta hover:scale-110'
-        }`}
-      >
-        {isProcessing ? (
-          <Loader2 className="h-6 w-6 animate-spin" />
-        ) : isRecording ? (
-          <MicOff className="h-6 w-6" />
-        ) : (
-          <Mic className="h-6 w-6" />
-        )}
-      </Button>
-      
-      <p className="text-sm text-muted-foreground">
-        {isProcessing 
-          ? 'Transcrevendo...' 
-          : isRecording 
-          ? 'Clique para parar' 
-          : 'Clique para falar'}
-      </p>
+    <div className="flex flex-col items-center gap-4 w-full max-w-md">
+      <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as "voice" | "text")} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="voice" className="flex items-center gap-2">
+            <Mic className="h-4 w-4" />
+            Áudio
+          </TabsTrigger>
+          <TabsTrigger value="text" className="flex items-center gap-2">
+            <Keyboard className="h-4 w-4" />
+            Texto
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="voice" className="flex flex-col items-center gap-3 mt-4">
+          <Button
+            size="lg"
+            onClick={isRecording ? stopRecording : startRecording}
+            disabled={disabled || isProcessing}
+            className={`h-16 w-16 rounded-full transition-all ${
+              isRecording 
+                ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+                : 'bg-gradient-cta hover:scale-110'
+            }`}
+          >
+            {isProcessing ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : isRecording ? (
+              <MicOff className="h-6 w-6" />
+            ) : (
+              <Mic className="h-6 w-6" />
+            )}
+          </Button>
+          
+          <p className="text-sm text-muted-foreground">
+            {isProcessing 
+              ? 'Transcrevendo...' 
+              : isRecording 
+              ? 'Clique para parar' 
+              : 'Clique para falar'}
+          </p>
+        </TabsContent>
+
+        <TabsContent value="text" className="flex gap-2 mt-4">
+          <Input
+            type="text"
+            placeholder="Digite sua resposta..."
+            value={textInput}
+            onChange={(e) => setTextInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            disabled={disabled || isProcessing}
+            className="flex-1"
+            autoFocus
+          />
+          <Button
+            onClick={handleTextSubmit}
+            disabled={disabled || isProcessing || !textInput.trim()}
+            size="icon"
+          >
+            {isProcessing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </Button>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
