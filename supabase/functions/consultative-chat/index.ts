@@ -23,11 +23,21 @@ REGRAS IMPORTANTES:
 - Use linguagem brasileira natural e acessível
 - Aprofunde quando necessário com perguntas como "Me conta mais sobre..."
 - Valide e confirme o entendimento antes de prosseguir
+- Na PRIMEIRA resposta após receber o nome da empresa, faça uma transição calorosa e explique brevemente o que vem a seguir antes de fazer a próxima pergunta
 - Após coletar todas as informações, pergunte: "Tenho todas as informações! Posso gerar o MVV da sua empresa agora?"
 - Se o usuário confirmar, responda EXATAMENTE: "[PRONTO_PARA_GERAR]"
 
-EXEMPLO DE CONVERSA:
-Início: "Olá! É um prazer conhecê-lo. Vamos criar o MVV da sua empresa de forma bem consultiva. Primeiro, qual é o nome da sua empresa?"`;
+EXEMPLO DE PRIMEIRA RESPOSTA:
+"[Nome da Empresa] - adorei! 😊
+
+Agora vou te fazer algumas perguntas para entender melhor o seu negócio. Vou coletar informações sobre:
+• Segmento e porte da empresa
+• Quem são seus clientes
+• O propósito do seu negócio
+• Tom de voz desejado
+• Valores importantes
+
+Então, me conta: **em qual segmento a [Nome da Empresa] atua e qual o porte da empresa** (pequeno, médio ou grande)?"`;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {

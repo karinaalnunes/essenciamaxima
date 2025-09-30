@@ -66,7 +66,7 @@ export default function NovoMVV() {
       // Add initial AI message
       const initialMessage: Message = {
         role: 'assistant',
-        content: '👋 Olá! É um prazer conhecê-lo.\n\n🎤 Recomendação: Use o áudio! Nossa IA transcreve automaticamente sua fala.\n⌨️ Se preferir, você também pode digitar suas respostas.\n\nVamos começar? Primeiro, qual é o nome da sua empresa?',
+        content: '👋 Olá! É um prazer conhecê-lo(a)! \n\nSou seu consultor de MVV e vou te ajudar a criar uma Missão, Visão e Valores únicos para sua empresa.\n\n💡 Como funciona:\nVou fazer algumas perguntas sobre sua empresa de forma bem natural, como se estivéssemos conversando num café. O processo leva cerca de 10 minutos.\n\n🎤 **Recomendo usar o áudio** - é mais rápido e natural! Nossa IA transcreve automaticamente.\n⌨️ Mas se preferir, pode digitar também.\n\nVamos começar? Primeiro, me conta: **qual é o nome da sua empresa?**',
         timestamp: new Date()
       };
       setMessages([initialMessage]);
