@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasCompletedMVV, setHasCompletedMVV] = useState(false);
 
   useEffect(() => {
     // Verificar autenticação
@@ -34,6 +35,13 @@ export default function Dashboard() {
         .order("created_at", { ascending: false });
 
       setDocuments(docs || []);
+
+      // Verificar se já tem MVV completo (trial limit)
+      const completedMVV = docs?.some(
+        doc => doc.mission && doc.vision && doc.values
+      );
+      setHasCompletedMVV(completedMVV || false);
+
       setLoading(false);
     };
 
@@ -88,15 +96,31 @@ export default function Dashboard() {
               Crie e gerencie suas definições de Missão, Visão e Valores
             </p>
           </div>
-          <Link to="/novo-mvv">
-            <Button size="lg" className="gap-2">
-              <Plus className="w-5 h-5" />
-              Novo MVV
-            </Button>
-          </Link>
+          {!hasCompletedMVV && (
+            <Link to="/novo-mvv">
+              <Button size="lg" className="gap-2">
+                <Plus className="w-5 h-5" />
+                Novo MVV
+              </Button>
+            </Link>
+          )}
         </div>
 
-        {documents.length === 0 ? (
+        {hasCompletedMVV && (
+          <Card className="bg-slate-800/50 border-slate-700/50 p-6 text-center">
+            <p className="text-slate-300 mb-4">
+              ✨ Você já completou seu trial gratuito. Para criar mais documentos MVV, entre em contato com nosso time comercial.
+            </p>
+            <Button
+              onClick={() => window.location.href = "mailto:contato@maximaia.com.br?subject=Interesse em mais MVVs"}
+              variant="outline"
+            >
+              Falar com Comercial
+            </Button>
+          </Card>
+        )}
+
+        {documents.length === 0 && !hasCompletedMVV ? (
           <Card className="bg-slate-800/50 border-slate-700/50 p-12 text-center space-y-4">
             <FileText className="w-16 h-16 mx-auto text-slate-500" />
             <h2 className="text-2xl font-bold text-white">Nenhum documento ainda</h2>

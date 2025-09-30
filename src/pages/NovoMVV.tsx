@@ -30,10 +30,26 @@ export default function NovoMVV() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         navigate("/auth");
-      } else {
-        setUserId(user.id);
-        await initializeConversation(user.id);
+        return;
       }
+
+      // Verificar se usuário já tem um MVV completo (trial limit)
+      const { data: existingDocs } = await supabase
+        .from('mvv_documents')
+        .select('id, mission, vision, values')
+        .eq('user_id', user.id);
+
+      const hasCompletedMVV = existingDocs?.some(
+        doc => doc.mission && doc.vision && doc.values
+      );
+
+      if (hasCompletedMVV) {
+        navigate("/trial-complete");
+        return;
+      }
+
+      setUserId(user.id);
+      await initializeConversation(user.id);
     };
     checkUser();
   }, [navigate]);
@@ -63,7 +79,7 @@ export default function NovoMVV() {
       
       setDocumentId(data.id);
 
-      // Add initial AI message
+      // SEMPRE mostrar mensagem inicial atual (não carregar histórico antigo)
       const initialMessage: Message = {
         role: 'assistant',
         content: '👋 Olá! É um prazer conhecê-lo(a)! \n\nSou seu consultor de MVV e vou te ajudar a criar uma Missão, Visão e Valores únicos para sua empresa.\n\n💡 Como funciona:\nVou fazer algumas perguntas sobre sua empresa de forma bem natural, como se estivéssemos conversando num café. O processo leva cerca de 10 minutos.\n\n🎤 **Recomendo usar o áudio** - é mais rápido e natural! Nossa IA transcreve automaticamente.\n⌨️ Mas se preferir, pode digitar também.\n\nVamos começar? Primeiro, me conta: **qual é o nome da sua empresa?**',
@@ -71,7 +87,7 @@ export default function NovoMVV() {
       };
       setMessages([initialMessage]);
 
-      // Save initial message to database
+      // Salvar mensagem inicial no banco para este novo documento
       await supabase.from('conversation_history').insert({
         document_id: data.id,
         role: 'assistant',
