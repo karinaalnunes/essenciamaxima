@@ -47,16 +47,26 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        purple: {
+          600: "hsl(var(--purple-600))",
+          400: "hsl(var(--purple-400))",
         },
+        blue: {
+          500: "hsl(var(--blue-500))",
+          400: "hsl(var(--blue-400))",
+        },
+        slate: {
+          900: "hsl(var(--slate-900))",
+          800: "hsl(var(--slate-800))",
+          700: "hsl(var(--slate-700))",
+          300: "hsl(var(--slate-300))",
+          200: "hsl(var(--slate-200))",
+        },
+      },
+      backgroundImage: {
+        'gradient-hero': 'var(--gradient-hero)',
+        'gradient-cta': 'var(--gradient-cta)',
+        'gradient-text': 'var(--gradient-text)',
       },
       borderRadius: {
         lg: "var(--radius)",
