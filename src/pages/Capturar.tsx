@@ -56,6 +56,14 @@ export default function Capturar() {
 
       if (leadError) throw leadError;
 
+      // Salvar dados no sessionStorage para pré-preencher o cadastro
+      sessionStorage.setItem("leadData", JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        company: formData.company,
+        segment: formData.segment,
+      }));
+
       // Enviar email de boas-vindas
       await supabase.functions.invoke("send-welcome-email", {
         body: { email: formData.email, name: formData.name },

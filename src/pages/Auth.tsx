@@ -34,6 +34,21 @@ export default function Auth() {
       }
     });
 
+    // Pré-preencher dados do lead se disponível
+    const leadData = sessionStorage.getItem("leadData");
+    if (leadData) {
+      try {
+        const parsed = JSON.parse(leadData);
+        setSignupData(prev => ({
+          ...prev,
+          name: parsed.name || "",
+          email: parsed.email || "",
+        }));
+      } catch (error) {
+        console.error("Erro ao recuperar dados do lead:", error);
+      }
+    }
+
     return () => subscription.unsubscribe();
   }, [navigate]);
 
@@ -101,6 +116,9 @@ export default function Auth() {
       });
 
       if (error) throw error;
+
+      // Limpar dados do sessionStorage após cadastro
+      sessionStorage.removeItem("leadData");
 
       toast({
         title: "Conta criada com sucesso!",
