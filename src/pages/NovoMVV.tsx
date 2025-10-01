@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { VoiceInput } from "@/components/VoiceInput";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { MessageFormatter } from "@/components/MessageFormatter";
 import logo from "@/assets/logo-maxima-ia.png";
 
 interface Message {
@@ -23,7 +24,9 @@ export default function NovoMVV() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [readyToGenerate, setReadyToGenerate] = useState(false);
+  const [messageSending, setMessageSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -55,11 +58,16 @@ export default function NovoMVV() {
   }, [navigate]);
 
   useEffect(() => {
-    // Auto-scroll to bottom when new messages arrive
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    // Auto-scroll to bottom when new messages arrive with smooth behavior
+    if (messagesEndRef.current) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'end' 
+        });
+      }, 100);
     }
-  }, [messages]);
+  }, [messages, isLoading, messageSending]);
 
   const initializeConversation = async (uid: string) => {
     try {
@@ -122,6 +130,9 @@ Primeiro, me conta: **qual é o nome da sua empresa?**`,
   const handleTranscription = async (text: string) => {
     if (!text.trim() || !documentId) return;
 
+    // Show sending feedback
+    setMessageSending(true);
+    
     // Add user message to UI
     const userMessage: Message = {
       role: 'user',
@@ -129,6 +140,7 @@ Primeiro, me conta: **qual é o nome da sua empresa?**`,
       timestamp: new Date()
     };
     setMessages(prev => [...prev, userMessage]);
+    setMessageSending(false);
     setIsLoading(true);
 
     try {
@@ -258,15 +270,9 @@ Primeiro, me conta: **qual é o nome da sua empresa?**`,
                 key={index}
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div
-                  className={`max-w-[80%] rounded-2xl p-4 ${
-                    msg.role === 'user'
-                      ? 'bg-gradient-cta text-white'
-                      : 'bg-slate-800/50 text-slate-100 border border-slate-700'
-                  }`}
-                >
-                  <p className="text-sm leading-relaxed">{msg.content}</p>
-                  <p className="text-xs opacity-60 mt-2">
+                <div className={msg.role === 'user' ? 'max-w-[85%]' : 'max-w-[85%]'}>
+                  <MessageFormatter content={msg.content} role={msg.role} />
+                  <p className="text-xs text-slate-500 mt-1 px-1">
                     {msg.timestamp.toLocaleTimeString('pt-BR', { 
                       hour: '2-digit', 
                       minute: '2-digit' 
@@ -276,16 +282,30 @@ Primeiro, me conta: **qual é o nome da sua empresa?**`,
               </div>
             ))}
             
+            {messageSending && (
+              <div className="flex justify-end">
+                <div className="max-w-[85%] rounded-2xl p-4 bg-gradient-cta/80 text-white animate-pulse">
+                  <p className="text-sm">Enviando...</p>
+                </div>
+              </div>
+            )}
+            
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-slate-800/50 text-slate-100 border border-slate-700 rounded-2xl p-4">
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">Pensando...</span>
+                <div className="max-w-[85%] bg-slate-800/50 border border-slate-700 rounded-2xl p-4 animate-fade-in">
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="h-5 w-5 animate-spin text-blue-400" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-slate-200">Analisando sua resposta...</p>
+                      <p className="text-xs text-slate-400">Isso pode levar alguns segundos</p>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
+            
+            {/* Scroll anchor */}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
 
