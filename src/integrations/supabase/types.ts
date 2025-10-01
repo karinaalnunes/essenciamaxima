@@ -87,12 +87,16 @@ export type Database = {
       }
       mvv_documents: {
         Row: {
+          company_context: string | null
           company_name: string
           company_size: string | null
           created_at: string
           desired_values: string[] | null
+          feedback: string | null
           id: string
           mission: string | null
+          mission_pocket: string | null
+          mission_punchline: string | null
           purpose: string | null
           segment: string
           tags: string[] | null
@@ -103,14 +107,19 @@ export type Database = {
           user_id: string
           values: Json | null
           vision: string | null
+          vision_indicators: Json | null
         }
         Insert: {
+          company_context?: string | null
           company_name: string
           company_size?: string | null
           created_at?: string
           desired_values?: string[] | null
+          feedback?: string | null
           id?: string
           mission?: string | null
+          mission_pocket?: string | null
+          mission_punchline?: string | null
           purpose?: string | null
           segment: string
           tags?: string[] | null
@@ -121,14 +130,19 @@ export type Database = {
           user_id: string
           values?: Json | null
           vision?: string | null
+          vision_indicators?: Json | null
         }
         Update: {
+          company_context?: string | null
           company_name?: string
           company_size?: string | null
           created_at?: string
           desired_values?: string[] | null
+          feedback?: string | null
           id?: string
           mission?: string | null
+          mission_pocket?: string | null
+          mission_punchline?: string | null
           purpose?: string | null
           segment?: string
           tags?: string[] | null
@@ -139,6 +153,7 @@ export type Database = {
           user_id?: string
           values?: Json | null
           vision?: string | null
+          vision_indicators?: Json | null
         }
         Relationships: []
       }

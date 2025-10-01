@@ -13,6 +13,7 @@ import Termos from "./pages/Termos";
 import Privacidade from "./pages/Privacidade";
 import NotFound from "./pages/NotFound";
 import TrialComplete from "./pages/TrialComplete";
+import RelatorioMVV from "./pages/RelatorioMVV";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/novo-mvv" element={<NovoMVV />} />
+          <Route path="/relatorio/:id" element={<RelatorioMVV />} />
           <Route path="/trial-complete" element={<TrialComplete />} />
           <Route path="/termos" element={<Termos />} />
           <Route path="/privacidade" element={<Privacidade />} />

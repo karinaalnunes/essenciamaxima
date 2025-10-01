@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -12,33 +13,64 @@ serve(async (req) => {
 
   try {
     const { conversationHistory } = await req.json();
+
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
-    }
+    const prompt = `Com base na conversa completa do Essência Máxima abaixo, extraia e estruture o MVV completo da empresa.
 
-    const prompt = `Com base na seguinte conversa consultiva, extraia as informações e crie uma Missão, Visão e Valores impactantes para a empresa:
-
-CONVERSA:
+CONVERSA COMPLETA:
 ${conversationHistory}
 
-Analise a conversa e crie:
-1. MISSÃO: O propósito da empresa (por que ela existe) - 2 a 3 frases
-2. VISÃO: Onde a empresa quer chegar (futuro desejado) - 2 a 3 frases  
-3. VALORES: 3 a 5 princípios que guiam a empresa - cada um com título e descrição de 1 frase
+IMPORTANTE: Analise TODA a conversa com atenção e extraia TODAS as informações relevantes mencionadas pelo cliente.
 
-Retorne APENAS um JSON válido no formato:
+Retorne um JSON válido com EXATAMENTE esta estrutura (sem markdown, sem \`\`\`json):
+
 {
-  "mission": "texto da missão",
-  "vision": "texto da visão",
+  "company_name": "Nome da empresa mencionado",
+  "segment": "Segmento/área de atuação",
+  "company_size": "Porte da empresa (micro/pequena/média/grande)",
+  "company_context": "História e contexto da empresa em 2-3 parágrafos",
+  
+  "vision": "Visão completa da empresa (onde quer chegar em 3-5 anos)",
+  "vision_indicators": [
+    "Indicador mensurável 1",
+    "Indicador mensurável 2",
+    "Indicador mensurável 3"
+  ],
+  
+  "mission": "Missão completa (por que a empresa existe - versão inspiradora)",
+  "mission_pocket": "Versão resumida da missão (1 frase curta)",
+  "mission_punchline": "Punchline da missão (slogan impactante de até 5 palavras)",
+  
   "values": [
-    {"title": "Nome do valor", "description": "Descrição breve"},
-    {"title": "Nome do valor", "description": "Descrição breve"}
+    {
+      "name": "Nome do Valor 1",
+      "description": "Descrição do que esse valor significa",
+      "mantra": "Frase ou mantra inspirador deste valor",
+      "vivencia_exemplos": [
+        "Exemplo prático de como viver este valor",
+        "Outro exemplo de comportamento positivo"
+      ],
+      "nao_vivencia_exemplos": [
+        "Exemplo de comportamento que vai contra este valor",
+        "Outro exemplo do que evitar"
+      ],
+      "rituais": [
+        "Ritual ou prática para reforçar este valor no dia a dia",
+        "Outra prática concreta"
+      ]
+    }
   ]
 }
 
-Seja inspirador, autêntico e alinhado com o tom identificado na conversa.`;
+REGRAS CRÍTICAS:
+1. Retorne APENAS o JSON, sem texto adicional antes ou depois
+2. Não use markdown (\`\`\`json)
+3. Use TODAS as informações da conversa
+4. Se alguma informação não foi mencionada, use null
+5. Mantenha o tom inspirador mas profissional
+6. Valores devem ter NO MÍNIMO 3 e NO MÁXIMO 5
+7. Cada valor deve ter pelo menos 2 exemplos de vivência, 2 de não vivência e 2 rituais`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -49,36 +81,45 @@ Seja inspirador, autêntico e alinhado com o tom identificado na conversa.`;
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          { role: 'system', content: 'Você é especialista em criar Missão, Visão e Valores corporativos. Gere conteúdo profissional em português do Brasil.' },
-          { role: 'user', content: prompt }
+          {
+            role: 'user',
+            content: prompt
+          }
         ],
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Lovable AI error:', errorText);
-      throw new Error(`AI API error: ${response.status}`);
+      console.error('AI API Error:', response.status, errorText);
+      throw new Error('AI API error');
     }
 
     const data = await response.json();
-    const content = data.choices[0].message.content;
-    
-    // Clean up the response and parse JSON
-    const cleanedContent = content.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(cleanedContent);
+    let generatedText = data.choices[0].message.content.trim();
 
-    console.log('Generated MVV:', parsed);
+    // Clean up markdown if present
+    generatedText = generatedText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
-    return new Response(JSON.stringify(parsed), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.log('Generated MVV:', generatedText);
+
+    const mvvData = JSON.parse(generatedText);
+
+    return new Response(
+      JSON.stringify(mvvData),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+
   } catch (error) {
     console.error('Error in generate-mvv:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
 });

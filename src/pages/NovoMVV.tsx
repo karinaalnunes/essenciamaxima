@@ -90,22 +90,22 @@ export default function NovoMVV() {
       // SEMPRE mostrar mensagem inicial atual (não carregar histórico antigo)
       const initialMessage: Message = {
         role: 'assistant',
-        content: `👋 Olá! É um prazer conhecê-lo(a)!
+        content: `Olá! Seja muito bem-vindo(a) ao Essência Máxima 🚀
 
-Sou seu consultor de MVV e vou te ajudar a criar uma Missão, Visão e Valores únicos para sua empresa. 💡
+Esse é um espaço criado para revelar a Missão, Visão e Valores da sua empresa de forma leve, consultiva e inspiradora.
 
-**Como funciona:**
-Vou fazer algumas perguntas sobre sua empresa de forma bem natural, como se estivéssemos conversando num café.
+Eu vou te conduzir passo a passo, sempre com perguntas simples e objetivas. Você não precisa ter tudo pronto agora: vamos construir juntos.
 
-O processo leva cerca de 10 minutos.
+💡 **Se preferir, pode responder por voz** — eu transcrevo automaticamente para você. Assim, fica mais fluido e natural.
 
-🎤 **Recomendo usar o áudio** - é mais rápido e natural! Nossa IA transcreve automaticamente.
+📋 Para começar, me conte alguns dados básicos:
+• **Nome da empresa**
+• **Segmento de atuação**
+• **Localização** (cidade/estado)
+• **Número de colaboradores**
+• **Porte da empresa** (micro, pequena, média ou grande)
 
-⌨️ Mas se preferir, pode digitar também.
-
-Vamos começar?
-
-Primeiro, me conta: **qual é o nome da sua empresa?**`,
+Pode compartilhar essas informações?`,
         timestamp: new Date()
       };
       setMessages([initialMessage]);
@@ -204,12 +204,19 @@ Primeiro, me conta: **qual é o nome da sua empresa?**`,
 
       if (error) throw error;
 
-      // Update the document with generated MVV
+      // Update the document with complete MVV
       const { error: updateError } = await supabase
         .from('mvv_documents')
         .update({
+          company_name: data.company_name || 'Empresa',
+          segment: data.segment || 'A definir',
+          company_size: data.company_size,
+          company_context: data.company_context,
           mission: data.mission,
+          mission_pocket: data.mission_pocket,
+          mission_punchline: data.mission_punchline,
           vision: data.vision,
+          vision_indicators: data.vision_indicators,
           values: data.values,
         })
         .eq('id', documentId);
@@ -217,11 +224,11 @@ Primeiro, me conta: **qual é o nome da sua empresa?**`,
       if (updateError) throw updateError;
 
       toast({
-        title: "MVV gerado com sucesso!",
-        description: "Você será redirecionado para o dashboard.",
+        title: "✨ MVV gerado com sucesso!",
+        description: "Redirecionando para o relatório completo...",
       });
 
-      setTimeout(() => navigate('/dashboard'), 1500);
+      setTimeout(() => navigate(`/relatorio/${documentId}`), 1500);
 
     } catch (error) {
       console.error('Error generating MVV:', error);
