@@ -82,7 +82,22 @@ export default function NovoMVV() {
       // SEMPRE mostrar mensagem inicial atual (não carregar histórico antigo)
       const initialMessage: Message = {
         role: 'assistant',
-        content: '👋 Olá! É um prazer conhecê-lo(a)! \n\nSou seu consultor de MVV e vou te ajudar a criar uma Missão, Visão e Valores únicos para sua empresa.\n\n💡 Como funciona:\nVou fazer algumas perguntas sobre sua empresa de forma bem natural, como se estivéssemos conversando num café. O processo leva cerca de 10 minutos.\n\n🎤 **Recomendo usar o áudio** - é mais rápido e natural! Nossa IA transcreve automaticamente.\n⌨️ Mas se preferir, pode digitar também.\n\nVamos começar? Primeiro, me conta: **qual é o nome da sua empresa?**',
+        content: `👋 Olá! É um prazer conhecê-lo(a)!
+
+Sou seu consultor de MVV e vou te ajudar a criar uma Missão, Visão e Valores únicos para sua empresa. 💡
+
+**Como funciona:**
+Vou fazer algumas perguntas sobre sua empresa de forma bem natural, como se estivéssemos conversando num café.
+
+O processo leva cerca de 10 minutos.
+
+🎤 **Recomendo usar o áudio** - é mais rápido e natural! Nossa IA transcreve automaticamente.
+
+⌨️ Mas se preferir, pode digitar também.
+
+Vamos começar?
+
+Primeiro, me conta: **qual é o nome da sua empresa?**`,
         timestamp: new Date()
       };
       setMessages([initialMessage]);

@@ -70,25 +70,25 @@ export const Hero = () => {
         {/* Features */}
         <section className="space-y-6">
           <h2 className="text-3xl font-bold text-center text-white">
-            100% Gratuito, Sem Limitações
+            Teste Grátis - Crie Seu Primeiro MVV
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-6 backdrop-blur-sm">
               <div className="flex items-center gap-3 text-slate-200 text-lg">
                 <span className="text-2xl">✨</span>
-                <span>Geração ilimitada de propostas</span>
+                <span>Um projeto MVV gratuito por e-mail</span>
               </div>
             </div>
             <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-6 backdrop-blur-sm">
               <div className="flex items-center gap-3 text-slate-200 text-lg">
                 <span className="text-2xl">🎨</span>
-                <span>Refine e personalize à vontade</span>
+                <span>Refine e personalize seu MVV</span>
               </div>
             </div>
             <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-6 backdrop-blur-sm">
               <div className="flex items-center gap-3 text-slate-200 text-lg">
-                <span className="text-2xl">💾</span>
-                <span>Salve quantos documentos quiser</span>
+                <span className="text-2xl">⚡</span>
+                <span>Processo rápido (cerca de 10 min)</span>
               </div>
             </div>
             <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-6 backdrop-blur-sm">
