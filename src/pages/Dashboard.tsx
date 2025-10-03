@@ -133,27 +133,50 @@ export default function Dashboard() {
           </Card>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {documents.map((doc) => (
-              <Link key={doc.id} to={`/relatorio/${doc.id}`}>
-                <Card className="bg-slate-800/50 border-slate-700/50 p-6 hover:border-primary/50 transition-all hover:scale-105 cursor-pointer">
-                  <h3 className="text-xl font-bold text-white mb-2">{doc.title}</h3>
-                  <p className="text-slate-300 text-sm mb-4">{doc.company_name}</p>
-                  <div className="flex gap-2 flex-wrap">
-                    <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">
-                      {doc.segment}
-                    </span>
-                    {doc.mission && doc.vision && doc.values && (
+            {documents.map((doc) => {
+              const isComplete = doc.mission && doc.vision && doc.values;
+              
+              return isComplete ? (
+                <Link key={doc.id} to={`/relatorio/${doc.id}`}>
+                  <Card className="bg-slate-800/50 border-slate-700/50 p-6 hover:border-primary/50 transition-all hover:scale-105 cursor-pointer">
+                    <h3 className="text-xl font-bold text-white mb-2">{doc.title}</h3>
+                    <p className="text-slate-300 text-sm mb-4">{doc.company_name}</p>
+                    <div className="flex gap-2 flex-wrap">
+                      <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">
+                        {doc.segment}
+                      </span>
                       <span className="text-xs bg-green-700 text-green-100 px-2 py-1 rounded">
                         ✓ Completo
                       </span>
-                    )}
+                    </div>
+                    <p className="text-xs text-slate-400 mt-4">
+                      {new Date(doc.created_at).toLocaleDateString("pt-BR")}
+                    </p>
+                  </Card>
+                </Link>
+              ) : (
+                <Card key={doc.id} className="bg-slate-800/50 border-slate-700/50 p-6">
+                  <h3 className="text-xl font-bold text-white mb-2">{doc.title}</h3>
+                  <p className="text-slate-300 text-sm mb-4">{doc.company_name}</p>
+                  <div className="flex gap-2 flex-wrap mb-4">
+                    <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">
+                      {doc.segment}
+                    </span>
+                    <span className="text-xs bg-yellow-700 text-yellow-100 px-2 py-1 rounded">
+                      🔄 Em andamento
+                    </span>
                   </div>
+                  <Link to={`/novo-mvv?doc=${doc.id}`}>
+                    <Button size="sm" className="w-full">
+                      Continuar consultoria
+                    </Button>
+                  </Link>
                   <p className="text-xs text-slate-400 mt-4">
                     {new Date(doc.created_at).toLocaleDateString("pt-BR")}
                   </p>
                 </Card>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>

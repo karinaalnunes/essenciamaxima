@@ -6,12 +6,16 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { User } from "lucide-react";
 import logo from "@/assets/logo-maxima-ia.png";
 
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [existingSession, setExistingSession] = useState<any>(null);
+  const [leadData, setLeadData] = useState<any>(null);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [signupData, setSignupData] = useState({
     name: "",
@@ -24,10 +28,10 @@ export default function Auth() {
   });
 
   useEffect(() => {
-    // Verificar se usuário já está logado
+    // Verificar se usuário já está logado (mas não redirecionar automaticamente)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/dashboard");
+        setExistingSession(session);
       }
     });
 
@@ -45,10 +49,11 @@ export default function Auth() {
     });
 
     // Pré-preencher dados do lead se disponível
-    const leadData = sessionStorage.getItem("leadData");
-    if (leadData) {
+    const storedLeadData = sessionStorage.getItem("leadData");
+    if (storedLeadData) {
       try {
-        const parsed = JSON.parse(leadData);
+        const parsed = JSON.parse(storedLeadData);
+        setLeadData(parsed);
         setSignupData(prev => ({
           ...prev,
           name: parsed.name || "",
@@ -64,6 +69,19 @@ export default function Auth() {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const handleContinueAsUser = () => {
+    navigate("/dashboard");
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setExistingSession(null);
+    toast({
+      title: "Sessão encerrada",
+      description: "Você pode fazer login com outra conta.",
+    });
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,6 +174,31 @@ export default function Auth() {
         <Link to="/" className="block">
           <img src={logo} alt="Máxima iA" className="h-12 w-auto mx-auto" />
         </Link>
+
+        {existingSession && (
+          <Alert className="bg-slate-800/50 border-slate-700/50">
+            <User className="h-4 w-4" />
+            <AlertDescription className="text-slate-300">
+              Você está logado como <span className="font-semibold text-white">{existingSession.user.email}</span>
+              {leadData && leadData.email !== existingSession.user.email && (
+                <span className="block mt-2 text-yellow-400">
+                  ⚠️ Este e-mail difere do que você preencheu no formulário
+                </span>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {existingSession && (
+          <div className="flex gap-3">
+            <Button onClick={handleContinueAsUser} className="flex-1">
+              Continuar como {existingSession.user.email.split('@')[0]}
+            </Button>
+            <Button onClick={handleSignOut} variant="outline" className="flex-1">
+              Sair e usar outro e-mail
+            </Button>
+          </div>
+        )}
 
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-8 backdrop-blur-sm">
           <Tabs defaultValue="login" className="w-full">

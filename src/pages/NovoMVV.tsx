@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -18,6 +18,7 @@ interface Message {
 export default function NovoMVV() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [userId, setUserId] = useState<string>("");
   const [documentId, setDocumentId] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -46,6 +47,34 @@ export default function NovoMVV() {
 
         setUserId(user.id);
 
+        // Verificar se há um docId na query string
+        const docIdFromQuery = searchParams.get("doc");
+        
+        if (docIdFromQuery) {
+          // Validar que o documento pertence ao usuário
+          const { data: doc, error } = await supabase
+            .from("mvv_documents")
+            .select("*")
+            .eq("id", docIdFromQuery)
+            .eq("user_id", user.id)
+            .single();
+
+          if (error || !doc) {
+            toast({
+              title: "Documento não encontrado",
+              description: "Redirecionando para o dashboard...",
+              variant: "destructive",
+            });
+            navigate("/dashboard");
+            return;
+          }
+
+          // Carregar conversa deste documento específico
+          await loadExistingConversation(docIdFromQuery);
+          return;
+        }
+
+        // Se não há docId na query, seguir fluxo normal
         // Buscar MVV existente do usuário (ordenar por mais recente)
         const { data: existingDocs } = await supabase
           .from('mvv_documents')
@@ -70,20 +99,7 @@ export default function NovoMVV() {
           return;
         }
 
-        // Limpar documentos duplicados (manter apenas o mais recente incompleto)
-        if (existingDocs.length > 1) {
-          const [latestDoc, ...olderDocs] = existingDocs;
-          const idsToDelete = olderDocs.map(doc => doc.id);
-          
-          await supabase
-            .from('mvv_documents')
-            .delete()
-            .in('id', idsToDelete);
-          
-          console.log(`🧹 Limpeza: ${olderDocs.length} documentos duplicados removidos`);
-        }
-
-        // Tem MVV incompleto → recuperar conversa do mais recente
+        // Encontrar o documento incompleto mais recente (sem deletar outros)
         const incompleteMVV = existingDocs[0];
         await loadExistingConversation(incompleteMVV.id);
 
@@ -100,7 +116,7 @@ export default function NovoMVV() {
     };
     
     checkUser();
-  }, [navigate]);
+  }, [navigate, searchParams, toast]);
 
   useEffect(() => {
     // Auto-scroll to bottom when new messages arrive with smooth behavior

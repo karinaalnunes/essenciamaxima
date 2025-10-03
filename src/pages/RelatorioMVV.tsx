@@ -72,103 +72,10 @@ export default function RelatorioMVV() {
     fetchDocument();
   }, [id, navigate, toast]);
 
-  const handleDownload = () => {
-    if (!doc) return;
+  const isComplete = doc && doc.mission && doc.vision && doc.values && doc.values.length > 0;
 
-    const content = generatePDFContent(doc);
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `MVV-${doc.company_name}-${new Date().toLocaleDateString('pt-BR')}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    toast({
-      title: "Download realizado!",
-      description: "Seu relatório MVV foi baixado com sucesso.",
-    });
-  };
-
-  const generatePDFContent = (doc: MVVDocument) => {
-    let content = `═══════════════════════════════════════════════════════════
-RELATÓRIO ESSÊNCIA MÁXIMA
-═══════════════════════════════════════════════════════════
-
-EMPRESA: ${doc.company_name}
-SEGMENTO: ${doc.segment}
-PORTE: ${doc.company_size || 'Não informado'}
-DATA: ${new Date(doc.created_at).toLocaleDateString('pt-BR')}
-
-═══════════════════════════════════════════════════════════
-CONTEXTO DA EMPRESA
-═══════════════════════════════════════════════════════════
-
-${doc.company_context || 'Não informado'}
-
-═══════════════════════════════════════════════════════════
-VISÃO - ONDE QUEREMOS CHEGAR
-═══════════════════════════════════════════════════════════
-
-${doc.vision}
-
-INDICADORES DE SUCESSO:
-${doc.vision_indicators?.map((ind: string, i: number) => `${i + 1}. ${ind}`).join('\n') || 'Não informado'}
-
-═══════════════════════════════════════════════════════════
-MISSÃO - POR QUE EXISTIMOS
-═══════════════════════════════════════════════════════════
-
-VERSÃO COMPLETA:
-${doc.mission}
-
-VERSÃO POCKET:
-${doc.mission_pocket}
-
-PUNCHLINE:
-${doc.mission_punchline}
-
-═══════════════════════════════════════════════════════════
-VALORES - COMO VIVEMOS
-═══════════════════════════════════════════════════════════
-`;
-
-    doc.values?.forEach((value: Value, index: number) => {
-      content += `
-───────────────────────────────────────────────────────────
-VALOR ${index + 1}: ${value.name.toUpperCase()}
-───────────────────────────────────────────────────────────
-
-DESCRIÇÃO:
-${value.description}
-
-MANTRA:
-"${value.mantra}"
-
-EXEMPLOS DE VIVÊNCIA (Como viver este valor):
-${value.vivencia_exemplos?.map((ex: string, i: number) => `  ✓ ${ex}`).join('\n')}
-
-EXEMPLOS DE NÃO VIVÊNCIA (O que evitar):
-${value.nao_vivencia_exemplos?.map((ex: string, i: number) => `  ✗ ${ex}`).join('\n')}
-
-RITUAIS PARA REFORÇAR ESTE VALOR:
-${value.rituais?.map((rit: string, i: number) => `  ${i + 1}. ${rit}`).join('\n')}
-`;
-    });
-
-    content += `
-═══════════════════════════════════════════════════════════
-PARABÉNS! 🎉
-═══════════════════════════════════════════════════════════
-
-Você completou a construção do tripé da cultura da sua empresa!
-Este documento é a base sólida que inspira, alinha e fortalece o seu time.
-
-Gerado por: Essência Máxima - Máxima IA
-📲 (11) 98082-3550 | 📸 @karinaalnunes
-`;
-
-    return content;
+  const handleExportPDF = () => {
+    window.print();
   };
 
   if (loading) {
@@ -185,9 +92,63 @@ Gerado por: Essência Máxima - Máxima IA
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8">
+      <style>{`
+        @media print {
+          body {
+            background: white !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+          .bg-gradient-to-br {
+            background: white !important;
+          }
+          .bg-slate-800\\/50, .bg-gradient-to-br {
+            background: white !important;
+            border: 1px solid #e5e7eb !important;
+          }
+          .text-white {
+            color: #111827 !important;
+          }
+          .text-slate-300, .text-slate-400 {
+            color: #4b5563 !important;
+          }
+          h1 {
+            font-size: 24pt;
+            margin-bottom: 12pt;
+            color: #111827 !important;
+          }
+          h2, h3 {
+            font-size: 18pt;
+            margin-top: 16pt;
+            margin-bottom: 8pt;
+            color: #111827 !important;
+          }
+          h4, h5 {
+            font-size: 14pt;
+            margin-top: 12pt;
+            margin-bottom: 6pt;
+            color: #111827 !important;
+          }
+          p, ul, li {
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #374151 !important;
+          }
+          .card, .border-slate-700, .bg-blue-900\\/20, .bg-slate-800\\/50 {
+            page-break-inside: avoid;
+            margin-bottom: 16pt;
+            background: white !important;
+            border: 1px solid #e5e7eb !important;
+          }
+          @page {
+            margin: 2cm;
+          }
+        }
+      `}</style>
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 no-print">
           <Button
             variant="ghost"
             onClick={() => navigate('/dashboard')}
@@ -199,6 +160,21 @@ Gerado por: Essência Máxima - Máxima IA
           <img src={logo} alt="Máxima iA" className="h-10 w-auto" />
         </div>
 
+        {/* Alerta se incompleto */}
+        {!isComplete && (
+          <Card className="bg-yellow-900/20 border-yellow-700/50 p-6 text-center space-y-4 mb-8 no-print">
+            <h2 className="text-2xl font-bold text-yellow-300">
+              ⚠️ Este relatório ainda não está completo
+            </h2>
+            <p className="text-slate-300">
+              Continue a consultoria para gerar seu MVV completo.
+            </p>
+            <Button onClick={() => navigate(`/novo-mvv?doc=${id}`)}>
+              Continuar consultoria
+            </Button>
+          </Card>
+        )}
+
         {/* Title and Actions */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -207,12 +183,14 @@ Gerado por: Essência Máxima - Máxima IA
             </h1>
             <p className="text-slate-300">{doc.company_name}</p>
           </div>
-          <div className="flex gap-3">
-            <Button onClick={handleDownload} className="gap-2">
-              <Download className="h-4 w-4" />
-              Download
-            </Button>
-          </div>
+          {isComplete && (
+            <div className="flex gap-3 no-print">
+              <Button onClick={handleExportPDF} className="gap-2">
+                <Download className="h-4 w-4" />
+                Exportar PDF
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Capa */}
@@ -347,18 +325,27 @@ Gerado por: Essência Máxima - Máxima IA
         </Card>
 
         {/* Footer */}
-        <Card className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-slate-700 p-8 text-center">
-          <h3 className="text-2xl font-bold text-white mb-4">🎉 Parabéns!</h3>
-          <p className="text-slate-300 mb-6">
-            Você completou a construção do tripé da cultura da sua empresa!<br />
-            Este documento é a base sólida que inspira, alinha e fortalece o seu time.
-          </p>
-          <div className="flex items-center justify-center gap-6 text-sm text-slate-400">
-            <span>Gerado por: Essência Máxima - Máxima IA</span>
-            <span>📲 (11) 98082-3550</span>
-            <span>📸 @karinaalnunes</span>
-          </div>
-        </Card>
+        {isComplete && (
+          <Card className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-slate-700 p-8 text-center">
+            <h3 className="text-2xl font-bold text-white mb-4">🎉 Parabéns!</h3>
+            <p className="text-slate-300 mb-6">
+              Você completou a construção do tripé da cultura da sua empresa!<br />
+              Este documento é a base sólida que inspira, alinha e fortalece o seu time.
+            </p>
+            <div className="flex items-center justify-center gap-6 text-sm text-slate-400">
+              <span>Gerado por: Essência Máxima - Máxima IA</span>
+              <span>📲 (11) 98082-3550</span>
+              <span>📸 @karinaalnunes</span>
+            </div>
+          </Card>
+        )}
+        
+        {/* Botão voltar ao dashboard (sempre visível) */}
+        <div className="flex justify-center mt-8 no-print">
+          <Button variant="outline" onClick={() => navigate('/dashboard')}>
+            ← Voltar ao Dashboard
+          </Button>
+        </div>
       </div>
     </div>
   );
