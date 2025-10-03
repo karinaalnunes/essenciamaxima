@@ -16,6 +16,9 @@ export default function Auth() {
   const [signupData, setSignupData] = useState({
     name: "",
     email: "",
+    phone: "",
+    company: "",
+    segment: "",
     password: "",
     confirmPassword: "",
   });
@@ -30,7 +33,14 @@ export default function Auth() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session && event === "SIGNED_IN") {
-        navigate("/dashboard");
+        // Verificar se veio do signup (novo usuário)
+        const isNewUser = sessionStorage.getItem("isNewSignup") === "true";
+        if (isNewUser) {
+          sessionStorage.removeItem("isNewSignup");
+          navigate("/novo-mvv");
+        } else {
+          navigate("/dashboard");
+        }
       }
     });
 
@@ -43,6 +53,9 @@ export default function Auth() {
           ...prev,
           name: parsed.name || "",
           email: parsed.email || "",
+          phone: parsed.phone || "",
+          company: parsed.company || "",
+          segment: parsed.segment || "",
         }));
       } catch (error) {
         console.error("Erro ao recuperar dados do lead:", error);
@@ -117,12 +130,13 @@ export default function Auth() {
 
       if (error) throw error;
 
-      // Limpar dados do sessionStorage após cadastro
+      // Marcar como novo usuário e limpar dados do lead
+      sessionStorage.setItem("isNewSignup", "true");
       sessionStorage.removeItem("leadData");
 
       toast({
         title: "Conta criada com sucesso!",
-        description: "Você já pode fazer login.",
+        description: "Redirecionando para sua consultoria...",
       });
     } catch (error: any) {
       console.error("Erro no cadastro:", error);
@@ -205,6 +219,42 @@ export default function Auth() {
                     value={signupData.email}
                     onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
                     placeholder="seu@email.com"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="signup-phone">Telefone</Label>
+                  <Input
+                    id="signup-phone"
+                    type="tel"
+                    required
+                    value={signupData.phone}
+                    onChange={(e) => setSignupData({ ...signupData, phone: e.target.value })}
+                    placeholder="+55 11 98765-4321"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="signup-company">Empresa</Label>
+                  <Input
+                    id="signup-company"
+                    type="text"
+                    required
+                    value={signupData.company}
+                    onChange={(e) => setSignupData({ ...signupData, company: e.target.value })}
+                    placeholder="Nome da empresa"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="signup-segment">Segmento</Label>
+                  <Input
+                    id="signup-segment"
+                    type="text"
+                    required
+                    value={signupData.segment}
+                    onChange={(e) => setSignupData({ ...signupData, segment: e.target.value })}
+                    placeholder="Ex: Tecnologia, Varejo"
                   />
                 </div>
 

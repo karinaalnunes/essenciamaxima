@@ -16,6 +16,7 @@ export default function Capturar() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     company: "",
     segment: "",
     consentLgpd: false,
@@ -42,10 +43,23 @@ export default function Capturar() {
       const utmMedium = urlParams.get("utm_medium");
       const utmCampaign = urlParams.get("utm_campaign");
 
+      // Validar telefone (mínimo 10 dígitos)
+      const phoneDigits = formData.phone.replace(/\D/g, "");
+      if (phoneDigits.length < 10) {
+        toast({
+          title: "Telefone inválido",
+          description: "Por favor, insira um telefone válido com pelo menos 10 dígitos.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       // Salvar lead no banco
       const { error: leadError } = await supabase.from("leads").insert({
         name: formData.name,
         email: formData.email,
+        phone: formData.phone,
         company: formData.company,
         segment: formData.segment,
         consent_lgpd: formData.consentLgpd,
@@ -60,6 +74,7 @@ export default function Capturar() {
       sessionStorage.setItem("leadData", JSON.stringify({
         name: formData.name,
         email: formData.email,
+        phone: formData.phone,
         company: formData.company,
         segment: formData.segment,
       }));
@@ -127,6 +142,18 @@ export default function Capturar() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="seu@email.com"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefone/WhatsApp</Label>
+              <Input
+                id="phone"
+                type="tel"
+                required
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="+55 11 98765-4321"
               />
             </div>
 

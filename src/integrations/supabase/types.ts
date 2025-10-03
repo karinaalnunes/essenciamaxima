@@ -54,6 +54,7 @@ export type Database = {
           email: string
           id: string
           name: string
+          phone: string
           segment: string
           utm_campaign: string | null
           utm_medium: string | null
@@ -66,6 +67,7 @@ export type Database = {
           email: string
           id?: string
           name: string
+          phone?: string
           segment: string
           utm_campaign?: string | null
           utm_medium?: string | null
@@ -78,6 +80,7 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+          phone?: string
           segment?: string
           utm_campaign?: string | null
           utm_medium?: string | null
