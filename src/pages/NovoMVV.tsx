@@ -26,47 +26,79 @@ export default function NovoMVV() {
   const [readyToGenerate, setReadyToGenerate] = useState(false);
   const [messageSending, setMessageSending] = useState(false);
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
+    // Prevenir execuções múltiplas
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate("/auth");
-        return;
-      }
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          navigate("/auth");
+          return;
+        }
 
-      // Buscar MVV existente do usuário (ordenar por mais recente)
-      const { data: existingDocs } = await supabase
-        .from('mvv_documents')
-        .select('id, mission, vision, values')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (!existingDocs || existingDocs.length === 0) {
-        // Não tem nenhum MVV → criar novo
         setUserId(user.id);
-        await initializeConversation(user.id);
-        return;
+
+        // Buscar MVV existente do usuário (ordenar por mais recente)
+        const { data: existingDocs } = await supabase
+          .from('mvv_documents')
+          .select('id, mission, vision, values, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (!existingDocs || existingDocs.length === 0) {
+          // Não tem nenhum MVV → criar novo
+          await initializeConversation(user.id);
+          return;
+        }
+
+        // Verificar se tem MVV completo
+        const completedMVV = existingDocs.find(
+          doc => doc.mission && doc.vision && doc.values
+        );
+
+        if (completedMVV) {
+          // Já tem MVV completo → redirecionar para trial-complete
+          navigate("/trial-complete");
+          return;
+        }
+
+        // Limpar documentos duplicados (manter apenas o mais recente incompleto)
+        if (existingDocs.length > 1) {
+          const [latestDoc, ...olderDocs] = existingDocs;
+          const idsToDelete = olderDocs.map(doc => doc.id);
+          
+          await supabase
+            .from('mvv_documents')
+            .delete()
+            .in('id', idsToDelete);
+          
+          console.log(`🧹 Limpeza: ${olderDocs.length} documentos duplicados removidos`);
+        }
+
+        // Tem MVV incompleto → recuperar conversa do mais recente
+        const incompleteMVV = existingDocs[0];
+        await loadExistingConversation(incompleteMVV.id);
+
+      } catch (error) {
+        console.error('Error checking user:', error);
+        toast({
+          title: "Erro ao carregar",
+          description: "Não foi possível verificar seu perfil. Tente novamente.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsInitializing(false);
       }
-
-      // Verificar se tem MVV completo
-      const completedMVV = existingDocs.find(
-        doc => doc.mission && doc.vision && doc.values
-      );
-
-      if (completedMVV) {
-        // Já tem MVV completo → redirecionar para trial-complete
-        navigate("/trial-complete");
-        return;
-      }
-
-      // Tem MVV incompleto → recuperar conversa
-      const incompleteMVV = existingDocs[0]; // Pegar o mais recente
-      setUserId(user.id);
-      await loadExistingConversation(incompleteMVV.id);
     };
+    
     checkUser();
   }, [navigate]);
 
@@ -374,6 +406,18 @@ Pode compartilhar essas informações?`,
       setIsGenerating(false);
     }
   };
+
+  // Loading inicial
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-400 mx-auto" />
+          <p className="text-slate-300">Carregando sua consultoria...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col p-4">
