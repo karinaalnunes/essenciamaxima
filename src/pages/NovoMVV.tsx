@@ -25,6 +25,7 @@ export default function NovoMVV() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [readyToGenerate, setReadyToGenerate] = useState(false);
   const [messageSending, setMessageSending] = useState(false);
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -87,7 +88,7 @@ export default function NovoMVV() {
       
       setDocumentId(data.id);
 
-      // Mensagens sequenciais para melhor UX
+      // Mensagens sequenciais para melhor UX - agora com confirmação
       const sequentialMessages = [
         {
           content: `Olá! Seja muito bem-vindo(a) ao Essência Máxima 🚀
@@ -102,15 +103,8 @@ Esse é um espaço criado para revelar a Missão, Visão e Valores da sua empres
           delay: 1500
         },
         {
-          content: `📋 Para começar, me conte alguns dados básicos:
-• **Nome da empresa**
-• **Segmento de atuação**
-• **Localização** (cidade/estado)
-• **Número de colaboradores**
-• **Porte da empresa** (micro, pequena, média ou grande)
-
-Pode compartilhar essas informações?`,
-          delay: 3000
+          content: `Você está pronto(a) para começar? 😊`,
+          delay: 2500
         }
       ];
 
@@ -133,6 +127,9 @@ Pode compartilhar essas informações?`,
           content: msg.content,
         });
       }
+
+      // Marcar que estamos aguardando confirmação do usuário
+      setAwaitingConfirmation(true);
 
     } catch (error) {
       console.error('Error initializing conversation:', error);
@@ -158,9 +155,53 @@ Pode compartilhar essas informações?`,
     };
     setMessages(prev => [...prev, userMessage]);
     setMessageSending(false);
-    setIsLoading(true);
 
     try {
+      // Se estamos aguardando confirmação, verificar se é resposta positiva
+      if (awaitingConfirmation) {
+        const positiveResponses = ['sim', 'vamos', 'pronto', 'pode', 'começar', 'claro', 'ok', 'yes', 'bora'];
+        const isPositive = positiveResponses.some(word => 
+          text.toLowerCase().includes(word)
+        );
+
+        if (isPositive) {
+          // Salvar resposta do usuário
+          await supabase.from('conversation_history').insert({
+            document_id: documentId,
+            role: 'user',
+            content: text,
+          });
+
+          setAwaitingConfirmation(false);
+
+          // Enviar mensagem com as perguntas básicas
+          const questionsMessage: Message = {
+            role: 'assistant',
+            content: `📋 Perfeito! Para começar, me conte alguns dados básicos:
+• **Nome da empresa**
+• **Segmento de atuação**
+• **Localização** (cidade/estado)
+• **Número de colaboradores**
+• **Porte da empresa** (micro, pequena, média ou grande)
+
+Pode compartilhar essas informações?`,
+            timestamp: new Date(),
+          };
+
+          setMessages(prev => [...prev, questionsMessage]);
+
+          await supabase.from('conversation_history').insert({
+            document_id: documentId,
+            role: 'assistant',
+            content: questionsMessage.content,
+          });
+
+          return;
+        }
+      }
+
+      setIsLoading(true);
+
       // Call consultative chat
       const { data, error } = await supabase.functions.invoke('consultative-chat', {
         body: {
