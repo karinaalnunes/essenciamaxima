@@ -29,12 +29,46 @@ export default function Auth() {
   });
 
   useEffect(() => {
-    // Verificar se usuário já está logado (mas não redirecionar automaticamente)
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const initAuth = async () => {
+      // Verificar sessão existente
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Carregar leadData se existir
+      const storedLeadData = sessionStorage.getItem("leadData");
+      let parsed = null;
+      
+      if (storedLeadData) {
+        try {
+          parsed = JSON.parse(storedLeadData);
+          setLeadData(parsed);
+          setSignupData(prev => ({
+            ...prev,
+            name: parsed.name || "",
+            email: parsed.email || "",
+            phone: parsed.phone || "",
+            company: parsed.company || "",
+            segment: parsed.segment || "",
+          }));
+        } catch (error) {
+          console.error("Erro ao recuperar dados do lead:", error);
+        }
+      }
+      
+      // Se existe sessão E leadData com e-mail diferente: logout silencioso automático
+      if (session && parsed && parsed.email && parsed.email !== session.user.email) {
+        await supabase.auth.signOut();
+        setDefaultTab("signup");
+        // Sem toast - experiência silenciosa (opção C)
+        return;
+      }
+      
+      // Caso normal: sessão compatível ou sem conflito
       if (session) {
         setExistingSession(session);
       }
-    });
+    };
+
+    initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session && event === "SIGNED_IN") {
@@ -49,25 +83,6 @@ export default function Auth() {
       }
     });
 
-    // Pré-preencher dados do lead se disponível
-    const storedLeadData = sessionStorage.getItem("leadData");
-    if (storedLeadData) {
-      try {
-        const parsed = JSON.parse(storedLeadData);
-        setLeadData(parsed);
-        setSignupData(prev => ({
-          ...prev,
-          name: parsed.name || "",
-          email: parsed.email || "",
-          phone: parsed.phone || "",
-          company: parsed.company || "",
-          segment: parsed.segment || "",
-        }));
-      } catch (error) {
-        console.error("Erro ao recuperar dados do lead:", error);
-      }
-    }
-
     return () => subscription.unsubscribe();
   }, [navigate]);
 
@@ -78,21 +93,8 @@ export default function Auth() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setExistingSession(null);
-    
-    // Se existe leadData, assume que é novo cadastro
-    if (leadData && leadData.email) {
-      setDefaultTab("signup");
-      toast({
-        title: "Pronto para continuar!",
-        description: "Complete seu cadastro com os dados já preenchidos.",
-      });
-    } else {
-      setDefaultTab("login");
-      toast({
-        title: "Sessão encerrada",
-        description: "Você pode fazer login com outra conta.",
-      });
-    }
+    setDefaultTab(leadData && leadData.email ? "signup" : "login");
+    // Sem toast - experiência silenciosa
   };
 
   const handleLogin = async (e: React.FormEvent) => {
