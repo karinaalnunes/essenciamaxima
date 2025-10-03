@@ -37,23 +37,35 @@ export default function NovoMVV() {
         return;
       }
 
-      // Verificar se usuário já tem um MVV completo (trial limit)
+      // Buscar MVV existente do usuário (ordenar por mais recente)
       const { data: existingDocs } = await supabase
         .from('mvv_documents')
         .select('id, mission, vision, values')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
-      const hasCompletedMVV = existingDocs?.some(
+      if (!existingDocs || existingDocs.length === 0) {
+        // Não tem nenhum MVV → criar novo
+        setUserId(user.id);
+        await initializeConversation(user.id);
+        return;
+      }
+
+      // Verificar se tem MVV completo
+      const completedMVV = existingDocs.find(
         doc => doc.mission && doc.vision && doc.values
       );
 
-      if (hasCompletedMVV) {
+      if (completedMVV) {
+        // Já tem MVV completo → redirecionar para trial-complete
         navigate("/trial-complete");
         return;
       }
 
+      // Tem MVV incompleto → recuperar conversa
+      const incompleteMVV = existingDocs[0]; // Pegar o mais recente
       setUserId(user.id);
-      await initializeConversation(user.id);
+      await loadExistingConversation(incompleteMVV.id);
     };
     checkUser();
   }, [navigate]);
@@ -69,6 +81,65 @@ export default function NovoMVV() {
       }, 100);
     }
   }, [messages, isLoading, messageSending]);
+
+  const loadExistingConversation = async (docId: string) => {
+    try {
+      setDocumentId(docId);
+
+      // Carregar histórico de conversa do banco
+      const { data: history, error } = await supabase
+        .from('conversation_history')
+        .select('*')
+        .eq('document_id', docId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      if (!history || history.length === 0) {
+        // Histórico vazio → inicializar conversa normalmente
+        await initializeNewConversation(docId);
+        return;
+      }
+
+      // Restaurar mensagens
+      const loadedMessages: Message[] = history.map(msg => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+        timestamp: new Date(msg.created_at),
+      }));
+
+      setMessages(loadedMessages);
+
+      // Verificar se a última mensagem é a pergunta de confirmação
+      const lastMessage = loadedMessages[loadedMessages.length - 1];
+      if (lastMessage?.role === 'assistant' && 
+          lastMessage.content.includes('Você está pronto(a) para começar?')) {
+        setAwaitingConfirmation(true);
+      }
+
+      // Verificar se já está pronto para gerar (seria raro, mas possível)
+      const hasReadySignal = loadedMessages.some(msg => 
+        msg.content.includes('Informações coletadas') || 
+        msg.content.includes('gerar seu MVV')
+      );
+      if (hasReadySignal) {
+        setReadyToGenerate(true);
+      }
+
+      toast({
+        title: "Conversa recuperada! 🔄",
+        description: "Continue de onde você parou.",
+      });
+
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+      toast({
+        title: "Erro ao carregar conversa",
+        description: "Não foi possível recuperar o histórico. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const initializeConversation = async (uid: string) => {
     try {
@@ -86,50 +157,7 @@ export default function NovoMVV() {
 
       if (error) throw error;
       
-      setDocumentId(data.id);
-
-      // Mensagens sequenciais para melhor UX - agora com confirmação
-      const sequentialMessages = [
-        {
-          content: `Olá! Seja muito bem-vindo(a) ao Essência Máxima 🚀
-
-Esse é um espaço criado para revelar a Missão, Visão e Valores da sua empresa de forma leve, consultiva e inspiradora.`,
-          delay: 0
-        },
-        {
-          content: `Eu vou te conduzir passo a passo, sempre com perguntas simples e objetivas. Você não precisa ter tudo pronto agora: vamos construir juntos.
-
-💡 **Se preferir, pode responder por voz** — eu transcrevo automaticamente para você. Assim, fica mais fluido e natural.`,
-          delay: 1500
-        },
-        {
-          content: `Você está pronto(a) para começar? 😊`,
-          delay: 2500
-        }
-      ];
-
-      // Enviar mensagens com delay progressivo
-      for (const msg of sequentialMessages) {
-        await new Promise(resolve => setTimeout(resolve, msg.delay));
-        
-        const message: Message = {
-          role: 'assistant',
-          content: msg.content,
-          timestamp: new Date(),
-        };
-
-        setMessages(prev => [...prev, message]);
-
-        // Salvar cada mensagem no histórico
-        await supabase.from('conversation_history').insert({
-          document_id: data.id,
-          role: 'assistant',
-          content: msg.content,
-        });
-      }
-
-      // Marcar que estamos aguardando confirmação do usuário
-      setAwaitingConfirmation(true);
+      await initializeNewConversation(data.id);
 
     } catch (error) {
       console.error('Error initializing conversation:', error);
@@ -139,6 +167,53 @@ Esse é um espaço criado para revelar a Missão, Visão e Valores da sua empres
         variant: "destructive",
       });
     }
+  };
+
+  const initializeNewConversation = async (docId: string) => {
+    setDocumentId(docId);
+
+    // Mensagens sequenciais para melhor UX - agora com confirmação
+    const sequentialMessages = [
+      {
+        content: `Olá! Seja muito bem-vindo(a) ao Essência Máxima 🚀
+
+Esse é um espaço criado para revelar a Missão, Visão e Valores da sua empresa de forma leve, consultiva e inspiradora.`,
+        delay: 0
+      },
+      {
+        content: `Eu vou te conduzir passo a passo, sempre com perguntas simples e objetivas. Você não precisa ter tudo pronto agora: vamos construir juntos.
+
+💡 **Se preferir, pode responder por voz** — eu transcrevo automaticamente para você. Assim, fica mais fluido e natural.`,
+        delay: 1500
+      },
+      {
+        content: `Você está pronto(a) para começar? 😊`,
+        delay: 2500
+      }
+    ];
+
+    // Enviar mensagens com delay progressivo
+    for (const msg of sequentialMessages) {
+      await new Promise(resolve => setTimeout(resolve, msg.delay));
+      
+      const message: Message = {
+        role: 'assistant',
+        content: msg.content,
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, message]);
+
+      // Salvar cada mensagem no histórico
+      await supabase.from('conversation_history').insert({
+        document_id: docId,
+        role: 'assistant',
+        content: msg.content,
+      });
+    }
+
+    // Marcar que estamos aguardando confirmação do usuário
+    setAwaitingConfirmation(true);
   };
 
   const handleTranscription = async (text: string) => {
