@@ -7,7 +7,7 @@ export const Hero = () => {
   return (
     <div className="min-h-screen bg-gradient-hero p-8 space-y-6 antialiased">
       <header className="flex justify-between items-center max-w-6xl mx-auto">
-        <img src={logo} alt="Máxima iA" className="h-14 md:h-16 w-auto" />
+        <img src={logo} alt="Máxima iA" className="h-16 md:h-20 lg:h-24 w-auto" />
         <Link to="/auth">
           <Button variant="outline" size="sm">
             Entrar

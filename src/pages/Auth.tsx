@@ -179,7 +179,7 @@ export default function Auth() {
     <div className="min-h-screen bg-gradient-hero p-8 flex items-center justify-center antialiased">
       <div className="w-full max-w-md space-y-8">
         <Link to="/" className="block">
-          <img src={logo} alt="Máxima iA" className="h-12 md:h-14 w-auto mx-auto" />
+          <img src={logo} alt="Máxima iA" className="h-16 md:h-20 w-auto mx-auto" />
         </Link>
 
         {existingSession && (
@@ -245,8 +245,24 @@ export default function Auth() {
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Entrando..." : "Entrar"}
                 </Button>
-              </form>
-            </TabsContent>
+                  </form>
+                  
+                  <div className="text-center mt-4">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      type="button"
+                      onClick={async () => {
+                        localStorage.clear();
+                        await supabase.auth.signOut();
+                        window.location.reload();
+                      }}
+                      className="text-xs text-slate-400 hover:text-slate-200"
+                    >
+                      Problemas para entrar? Limpar sessões
+                    </Button>
+                  </div>
+                </TabsContent>
 
             <TabsContent value="signup">
               <form onSubmit={handleSignup} className="space-y-4">

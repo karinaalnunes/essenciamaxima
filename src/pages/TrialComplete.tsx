@@ -31,7 +31,7 @@ export default function TrialComplete() {
   return (
     <div className="min-h-screen bg-gradient-hero p-8 antialiased">
       <header className="max-w-4xl mx-auto mb-12">
-        <img src={logo} alt="Máxima iA" className="h-10 md:h-12 w-auto" />
+        <img src={logo} alt="Máxima iA" className="h-12 md:h-14 w-auto" />
       </header>
 
       <main className="max-w-2xl mx-auto">
