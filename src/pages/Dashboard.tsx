@@ -2,21 +2,81 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Plus, FileText, LogOut } from "lucide-react";
-import logo from "@/assets/logo-maxima-ia.png";
+import { Card, CardContent } from "@/components/ui/card";
+import { FileText, LogOut, CheckCircle, Clock, TrendingUp, Network, Users, GitBranch, Workflow, BarChart3, Heart, ArrowRight } from "lucide-react";
+import logo from "@/assets/logo-maxima-ia-negativo.png";
 import { useToast } from "@/hooks/use-toast";
+import { ModuleCard } from "@/components/ModuleCard";
+
+const FUTURE_MODULES = [
+  { 
+    id: "essencia", 
+    title: "Essência Máxima", 
+    description: "Missão, Visão e Valores",
+    icon: CheckCircle,
+    locked: false
+  },
+  { 
+    id: "cadeia-valor", 
+    title: "Cadeia de Valor Máxima", 
+    icon: TrendingUp,
+    locked: true
+  },
+  { 
+    id: "estrutura", 
+    title: "Estrutura Máxima", 
+    description: "Organograma",
+    icon: Network,
+    locked: true
+  },
+  { 
+    id: "funcoes", 
+    title: "Funções Máxima", 
+    description: "Descrição de Funções",
+    icon: Users,
+    locked: true
+  },
+  { 
+    id: "fluxo", 
+    title: "Fluxo Máxima", 
+    description: "Macrofluxo",
+    icon: GitBranch,
+    locked: true
+  },
+  { 
+    id: "processos", 
+    title: "Processos Máxima", 
+    description: "Fluxos Detalhados",
+    icon: Workflow,
+    locked: true
+  },
+  { 
+    id: "indicadores", 
+    title: "Indicadores Máxima", 
+    description: "Dashboard da Empresa",
+    icon: BarChart3,
+    locked: true
+  },
+  { 
+    id: "cultura", 
+    title: "Cultura Máxima", 
+    description: "Código de Cultura Completo",
+    icon: Heart,
+    locked: true
+  },
+];
+
+type MVVStatus = 'none' | 'incomplete' | 'complete';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
-  const [documents, setDocuments] = useState<any[]>([]);
+  const [document, setDocument] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [hasCompletedMVV, setHasCompletedMVV] = useState(false);
+  const [mvvStatus, setMvvStatus] = useState<MVVStatus>('none');
 
   useEffect(() => {
-    // Verificar autenticação
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       
@@ -27,20 +87,21 @@ export default function Dashboard() {
 
       setUser(session.user);
       
-      // Buscar documentos do usuário
+      // Buscar documento MVV do usuário
       const { data: docs } = await supabase
         .from("mvv_documents")
         .select("*")
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
 
-      setDocuments(docs || []);
-
-      // Verificar se já tem MVV completo (trial limit)
-      const completedMVV = docs?.some(
-        doc => doc.mission && doc.vision && doc.values
-      );
-      setHasCompletedMVV(completedMVV || false);
+      if (!docs || docs.length === 0) {
+        setMvvStatus('none');
+      } else {
+        const doc = docs[0];
+        setDocument(doc);
+        const isComplete = doc.mission && doc.vision && doc.values;
+        setMvvStatus(isComplete ? 'complete' : 'incomplete');
+      }
 
       setLoading(false);
     };
@@ -87,89 +148,140 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-6xl mx-auto space-y-8">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-2">
-              Seu Documento <span className="bg-gradient-text bg-clip-text text-transparent">MVV</span>
-            </h1>
-            <p className="text-slate-300 text-lg">
-              Visualize suas definições de Missão, Visão e Valores
-            </p>
+        <div>
+          <h1 className="text-4xl font-bold text-white mb-2">
+            🎯 Trilha de Consultoria Estratégica
+          </h1>
+          <p className="text-slate-300 text-lg">
+            Acompanhe sua jornada de transformação organizacional
+          </p>
+        </div>
+
+        {/* Seção: Seu Progresso */}
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-4">Seu Progresso</h2>
+          
+          {mvvStatus === 'none' && (
+            <Card className="bg-slate-800/50 border-slate-700/50 p-12 text-center space-y-4">
+              <FileText className="w-16 h-16 mx-auto text-slate-500" />
+              <h3 className="text-2xl font-bold text-white">Nenhum documento ainda</h3>
+              <p className="text-slate-300">
+                Comece criando seu documento MVV
+              </p>
+              <Link to="/novo-mvv">
+                <Button className="mt-4">Criar MVV</Button>
+              </Link>
+            </Card>
+          )}
+
+          {mvvStatus === 'incomplete' && (
+            <Card className="bg-slate-800/50 border-yellow-500/50 p-6">
+              <div className="flex items-start gap-4">
+                <Clock className="text-yellow-400 w-8 h-8 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">🔄 Essência Máxima (MVV)</h3>
+                  <p className="text-slate-400 mb-2">Em andamento</p>
+                  {document && (
+                    <p className="text-sm text-slate-400">
+                      {document.company_name} • {document.segment}
+                    </p>
+                  )}
+                </div>
+                <Button onClick={() => navigate("/novo-mvv")}>
+                  Continuar Consultoria
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {mvvStatus === 'complete' && document && (
+            <Card className="bg-slate-800/50 border-green-500/50 p-6">
+              <div className="flex items-start gap-4">
+                <CheckCircle className="text-green-400 w-8 h-8 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">✅ Essência Máxima (MVV)</h3>
+                  <p className="text-slate-400 mb-2">
+                    Completo em {new Date(document.created_at).toLocaleDateString("pt-BR")}
+                  </p>
+                  <p className="text-sm text-slate-400 mb-4">
+                    {document.company_name} • {document.segment}
+                  </p>
+                  
+                  {/* Micro-mentoring tip */}
+                  <div className="mt-4 p-3 bg-blue-950/30 rounded-lg border border-blue-500/30">
+                    <p className="text-sm text-slate-300">
+                      💡 <strong className="text-blue-300">Próximo passo recomendado:</strong>{" "}
+                      Compartilhe seu MVV com a equipe em uma reunião de alinhamento.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => navigate(`/relatorio/${document.id}`)}>
+                    Ver Relatório
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+        </div>
+
+        {/* Seção: Próximos Módulos */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-white mb-6">
+            Próximos Módulos da Trilha
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {FUTURE_MODULES.map((module) => (
+              <ModuleCard
+                key={module.id}
+                title={module.title}
+                description={module.description}
+                icon={module.icon}
+                locked={module.locked}
+              />
+            ))}
           </div>
         </div>
 
-        {hasCompletedMVV && (
-          <Card className="bg-slate-800/50 border-slate-700/50 p-6 text-center">
-            <p className="text-slate-300 mb-4">
-              ✨ Você já completou seu trial gratuito. Para criar mais documentos MVV, entre em contato com nosso time comercial.
-            </p>
-            <Button
-              onClick={() => window.location.href = "mailto:contato@maximaia.com.br?subject=Interesse em mais MVVs"}
-              variant="outline"
-            >
-              Falar com Comercial
-            </Button>
-          </Card>
-        )}
-
-        {documents.length === 0 && !hasCompletedMVV ? (
-          <Card className="bg-slate-800/50 border-slate-700/50 p-12 text-center space-y-4">
-            <FileText className="w-16 h-16 mx-auto text-slate-500" />
-            <h2 className="text-2xl font-bold text-white">Nenhum documento ainda</h2>
-            <p className="text-slate-300">
-              Comece criando seu documento MVV
-            </p>
-            <Link to="/novo-mvv">
-              <Button className="mt-4">Criar MVV</Button>
-            </Link>
-          </Card>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {documents.map((doc) => {
-              const isComplete = doc.mission && doc.vision && doc.values;
-              
-              return isComplete ? (
-                <Link key={doc.id} to={`/relatorio/${doc.id}`}>
-                  <Card className="bg-slate-800/50 border-slate-700/50 p-6 hover:border-primary/50 transition-all hover:scale-105 cursor-pointer">
-                    <h3 className="text-xl font-bold text-white mb-2">{doc.title}</h3>
-                    <p className="text-slate-300 text-sm mb-4">{doc.company_name}</p>
-                    <div className="flex gap-2 flex-wrap">
-                      <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">
-                        {doc.segment}
-                      </span>
-                      <span className="text-xs bg-green-700 text-green-100 px-2 py-1 rounded">
-                        ✓ Completo
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-400 mt-4">
-                      {new Date(doc.created_at).toLocaleDateString("pt-BR")}
-                    </p>
-                  </Card>
-                </Link>
-              ) : (
-                <Card key={doc.id} className="bg-slate-800/50 border-slate-700/50 p-6">
-                  <h3 className="text-xl font-bold text-white mb-2">{doc.title}</h3>
-                  <p className="text-slate-300 text-sm mb-4">{doc.company_name}</p>
-                  <div className="flex gap-2 flex-wrap mb-4">
-                    <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">
-                      {doc.segment}
-                    </span>
-                    <span className="text-xs bg-yellow-700 text-yellow-100 px-2 py-1 rounded">
-                      🔄 Em andamento
-                    </span>
-                  </div>
-                  <Link to={`/novo-mvv?doc=${doc.id}`}>
-                    <Button size="sm" className="w-full">
-                      Continuar consultoria
-                    </Button>
-                  </Link>
-                  <p className="text-xs text-slate-400 mt-4">
-                    {new Date(doc.created_at).toLocaleDateString("pt-BR")}
+        {/* CTA Discreto da Mentoria (apenas se MVV completo) */}
+        {mvvStatus === 'complete' && (
+          <Card className="mt-12 bg-gradient-to-r from-purple-950/30 to-blue-950/30 border-purple-500/30">
+            <CardContent className="p-8">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-white mb-2">
+                    💡 Quer transformar isso em prática?
+                  </h3>
+                  <p className="text-slate-300 text-lg mb-4">
+                    Aplique seu MVV em toda a empresa em 30 dias com a <strong>Mentoria Express</strong>
                   </p>
-                </Card>
-              );
-            })}
-          </div>
+                  <ul className="space-y-2 text-slate-400">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                      Implementação prática guiada
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                      Alinhamento de equipe
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                      Rituais culturais customizados
+                    </li>
+                  </ul>
+                </div>
+                <Button 
+                  size="lg" 
+                  className="gap-2 whitespace-nowrap"
+                  onClick={() => window.location.href = "mailto:contato@maximaia.com.br?subject=Interesse na Mentoria Express"}
+                >
+                  Quero saber mais
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         )}
       </main>
     </div>

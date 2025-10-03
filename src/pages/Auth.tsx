@@ -70,30 +70,17 @@ export default function Auth() {
 
     initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session && event === "SIGNED_IN") {
-        // Verificar se veio do signup (novo usuário)
         const isNewUser = sessionStorage.getItem("isNewSignup") === "true";
+        
         if (isNewUser) {
           sessionStorage.removeItem("isNewSignup");
           navigate("/novo-mvv");
         } else {
-          // Usuário existente: verificar se tem MVV completo
-          setTimeout(async () => {
-            const { data: docs } = await supabase
-              .from("mvv_documents")
-              .select("id, mission, vision, values")
-              .eq("user_id", session.user.id);
-            
-            const hasMVV = docs && docs.length > 0 && 
-                           docs.some(doc => doc.mission && doc.vision && doc.values);
-            
-            if (hasMVV) {
-              navigate("/dashboard");
-            } else {
-              navigate("/novo-mvv");
-            }
-          }, 0);
+          // Usuário existente: sempre vai pro dashboard
+          // O dashboard vai detectar se tem MVV completo ou não
+          navigate("/dashboard");
         }
       }
     });
