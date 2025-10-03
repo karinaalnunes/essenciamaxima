@@ -90,20 +90,12 @@ export default function Dashboard() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">
-              Seus Documentos <span className="bg-gradient-text bg-clip-text text-transparent">MVV</span>
+              Seu Documento <span className="bg-gradient-text bg-clip-text text-transparent">MVV</span>
             </h1>
             <p className="text-slate-300 text-lg">
-              Crie e gerencie suas definições de Missão, Visão e Valores
+              Visualize suas definições de Missão, Visão e Valores
             </p>
           </div>
-          {!hasCompletedMVV && (
-            <Link to="/novo-mvv">
-              <Button size="lg" className="gap-2">
-                <Plus className="w-5 h-5" />
-                Novo MVV
-              </Button>
-            </Link>
-          )}
         </div>
 
         {hasCompletedMVV && (
@@ -125,10 +117,10 @@ export default function Dashboard() {
             <FileText className="w-16 h-16 mx-auto text-slate-500" />
             <h2 className="text-2xl font-bold text-white">Nenhum documento ainda</h2>
             <p className="text-slate-300">
-              Comece criando seu primeiro documento MVV
+              Comece criando seu documento MVV
             </p>
             <Link to="/novo-mvv">
-              <Button className="mt-4">Criar Primeiro MVV</Button>
+              <Button className="mt-4">Criar MVV</Button>
             </Link>
           </Card>
         ) : (
