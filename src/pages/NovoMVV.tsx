@@ -87,18 +87,22 @@ export default function NovoMVV() {
       
       setDocumentId(data.id);
 
-      // SEMPRE mostrar mensagem inicial atual (não carregar histórico antigo)
-      const initialMessage: Message = {
-        role: 'assistant',
-        content: `Olá! Seja muito bem-vindo(a) ao Essência Máxima 🚀
+      // Mensagens sequenciais para melhor UX
+      const sequentialMessages = [
+        {
+          content: `Olá! Seja muito bem-vindo(a) ao Essência Máxima 🚀
 
-Esse é um espaço criado para revelar a Missão, Visão e Valores da sua empresa de forma leve, consultiva e inspiradora.
+Esse é um espaço criado para revelar a Missão, Visão e Valores da sua empresa de forma leve, consultiva e inspiradora.`,
+          delay: 0
+        },
+        {
+          content: `Eu vou te conduzir passo a passo, sempre com perguntas simples e objetivas. Você não precisa ter tudo pronto agora: vamos construir juntos.
 
-Eu vou te conduzir passo a passo, sempre com perguntas simples e objetivas. Você não precisa ter tudo pronto agora: vamos construir juntos.
-
-💡 **Se preferir, pode responder por voz** — eu transcrevo automaticamente para você. Assim, fica mais fluido e natural.
-
-📋 Para começar, me conte alguns dados básicos:
+💡 **Se preferir, pode responder por voz** — eu transcrevo automaticamente para você. Assim, fica mais fluido e natural.`,
+          delay: 1500
+        },
+        {
+          content: `📋 Para começar, me conte alguns dados básicos:
 • **Nome da empresa**
 • **Segmento de atuação**
 • **Localização** (cidade/estado)
@@ -106,16 +110,29 @@ Eu vou te conduzir passo a passo, sempre com perguntas simples e objetivas. Voc�
 • **Porte da empresa** (micro, pequena, média ou grande)
 
 Pode compartilhar essas informações?`,
-        timestamp: new Date()
-      };
-      setMessages([initialMessage]);
+          delay: 3000
+        }
+      ];
 
-      // Salvar mensagem inicial no banco para este novo documento
-      await supabase.from('conversation_history').insert({
-        document_id: data.id,
-        role: 'assistant',
-        content: initialMessage.content,
-      });
+      // Enviar mensagens com delay progressivo
+      for (const msg of sequentialMessages) {
+        await new Promise(resolve => setTimeout(resolve, msg.delay));
+        
+        const message: Message = {
+          role: 'assistant',
+          content: msg.content,
+          timestamp: new Date(),
+        };
+
+        setMessages(prev => [...prev, message]);
+
+        // Salvar cada mensagem no histórico
+        await supabase.from('conversation_history').insert({
+          document_id: data.id,
+          role: 'assistant',
+          content: msg.content,
+        });
+      }
 
     } catch (error) {
       console.error('Error initializing conversation:', error);

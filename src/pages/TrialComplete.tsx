@@ -2,13 +2,30 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CheckCircle, Mail, ArrowLeft } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import logo from "@/assets/logo-maxima-ia.png";
 
 export default function TrialComplete() {
   const navigate = useNavigate();
 
   const handleContactSales = () => {
-    window.location.href = "mailto:contato@maximaia.com.br?subject=Interesse em mais MVVs";
+    const email = "contato@maximaia.com.br";
+    const subject = "Interesse em mais MVVs";
+    const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+    
+    try {
+      window.location.href = mailtoLink;
+      toast({
+        title: "Abrindo cliente de email",
+        description: `Entrando em contato com ${email}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Email de contato",
+        description: `Entre em contato através do email: ${email}`,
+        variant: "default",
+      });
+    }
   };
 
   return (
