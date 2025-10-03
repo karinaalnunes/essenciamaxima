@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft } from "lucide-react";
-import logo from "@/assets/logo-maxima-ia.png";
+import logo from "@/assets/logo-maxima-ia-negativo.png";
 
 export default function Capturar() {
   const navigate = useNavigate();
@@ -101,7 +101,7 @@ export default function Capturar() {
     <div className="min-h-screen bg-gradient-hero p-8 antialiased">
       <header className="max-w-2xl mx-auto mb-8">
         <Link to="/">
-          <img src={logo} alt="Máxima iA" className="h-12 w-auto" />
+          <img src={logo} alt="Máxima iA" className="h-10 md:h-12 w-auto" />
         </Link>
       </header>
 

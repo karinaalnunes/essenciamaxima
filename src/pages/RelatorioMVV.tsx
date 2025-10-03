@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Download, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import logo from "@/assets/logo-maxima-ia.png";
+import logo from "@/assets/logo-maxima-ia-negativo.png";
 
 interface Value {
   name: string;

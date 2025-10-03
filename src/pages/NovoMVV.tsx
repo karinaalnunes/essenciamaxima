@@ -7,7 +7,7 @@ import { Loader2, ArrowLeft } from "lucide-react";
 import { VoiceInput } from "@/components/VoiceInput";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageFormatter } from "@/components/MessageFormatter";
-import logo from "@/assets/logo-maxima-ia.png";
+import logo from "@/assets/logo-maxima-ia-negativo.png";
 
 interface Message {
   role: 'user' | 'assistant';

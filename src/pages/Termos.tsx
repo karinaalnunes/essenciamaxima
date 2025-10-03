@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import logo from "@/assets/logo-maxima-ia.png";
+import logo from "@/assets/logo-maxima-ia-negativo.png";
 
 export default function Termos() {
   return (
     <div className="min-h-screen bg-gradient-hero p-8 antialiased">
       <header className="max-w-4xl mx-auto mb-8">
-        <img src={logo} alt="Máxima iA" className="h-12 w-auto" />
+        <img src={logo} alt="Máxima iA" className="h-10 md:h-12 w-auto" />
       </header>
 
       <main className="max-w-4xl mx-auto">

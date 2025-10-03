@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { User } from "lucide-react";
-import logo from "@/assets/logo-maxima-ia.png";
+import logo from "@/assets/logo-maxima-ia-negativo.png";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -30,16 +30,20 @@ export default function Auth() {
 
   useEffect(() => {
     const initAuth = async () => {
-      // Verificar sessão existente
+      // Auto-redirect if already logged in
       const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        navigate("/dashboard");
+        return;
+      }
       
       // Carregar leadData se existir
       const storedLeadData = sessionStorage.getItem("leadData");
-      let parsed = null;
       
       if (storedLeadData) {
         try {
-          parsed = JSON.parse(storedLeadData);
+          const parsed = JSON.parse(storedLeadData);
           setLeadData(parsed);
           setSignupData(prev => ({
             ...prev,
@@ -52,19 +56,6 @@ export default function Auth() {
         } catch (error) {
           console.error("Erro ao recuperar dados do lead:", error);
         }
-      }
-      
-      // Se existe sessão E leadData com e-mail diferente: logout silencioso automático
-      if (session && parsed && parsed.email && parsed.email !== session.user.email) {
-        await supabase.auth.signOut();
-        setDefaultTab("signup");
-        // Sem toast - experiência silenciosa (opção C)
-        return;
-      }
-      
-      // Caso normal: sessão compatível ou sem conflito
-      if (session) {
-        setExistingSession(session);
       }
     };
 
@@ -188,7 +179,7 @@ export default function Auth() {
     <div className="min-h-screen bg-gradient-hero p-8 flex items-center justify-center antialiased">
       <div className="w-full max-w-md space-y-8">
         <Link to="/" className="block">
-          <img src={logo} alt="Máxima iA" className="h-12 w-auto mx-auto" />
+          <img src={logo} alt="Máxima iA" className="h-12 md:h-14 w-auto mx-auto" />
         </Link>
 
         {existingSession && (

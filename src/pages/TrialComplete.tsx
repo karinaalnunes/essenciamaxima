@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CheckCircle, Mail, ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import logo from "@/assets/logo-maxima-ia.png";
+import logo from "@/assets/logo-maxima-ia-negativo.png";
 
 export default function TrialComplete() {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export default function TrialComplete() {
   return (
     <div className="min-h-screen bg-gradient-hero p-8 antialiased">
       <header className="max-w-4xl mx-auto mb-12">
-        <img src={logo} alt="Máxima iA" className="h-12 w-auto" />
+        <img src={logo} alt="Máxima iA" className="h-10 md:h-12 w-auto" />
       </header>
 
       <main className="max-w-2xl mx-auto">

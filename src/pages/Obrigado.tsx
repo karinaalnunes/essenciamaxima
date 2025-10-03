@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
-import logo from "@/assets/logo-maxima-ia.png";
+import logo from "@/assets/logo-maxima-ia-negativo.png";
 
 export default function Obrigado() {
   return (
     <div className="min-h-screen bg-gradient-hero p-8 flex items-center justify-center antialiased">
       <div className="max-w-2xl mx-auto text-center space-y-8">
-        <img src={logo} alt="Máxima iA" className="h-12 w-auto mx-auto" />
+        <img src={logo} alt="Máxima iA" className="h-12 md:h-14 w-auto mx-auto" />
 
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-12 backdrop-blur-sm space-y-6">
           <CheckCircle2 className="w-20 h-20 text-primary mx-auto" />
