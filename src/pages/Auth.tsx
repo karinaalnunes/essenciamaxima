@@ -16,6 +16,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [existingSession, setExistingSession] = useState<any>(null);
   const [leadData, setLeadData] = useState<any>(null);
+  const [defaultTab, setDefaultTab] = useState("login");
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [signupData, setSignupData] = useState({
     name: "",
@@ -77,10 +78,21 @@ export default function Auth() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setExistingSession(null);
-    toast({
-      title: "Sessão encerrada",
-      description: "Você pode fazer login com outra conta.",
-    });
+    
+    // Se existe leadData, assume que é novo cadastro
+    if (leadData && leadData.email) {
+      setDefaultTab("signup");
+      toast({
+        title: "Pronto para continuar!",
+        description: "Complete seu cadastro com os dados já preenchidos.",
+      });
+    } else {
+      setDefaultTab("login");
+      toast({
+        title: "Sessão encerrada",
+        description: "Você pode fazer login com outra conta.",
+      });
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -195,13 +207,15 @@ export default function Auth() {
               Continuar como {existingSession.user.email.split('@')[0]}
             </Button>
             <Button onClick={handleSignOut} variant="outline" className="flex-1">
-              Sair e usar outro e-mail
+              {leadData && leadData.email !== existingSession.user.email 
+                ? "Sair e criar nova conta" 
+                : "Sair e usar outro e-mail"}
             </Button>
           </div>
         )}
 
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-8 backdrop-blur-sm">
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Cadastro</TabsTrigger>
