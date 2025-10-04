@@ -119,6 +119,8 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    localStorage.clear();
+    sessionStorage.clear();
     navigate("/");
   };
 
@@ -140,6 +142,18 @@ export default function Dashboard() {
               Perfil
             </Button>
           </Link>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={async () => {
+              await supabase.auth.signOut();
+              localStorage.clear();
+              sessionStorage.clear();
+              navigate("/auth");
+            }}
+          >
+            Trocar de Conta
+          </Button>
           <Button variant="outline" size="sm" onClick={handleLogout}>
             <LogOut className="w-4 h-4" />
             Sair

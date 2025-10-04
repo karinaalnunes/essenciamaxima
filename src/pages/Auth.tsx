@@ -14,7 +14,6 @@ export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [existingSession, setExistingSession] = useState<any>(null);
   const [leadData, setLeadData] = useState<any>(null);
   const [defaultTab, setDefaultTab] = useState("login");
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -30,26 +29,19 @@ export default function Auth() {
 
   useEffect(() => {
     const initAuth = async () => {
-      // Setup auth listener FIRST (before checking session)
+      // Setup auth listener FIRST - always redirect to dashboard
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         if (session && event === "SIGNED_IN") {
-          const isNewUser = sessionStorage.getItem("isNewSignup") === "true";
-          
-          if (isNewUser) {
-            sessionStorage.removeItem("isNewSignup");
-            navigate("/novo-mvv");
-          } else {
-            navigate("/dashboard");
-          }
+          navigate("/dashboard");
         }
       });
 
-      // THEN check for existing session (without auto-redirect)
+      // Check for existing session and auto-redirect
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session) {
-        // Set existing session but DON'T redirect - let user choose
-        setExistingSession(session);
+        navigate("/dashboard");
+        return subscription;
       }
       
       // Carregar leadData se existir
@@ -67,10 +59,7 @@ export default function Auth() {
             company: parsed.company || "",
             segment: parsed.segment || "",
           }));
-          // Se tem leadData e não está logado, vai pra tab de signup
-          if (!session) {
-            setDefaultTab("signup");
-          }
+          setDefaultTab("signup");
         } catch (error) {
           console.error("Erro ao recuperar dados do lead:", error);
         }
@@ -85,21 +74,6 @@ export default function Auth() {
       subscription.then(sub => sub?.unsubscribe());
     };
   }, [navigate]);
-
-  const handleContinueAsUser = () => {
-    navigate("/dashboard");
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    localStorage.clear();
-    setExistingSession(null);
-    setDefaultTab(leadData && leadData.email ? "signup" : "login");
-    toast({
-      title: "Sessão encerrada",
-      description: "Agora você pode fazer login com outra conta.",
-    });
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,8 +140,7 @@ export default function Auth() {
 
       if (error) throw error;
 
-      // Marcar como novo usuário e limpar dados do lead
-      sessionStorage.setItem("isNewSignup", "true");
+      // Limpar dados do lead
       sessionStorage.removeItem("leadData");
 
       toast({
@@ -193,34 +166,6 @@ export default function Auth() {
           <img src={logo} alt="Máxima iA" className="h-20 md:h-24 w-auto mx-auto" />
         </Link>
 
-        {existingSession && (
-          <Alert className="bg-slate-800/50 border-slate-700/50">
-            <User className="h-4 w-4" />
-            <AlertDescription className="text-slate-300">
-              Você está logado como <span className="font-semibold text-white">{existingSession.user.email}</span>
-              {leadData && leadData.email !== existingSession.user.email && (
-                <span className="block mt-2 text-yellow-400">
-                  ⚠️ Este e-mail difere do que você preencheu no formulário
-                </span>
-              )}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {existingSession && (
-          <div className="flex gap-3">
-            <Button onClick={handleContinueAsUser} className="flex-1">
-              Continuar como {existingSession.user.email.split('@')[0]}
-            </Button>
-            <Button onClick={handleSignOut} variant="outline" className="flex-1">
-              {leadData && leadData.email !== existingSession.user.email 
-                ? "Sair e criar nova conta" 
-                : "Sair e usar outro e-mail"}
-            </Button>
-          </div>
-        )}
-
-        {!existingSession && (
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-8 backdrop-blur-sm">
           <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8">
@@ -369,7 +314,6 @@ export default function Auth() {
             </TabsContent>
           </Tabs>
         </div>
-        )}
 
         <p className="text-center text-sm text-slate-300">
           <Link to="/" className="hover:text-white transition-colors">
