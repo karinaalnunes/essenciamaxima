@@ -30,12 +30,26 @@ export default function Auth() {
 
   useEffect(() => {
     const initAuth = async () => {
-      // Auto-redirect if already logged in
+      // Setup auth listener FIRST (before checking session)
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (session && event === "SIGNED_IN") {
+          const isNewUser = sessionStorage.getItem("isNewSignup") === "true";
+          
+          if (isNewUser) {
+            sessionStorage.removeItem("isNewSignup");
+            navigate("/novo-mvv");
+          } else {
+            navigate("/dashboard");
+          }
+        }
+      });
+
+      // THEN check for existing session (without auto-redirect)
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session) {
-        navigate("/dashboard");
-        return;
+        // Set existing session but DON'T redirect - let user choose
+        setExistingSession(session);
       }
       
       // Carregar leadData se existir
@@ -53,30 +67,23 @@ export default function Auth() {
             company: parsed.company || "",
             segment: parsed.segment || "",
           }));
+          // Se tem leadData e não está logado, vai pra tab de signup
+          if (!session) {
+            setDefaultTab("signup");
+          }
         } catch (error) {
           console.error("Erro ao recuperar dados do lead:", error);
         }
       }
+
+      return subscription;
     };
 
-    initAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session && event === "SIGNED_IN") {
-        const isNewUser = sessionStorage.getItem("isNewSignup") === "true";
-        
-        if (isNewUser) {
-          sessionStorage.removeItem("isNewSignup");
-          navigate("/novo-mvv");
-        } else {
-          // Usuário existente: sempre vai pro dashboard
-          // O dashboard vai detectar se tem MVV completo ou não
-          navigate("/dashboard");
-        }
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    const subscription = initAuth();
+    
+    return () => {
+      subscription.then(sub => sub?.unsubscribe());
+    };
   }, [navigate]);
 
   const handleContinueAsUser = () => {
@@ -85,9 +92,13 @@ export default function Auth() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    localStorage.clear();
     setExistingSession(null);
     setDefaultTab(leadData && leadData.email ? "signup" : "login");
-    // Sem toast - experiência silenciosa
+    toast({
+      title: "Sessão encerrada",
+      description: "Agora você pode fazer login com outra conta.",
+    });
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -179,7 +190,7 @@ export default function Auth() {
     <div className="min-h-screen bg-gradient-hero p-8 flex items-center justify-center antialiased">
       <div className="w-full max-w-md space-y-8">
         <Link to="/" className="block">
-          <img src={logo} alt="Máxima iA" className="h-16 md:h-20 w-auto mx-auto" />
+          <img src={logo} alt="Máxima iA" className="h-20 md:h-24 w-auto mx-auto" />
         </Link>
 
         {existingSession && (
@@ -209,6 +220,7 @@ export default function Auth() {
           </div>
         )}
 
+        {!existingSession && (
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-8 backdrop-blur-sm">
           <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8">
@@ -357,6 +369,7 @@ export default function Auth() {
             </TabsContent>
           </Tabs>
         </div>
+        )}
 
         <p className="text-center text-sm text-slate-300">
           <Link to="/" className="hover:text-white transition-colors">

@@ -133,7 +133,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-hero p-8 antialiased">
       <header className="max-w-6xl mx-auto flex justify-between items-center mb-12">
-        <img src={logo} alt="Máxima iA" className="h-14 md:h-16 w-auto" />
+        <img src={logo} alt="Máxima iA" className="h-16 md:h-20 w-auto" />
         <div className="flex items-center gap-4">
           <Link to="/perfil">
             <Button variant="outline" size="sm">

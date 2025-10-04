@@ -157,7 +157,7 @@ export default function RelatorioMVV() {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar ao Dashboard
           </Button>
-          <img src={logo} alt="Máxima iA" className="h-12 md:h-14 w-auto" />
+          <img src={logo} alt="Máxima iA" className="h-16 md:h-20 w-auto" />
         </div>
 
         {/* Alerta se incompleto */}

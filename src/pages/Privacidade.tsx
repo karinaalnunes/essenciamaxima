@@ -6,7 +6,7 @@ export default function Privacidade() {
   return (
     <div className="min-h-screen bg-gradient-hero p-8 antialiased">
       <header className="max-w-4xl mx-auto mb-8">
-        <img src={logo} alt="Máxima iA" className="h-12 md:h-14 w-auto" />
+        <img src={logo} alt="Máxima iA" className="h-16 md:h-20 w-auto" />
       </header>
 
       <main className="max-w-4xl mx-auto">

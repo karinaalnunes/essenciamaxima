@@ -455,7 +455,7 @@ Pode compartilhar essas informações?`,
                 <p className="text-slate-400 text-sm">Vamos criar sua Missão, Visão e Valores</p>
               </div>
             </div>
-            <img src={logo} alt="Máxima iA" className="h-12 md:h-14 w-auto" />
+            <img src={logo} alt="Máxima iA" className="h-20 md:h-24 w-auto" />
           </div>
         </div>
 
