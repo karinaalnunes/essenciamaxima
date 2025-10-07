@@ -31,6 +31,19 @@ interface MVVDocument {
   created_at: string;
 }
 
+const getIndicatorEmoji = (text: string) => {
+  const lowerText = text.toLowerCase();
+  if (lowerText.match(/crescimento|faturamento|receita|vendas|milhões|reais|r\$/)) return '📈';
+  if (lowerText.match(/expansão|presença|estados|países|internacional|global/)) return '🌎';
+  if (lowerText.match(/satisfação|nps|felicidade|experiência|clientes atendidos/)) return '⭐';
+  if (lowerText.match(/time|equipe|colaboradores|pessoas|funcionários/)) return '👥';
+  if (lowerText.match(/produtos|lançamentos|inovação|desenvolvimento/)) return '🚀';
+  if (lowerText.match(/reconhecimento|prêmios|certificações|ranking/)) return '🏆';
+  if (lowerText.match(/mercado|market share|participação|líder/)) return '📊';
+  if (lowerText.match(/tecnologia|digital|automação|ia/)) return '💡';
+  return '🎯';
+};
+
 export default function RelatorioMVV() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -92,6 +105,10 @@ export default function RelatorioMVV() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8">
+      {/* Logo para PDF */}
+      <div className="hidden print-only">
+        <img src={logo} alt="Máxima iA" className="print-logo" />
+      </div>
       <style>{`
         @media print {
           * {
@@ -104,11 +121,19 @@ export default function RelatorioMVV() {
           .no-print {
             display: none !important;
           }
+          .print-only {
+            display: block !important;
+          }
           .page-break {
             page-break-after: always;
           }
           .no-break {
             page-break-inside: avoid;
+          }
+          .print-logo {
+            display: block !important;
+            width: 150pt;
+            margin: 0 auto 20pt auto;
           }
           h1 {
             font-size: 32pt;
@@ -249,11 +274,15 @@ export default function RelatorioMVV() {
             <div>
               <h4 className="text-lg font-semibold text-white mb-3">Indicadores de Sucesso:</h4>
               <ul className="space-y-2">
-                {doc.vision_indicators.map((indicator: string, index: number) => (
-                  <li key={index} className="flex items-start gap-3 text-slate-300 text-lg">
-                    <span className="flex-1">{indicator}</span>
-                  </li>
-                ))}
+                {doc.vision_indicators.map((indicator: string, index: number) => {
+                  const hasEmoji = /^\p{Emoji}/u.test(indicator);
+                  const displayText = hasEmoji ? indicator : `${getIndicatorEmoji(indicator)} ${indicator}`;
+                  return (
+                    <li key={index} className="flex items-start gap-3 text-slate-300 text-lg">
+                      <span className="flex-1">{displayText}</span>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}
