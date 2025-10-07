@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Mic, MicOff, Loader2, Keyboard, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,7 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
   const [inputMode, setInputMode] = useState<"voice" | "text">("voice");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { toast } = useToast();
   
   console.log('VoiceInput v2.0 - Modo:', inputMode);
@@ -110,11 +111,20 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
     setTextInput("");
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       handleTextSubmit();
     }
   };
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [textInput]);
 
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-md">
@@ -159,21 +169,22 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
           </p>
         </TabsContent>
 
-        <TabsContent value="text" className="flex gap-2 mt-4">
-          <Input
-            type="text"
-            placeholder="Digite sua resposta..."
+        <TabsContent value="text" className="flex gap-2 mt-4 items-end">
+          <Textarea
+            ref={textareaRef}
+            placeholder="Digite sua resposta... (Shift+Enter para nova linha)"
             value={textInput}
             onChange={(e) => setTextInput(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             disabled={disabled || isProcessing}
-            className="flex-1"
+            className="flex-1 min-h-[40px] max-h-[200px] resize-none overflow-y-auto"
             autoFocus
           />
           <Button
             onClick={handleTextSubmit}
             disabled={disabled || isProcessing || !textInput.trim()}
             size="icon"
+            className="shrink-0"
           >
             {isProcessing ? (
               <Loader2 className="h-4 w-4 animate-spin" />
