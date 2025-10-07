@@ -94,54 +94,76 @@ export default function RelatorioMVV() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8">
       <style>{`
         @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
           body {
             background: white !important;
           }
           .no-print {
             display: none !important;
           }
-          .bg-gradient-to-br {
-            background: white !important;
+          .page-break {
+            page-break-after: always;
           }
-          .bg-slate-800\\/50, .bg-gradient-to-br {
-            background: white !important;
-            border: 1px solid #e5e7eb !important;
-          }
-          .text-white {
-            color: #111827 !important;
-          }
-          .text-slate-300, .text-slate-400 {
-            color: #4b5563 !important;
+          .no-break {
+            page-break-inside: avoid;
           }
           h1 {
-            font-size: 24pt;
+            font-size: 32pt;
+            font-weight: 900;
             margin-bottom: 12pt;
             color: #111827 !important;
           }
-          h2, h3 {
-            font-size: 18pt;
+          h2 {
+            font-size: 24pt;
+            font-weight: 700;
             margin-top: 16pt;
             margin-bottom: 8pt;
             color: #111827 !important;
           }
-          h4, h5 {
-            font-size: 14pt;
+          h3 {
+            font-size: 20pt;
+            font-weight: 600;
             margin-top: 12pt;
             margin-bottom: 6pt;
             color: #111827 !important;
           }
+          h4 {
+            font-size: 16pt;
+            font-weight: 600;
+            margin-top: 8pt;
+            margin-bottom: 4pt;
+            color: #1e3a8a !important;
+          }
+          h5 {
+            font-size: 14pt;
+            font-weight: 600;
+            color: #1e40af !important;
+          }
           p, ul, li {
-            font-size: 11pt;
-            line-height: 1.5;
+            font-size: 12pt;
+            line-height: 1.6;
             color: #374151 !important;
           }
-          .card, .border-slate-700, .bg-blue-900\\/20, .bg-slate-800\\/50 {
-            page-break-inside: avoid;
+          .text-white, .text-slate-300, .text-slate-400 {
+            color: #111827 !important;
+          }
+          .bg-slate-800\\/50, .bg-gradient-to-br, .border-slate-700 {
+            background: #f9fafb !important;
+            border: 2px solid #e5e7eb !important;
+            padding: 20pt;
             margin-bottom: 16pt;
-            background: white !important;
-            border: 1px solid #e5e7eb !important;
+          }
+          .bg-blue-900\\/20 {
+            background: #dbeafe !important;
+            border: 2px solid #3b82f6 !important;
+            border-left-width: 6pt !important;
+            padding: 16pt;
           }
           @page {
+            size: A4;
             margin: 2cm;
           }
         }

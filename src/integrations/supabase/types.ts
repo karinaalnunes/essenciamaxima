@@ -160,6 +160,41 @@ export type Database = {
         }
         Relationships: []
       }
+      mvv_feedback: {
+        Row: {
+          comments: string | null
+          created_at: string | null
+          document_id: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string | null
+          document_id: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string | null
+          document_id?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mvv_feedback_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "mvv_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           company: string | null

@@ -2,11 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { VoiceInput } from "@/components/VoiceInput";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageFormatter } from "@/components/MessageFormatter";
+import { FeedbackForm } from "@/components/FeedbackForm";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 
 interface Message {
@@ -28,9 +29,13 @@ export default function NovoMVV() {
   const [messageSending, setMessageSending] = useState(false);
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     // Prevenir execuções múltiplas
@@ -118,9 +123,22 @@ export default function NovoMVV() {
     checkUser();
   }, [navigate, searchParams, toast]);
 
+  // Detect user scrolling
+  const handleUserScroll = () => {
+    setIsUserScrolling(true);
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => setIsUserScrolling(false), 2000);
+  };
+
   useEffect(() => {
-    // Auto-scroll to bottom when new messages arrive with smooth behavior
-    if (messagesEndRef.current) {
+    const scrollArea = document.querySelector('[data-radix-scroll-area-viewport]');
+    scrollArea?.addEventListener('scroll', handleUserScroll);
+    return () => scrollArea?.removeEventListener('scroll', handleUserScroll);
+  }, []);
+
+  useEffect(() => {
+    // Auto-scroll to bottom when new messages arrive (only if user is not scrolling)
+    if (!isUserScrolling && messagesEndRef.current) {
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ 
           behavior: 'smooth', 
@@ -128,7 +146,22 @@ export default function NovoMVV() {
         });
       }, 100);
     }
-  }, [messages, isLoading, messageSending]);
+  }, [messages, isLoading, messageSending, isUserScrolling]);
+
+  // Show feedback when ready to generate
+  useEffect(() => {
+    if (readyToGenerate && !showFeedback && !feedbackSubmitted) {
+      setShowFeedback(true);
+      
+      // Add message about generating report
+      const generatingMsg: Message = {
+        role: 'assistant',
+        content: '✨ Já estou gerando o seu relatório! Enquanto isso...',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, generatingMsg]);
+    }
+  }, [readyToGenerate, showFeedback, feedbackSubmitted]);
 
   const loadExistingConversation = async (docId: string) => {
     try {
@@ -325,28 +358,133 @@ Pode compartilhar essas informações?`,
 
       setIsLoading(true);
 
-      // Call consultative chat
-      const { data, error } = await supabase.functions.invoke('consultative-chat', {
-        body: {
-          message: text,
-          conversationHistory: messages,
-          documentId: documentId,
+      // Call consultative chat with streaming
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/consultative-chat`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            message: text,
+            conversationHistory: messages,
+            documentId: documentId,
+          }),
         }
-      });
+      );
 
-      if (error) throw error;
+      if (!response.ok || !response.body) {
+        throw new Error('Failed to start stream');
+      }
 
-      // Add AI response to UI
-      const aiMessage: Message = {
+      // Process SSE stream
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let assistantContent = '';
+      let streamDone = false;
+
+      // Add placeholder assistant message
+      const placeholderMsg: Message = {
         role: 'assistant',
-        content: data.message,
+        content: '',
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages(prev => [...prev, placeholderMsg]);
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Process line by line
+        let newlineIndex: number;
+        while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+          let line = buffer.slice(0, newlineIndex);
+          buffer = buffer.slice(newlineIndex + 1);
+
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (line.startsWith(':') || line.trim() === '') continue;
+          if (!line.startsWith('data: ')) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === '[DONE]') {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            
+            if (content) {
+              assistantContent += content;
+              
+              // Update last assistant message progressively
+              setMessages(prev => {
+                const newMessages = [...prev];
+                const lastMsg = newMessages[newMessages.length - 1];
+                if (lastMsg?.role === 'assistant') {
+                  lastMsg.content = assistantContent;
+                }
+                return newMessages;
+              });
+            }
+          } catch (e) {
+            // Incomplete JSON, put it back
+            buffer = line + '\n' + buffer;
+            break;
+          }
+        }
+      }
+
+      // Flush remaining buffer
+      if (buffer.trim()) {
+        for (let raw of buffer.split('\n')) {
+          if (!raw || raw.startsWith(':') || !raw.trim()) continue;
+          if (!raw.startsWith('data: ')) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantContent += content;
+              setMessages(prev => {
+                const newMessages = [...prev];
+                const lastMsg = newMessages[newMessages.length - 1];
+                if (lastMsg?.role === 'assistant') {
+                  lastMsg.content = assistantContent;
+                }
+                return newMessages;
+              });
+            }
+          } catch { /* ignore */ }
+        }
+      }
+
+      // Save assistant message to database
+      await supabase.from('conversation_history').insert({
+        document_id: documentId,
+        role: 'assistant',
+        content: assistantContent,
+      });
 
       // Check if ready to generate
-      if (data.readyToGenerate) {
+      if (assistantContent.includes('[PRONTO_PARA_GERAR]')) {
         setReadyToGenerate(true);
+        // Remove the marker from displayed message
+        setMessages(prev => {
+          const newMessages = [...prev];
+          const lastMsg = newMessages[newMessages.length - 1];
+          if (lastMsg?.role === 'assistant') {
+            lastMsg.content = lastMsg.content.replace('[PRONTO_PARA_GERAR]', '').trim();
+          }
+          return newMessages;
+        });
       }
 
     } catch (error) {
@@ -504,42 +642,49 @@ Pode compartilhar essas informações?`,
               </div>
             )}
             
-            {/* Scroll anchor */}
             <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
 
-        {/* Voice Input Footer */}
-        <div className="bg-slate-900/50 backdrop-blur-xl rounded-b-2xl border border-slate-800 border-t-0 p-6">
-          <div className="flex flex-col items-center gap-4">
-            {readyToGenerate ? (
-              <div className="text-center space-y-4">
-                <p className="text-slate-300">
-                  Informações coletadas! Posso gerar seu MVV agora?
-                </p>
-                <Button
-                  onClick={handleGenerateMVV}
-                  disabled={isGenerating}
-                  size="lg"
-                  className="bg-gradient-cta"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Gerando MVV...
-                    </>
-                  ) : (
-                    'Gerar MVV'
-                  )}
-                </Button>
-              </div>
-            ) : (
-              <VoiceInput 
-                onTranscription={handleTranscription}
-                disabled={isLoading || isGenerating}
-              />
-            )}
+        {/* Feedback Form */}
+        {showFeedback && !feedbackSubmitted && (
+          <div className="px-4 pb-4 bg-slate-900/30 border-x border-slate-800">
+            <FeedbackForm
+              documentId={documentId!}
+              onSubmit={() => {
+                setFeedbackSubmitted(true);
+                setShowFeedback(false);
+              }}
+            />
           </div>
+        )}
+
+        {/* Generate MVV Button */}
+        {feedbackSubmitted && !isGenerating && (
+          <div className="px-4 pb-4 bg-slate-900/30 border-x border-slate-800">
+            <Button 
+              onClick={handleGenerateMVV} 
+              className="w-full"
+              size="lg"
+            >
+              Ver Meu MVV
+            </Button>
+          </div>
+        )}
+
+        {/* Voice Input */}
+        <div className="bg-slate-900/50 backdrop-blur-xl rounded-b-2xl border border-slate-800 border-t-0 p-6">
+          <VoiceInput
+            onTranscription={handleTranscription}
+            disabled={isLoading || isGenerating || messageSending}
+          />
+          
+          {isGenerating && (
+            <div className="mt-4 flex items-center justify-center gap-3 text-blue-400">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span className="text-sm font-medium">Gerando seu MVV completo...</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

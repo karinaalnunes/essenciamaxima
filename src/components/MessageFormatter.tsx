@@ -8,6 +8,66 @@ interface MessageFormatterProps {
 export const MessageFormatter = memo(({ content, role }: MessageFormatterProps) => {
   // Format text with line breaks and basic markdown
   const formatText = (text: string) => {
+    // Handle markdown tables
+    if (text.includes('|') && text.includes('---')) {
+      const lines = text.split('\n');
+      const tableLines: string[] = [];
+      const nonTableLines: string[] = [];
+      let inTable = false;
+
+      lines.forEach(line => {
+        if (line.trim().startsWith('|') || line.trim().includes('---')) {
+          inTable = true;
+          tableLines.push(line);
+        } else if (inTable && !line.trim().startsWith('|')) {
+          inTable = false;
+          nonTableLines.push(line);
+        } else if (!inTable) {
+          nonTableLines.push(line);
+        } else {
+          tableLines.push(line);
+        }
+      });
+
+      if (tableLines.length > 0) {
+        return (
+          <>
+            {nonTableLines.length > 0 && formatNonTableText(nonTableLines.join('\n'))}
+            <div className="overflow-x-auto my-4">
+              <table className="w-full border-collapse">
+                <tbody>
+                  {tableLines
+                    .filter(line => !line.includes('---'))
+                    .map((line, idx) => {
+                      const cells = line
+                        .split('|')
+                        .slice(1, -1)
+                        .map(cell => cell.trim());
+                      return (
+                        <tr key={idx} className={idx === 0 ? 'font-semibold' : ''}>
+                          {cells.map((cell, cellIdx) => (
+                            <td 
+                              key={cellIdx} 
+                              className="border border-slate-700 px-3 py-2 text-sm"
+                            >
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        );
+      }
+    }
+
+    return formatNonTableText(text);
+  };
+
+  const formatNonTableText = (text: string) => {
     // Split by double line breaks for paragraphs
     const paragraphs = text.split('\n\n');
     
