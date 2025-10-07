@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, Download, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
+import logoLight from "@/assets/logo-maxima-ia-light.png";
 
 interface Value {
   name: string;
@@ -35,7 +36,7 @@ const getIndicatorEmoji = (text: string) => {
   const lowerText = text.toLowerCase();
   if (lowerText.match(/crescimento|faturamento|receita|vendas|milhões|milhoes|reais|r\$|ano/)) return '📈';
   if (lowerText.match(/expansão|expansao|presença|presenca|estados|países|paises|internacional|global/)) return '🌎';
-  if (lowerText.match(/satisfação|satisfacao|nps|felicidade|experiência|experiencia|clientes|atendidos|cliente/)) return '⭐';
+  if (lowerText.match(/satisfação|satisfacao|nps|felicidade|experiência|experiencia|\d+\s*(clientes?|atendidos?|pessoas?\s+atendidas?)/)) return '⭐';
   if (lowerText.match(/time|equipe|colaboradores|pessoas|funcionários|funcionarios/)) return '👥';
   if (lowerText.match(/produtos|lançamentos|lancamentos|inovação|inovacao|desenvolvimento/)) return '🚀';
   if (lowerText.match(/reconhecimento|prêmios|premios|certificações|certificacoes|ranking/)) return '🏆';
@@ -105,9 +106,9 @@ export default function RelatorioMVV() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8">
-      {/* Logo para PDF */}
+      {/* Logo para PDF - usa logo light para fundo claro */}
       <div className="hidden print-only">
-        <img src={logo} alt="Máxima iA" className="print-logo" />
+        <img src={logoLight} alt="Máxima iA" className="print-logo" />
       </div>
       <style>{`
         @media print {
@@ -244,12 +245,38 @@ export default function RelatorioMVV() {
         </div>
 
         {/* Capa */}
-        <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700 p-8 mb-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">{doc.company_name}</h2>
-          <div className="space-y-2 text-slate-300">
-            <p><strong>Segmento:</strong> {doc.segment}</p>
-            {doc.company_size && <p><strong>Porte:</strong> {doc.company_size}</p>}
-            <p><strong>Data de criação:</strong> {new Date(doc.created_at).toLocaleDateString('pt-BR')}</p>
+        <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700 p-10 mb-8">
+          {/* Logo da Máxima IA centralizada */}
+          <div className="flex justify-center mb-6">
+            <img src={logo} alt="Máxima iA" className="h-20" />
+          </div>
+          
+          {/* Nome da empresa em destaque */}
+          <h2 className="text-4xl font-black text-center text-white mb-8 tracking-tight">
+            {doc.company_name}
+          </h2>
+          
+          {/* Grid de informações com ícones */}
+          <div className="grid md:grid-cols-3 gap-6 text-center">
+            <div className="bg-slate-800/50 rounded-lg p-4">
+              <div className="text-3xl mb-2">🏢</div>
+              <div className="text-xs text-slate-400 uppercase mb-1">Segmento</div>
+              <div className="text-white font-semibold">{doc.segment}</div>
+            </div>
+            
+            {doc.company_size && (
+              <div className="bg-slate-800/50 rounded-lg p-4">
+                <div className="text-3xl mb-2">📊</div>
+                <div className="text-xs text-slate-400 uppercase mb-1">Porte</div>
+                <div className="text-white font-semibold">{doc.company_size}</div>
+              </div>
+            )}
+            
+            <div className="bg-slate-800/50 rounded-lg p-4">
+              <div className="text-3xl mb-2">📅</div>
+              <div className="text-xs text-slate-400 uppercase mb-1">Data de criação</div>
+              <div className="text-white font-semibold">{new Date(doc.created_at).toLocaleDateString('pt-BR')}</div>
+            </div>
           </div>
         </Card>
 

@@ -29,7 +29,7 @@ Retorne um JSON válido com EXATAMENTE esta estrutura (sem markdown, sem \`\`\`j
   "company_name": "Nome da empresa mencionado",
   "segment": "Segmento/área de atuação",
   "company_size": "Porte da empresa (micro/pequena/média/grande)",
-  "company_context": "História e contexto da empresa em 2-3 parágrafos",
+  "company_context": "STORYTELLING INSPIRADOR da empresa em 3-4 parágrafos: como tudo começou, maiores obstáculos enfrentados, marcos importantes e transformação até o presente. Seja narrativo, emocional e inspirador, contando a história do empresário e da empresa.",
   
   "vision": "Visão completa da empresa (onde quer chegar em 3-5 anos)",
   "vision_indicators": [
