@@ -70,7 +70,9 @@ REGRAS CRÍTICAS:
 4. Se alguma informação não foi mencionada, use null
 5. Mantenha o tom inspirador mas profissional
 6. Valores devem ter NO MÍNIMO 3 e NO MÁXIMO 5
-7. Cada valor deve ter pelo menos 2 exemplos de vivência, 2 de não vivência e 2 rituais`;
+7. Cada valor deve ter 2-3 exemplos de vivência, 2-3 de não vivência e 2-3 rituais
+8. CRÍTICO: Extraia TODOS os rituais mencionados na conversa para cada valor, não limite artificialmente
+9. IMPORTANTE: Adicione um emoji relevante no INÍCIO de cada indicador da visão (ex: "📈 Crescimento de 300%...", "🌎 Expansão para...", "⭐ NPS acima de...")`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

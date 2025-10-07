@@ -156,11 +156,14 @@ export default function RelatorioMVV() {
             padding: 20pt;
             margin-bottom: 16pt;
           }
-          .bg-blue-900\\/20 {
+          .bg-blue-900\\/20, .from-blue-900\\/10 {
             background: #dbeafe !important;
             border: 2px solid #3b82f6 !important;
             border-left-width: 6pt !important;
             padding: 16pt;
+          }
+          .border-blue-500 {
+            border-left-color: #3b82f6 !important;
           }
           @page {
             size: A4;
@@ -247,9 +250,8 @@ export default function RelatorioMVV() {
               <h4 className="text-lg font-semibold text-white mb-3">Indicadores de Sucesso:</h4>
               <ul className="space-y-2">
                 {doc.vision_indicators.map((indicator: string, index: number) => (
-                  <li key={index} className="flex items-start gap-3 text-slate-300">
-                    <span className="text-blue-400 font-bold">{index + 1}.</span>
-                    <span>{indicator}</span>
+                  <li key={index} className="flex items-start gap-3 text-slate-300 text-lg">
+                    <span className="flex-1">{indicator}</span>
                   </li>
                 ))}
               </ul>
@@ -270,9 +272,13 @@ export default function RelatorioMVV() {
             </div>
             
             {doc.mission_pocket && (
-              <div>
-                <h4 className="text-sm font-semibold text-slate-400 uppercase mb-2">Versão Pocket</h4>
-                <p className="text-slate-300 italic">{doc.mission_pocket}</p>
+              <div className="bg-gradient-to-r from-blue-900/10 to-purple-900/10 border-l-4 border-blue-500 rounded-lg p-5">
+                <h4 className="text-sm font-semibold text-blue-400 uppercase mb-2 flex items-center gap-2">
+                  📱 Versão Pocket
+                </h4>
+                <p className="text-slate-200 text-lg font-medium italic leading-relaxed">
+                  {doc.mission_pocket}
+                </p>
               </div>
             )}
             
