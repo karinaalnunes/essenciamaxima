@@ -201,7 +201,7 @@ export default function Dashboard() {
                     </p>
                   )}
                 </div>
-                <Button onClick={() => navigate("/novo-mvv")}>
+                <Button onClick={() => navigate(`/novo-mvv?doc=${document.id}`)}>
                   Continuar Consultoria
                 </Button>
               </div>

@@ -99,8 +99,8 @@ export default function NovoMVV() {
         );
 
         if (completedMVV) {
-          // Já tem MVV completo → redirecionar para trial-complete
-          navigate("/trial-complete");
+          // Já tem MVV completo → redirecionar para o relatório
+          navigate(`/relatorio/${completedMVV.id}`);
           return;
         }
 
