@@ -33,14 +33,14 @@ interface MVVDocument {
 
 const getIndicatorEmoji = (text: string) => {
   const lowerText = text.toLowerCase();
-  if (lowerText.match(/crescimento|faturamento|receita|vendas|milhões|reais|r\$/)) return '📈';
-  if (lowerText.match(/expansão|presença|estados|países|internacional|global/)) return '🌎';
-  if (lowerText.match(/satisfação|nps|felicidade|experiência|clientes atendidos/)) return '⭐';
-  if (lowerText.match(/time|equipe|colaboradores|pessoas|funcionários/)) return '👥';
-  if (lowerText.match(/produtos|lançamentos|inovação|desenvolvimento/)) return '🚀';
-  if (lowerText.match(/reconhecimento|prêmios|certificações|ranking/)) return '🏆';
-  if (lowerText.match(/mercado|market share|participação|líder/)) return '📊';
-  if (lowerText.match(/tecnologia|digital|automação|ia/)) return '💡';
+  if (lowerText.match(/crescimento|faturamento|receita|vendas|milhões|milhoes|reais|r\$|ano/)) return '📈';
+  if (lowerText.match(/expansão|expansao|presença|presenca|estados|países|paises|internacional|global/)) return '🌎';
+  if (lowerText.match(/satisfação|satisfacao|nps|felicidade|experiência|experiencia|clientes|atendidos|cliente/)) return '⭐';
+  if (lowerText.match(/time|equipe|colaboradores|pessoas|funcionários|funcionarios/)) return '👥';
+  if (lowerText.match(/produtos|lançamentos|lancamentos|inovação|inovacao|desenvolvimento/)) return '🚀';
+  if (lowerText.match(/reconhecimento|prêmios|premios|certificações|certificacoes|ranking/)) return '🏆';
+  if (lowerText.match(/mercado|market share|participação|participacao|líder|lider/)) return '📊';
+  if (lowerText.match(/tecnologia|digital|automação|automacao|ia/)) return '💡';
   return '🎯';
 };
 
