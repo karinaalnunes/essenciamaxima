@@ -48,40 +48,82 @@ export type Database = {
       }
       leads: {
         Row: {
+          browser: string | null
+          city: string | null
           company: string
           consent_lgpd: boolean
+          country: string | null
           created_at: string
+          device: string | null
           email: string
+          fbclid: string | null
+          gclid: string | null
           id: string
+          landing_page: string | null
+          language: string | null
           name: string
+          os: string | null
           phone: string
+          referrer: string | null
+          screen_resolution: string | null
           segment: string
+          state: string | null
+          time_on_page: number | null
+          timezone: string | null
           utm_campaign: string | null
           utm_medium: string | null
           utm_source: string | null
         }
         Insert: {
+          browser?: string | null
+          city?: string | null
           company: string
           consent_lgpd?: boolean
+          country?: string | null
           created_at?: string
+          device?: string | null
           email: string
+          fbclid?: string | null
+          gclid?: string | null
           id?: string
+          landing_page?: string | null
+          language?: string | null
           name: string
+          os?: string | null
           phone?: string
+          referrer?: string | null
+          screen_resolution?: string | null
           segment: string
+          state?: string | null
+          time_on_page?: number | null
+          timezone?: string | null
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
         }
         Update: {
+          browser?: string | null
+          city?: string | null
           company?: string
           consent_lgpd?: boolean
+          country?: string | null
           created_at?: string
+          device?: string | null
           email?: string
+          fbclid?: string | null
+          gclid?: string | null
           id?: string
+          landing_page?: string | null
+          language?: string | null
           name?: string
+          os?: string | null
           phone?: string
+          referrer?: string | null
+          screen_resolution?: string | null
           segment?: string
+          state?: string | null
+          time_on_page?: number | null
+          timezone?: string | null
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null

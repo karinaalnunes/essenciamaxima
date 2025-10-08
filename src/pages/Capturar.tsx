@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft } from "lucide-react";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
+import { getDeviceInfo, getLocationInfo, getMarketingInfo, getTimeOnPage } from "@/lib/leadCapture";
 
 export default function Capturar() {
   const navigate = useNavigate();
@@ -21,6 +22,27 @@ export default function Capturar() {
     segment: "",
     consentLgpd: false,
   });
+  const [enrichedData, setEnrichedData] = useState({
+    device: null as any,
+    location: null as any,
+    marketing: null as any,
+  });
+
+  // Capturar dados automaticamente ao carregar a página
+  useEffect(() => {
+    // Capturar dados do dispositivo imediatamente
+    const deviceInfo = getDeviceInfo();
+    const marketingInfo = getMarketingInfo();
+    
+    // Capturar localização (assíncrono)
+    getLocationInfo().then(locationInfo => {
+      setEnrichedData({
+        device: deviceInfo,
+        location: locationInfo,
+        marketing: marketingInfo,
+      });
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +77,7 @@ export default function Capturar() {
         return;
       }
 
-      // Salvar lead no banco
+      // Salvar lead no banco com dados enriquecidos
       const { error: leadError } = await supabase.from("leads").insert({
         name: formData.name,
         email: formData.email,
@@ -66,6 +88,23 @@ export default function Capturar() {
         utm_source: utmSource,
         utm_medium: utmMedium,
         utm_campaign: utmCampaign,
+        // Dados automáticos de dispositivo
+        browser: enrichedData.device?.browser,
+        os: enrichedData.device?.os,
+        device: enrichedData.device?.device,
+        language: enrichedData.device?.language,
+        screen_resolution: enrichedData.device?.screenResolution,
+        // Dados de localização (sem salvar IP)
+        city: enrichedData.location?.city,
+        state: enrichedData.location?.state,
+        country: enrichedData.location?.country,
+        timezone: enrichedData.location?.timezone,
+        // Dados de comportamento e marketing
+        referrer: enrichedData.marketing?.referrer,
+        time_on_page: getTimeOnPage(),
+        gclid: enrichedData.marketing?.gclid,
+        fbclid: enrichedData.marketing?.fbclid,
+        landing_page: enrichedData.marketing?.landingPage,
       });
 
       if (leadError) throw leadError;

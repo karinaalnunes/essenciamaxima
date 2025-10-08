@@ -1,0 +1,30 @@
+-- Adicionar campos para captura automática de dados enriquecidos na tabela leads
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS browser text;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS os text;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS device text;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS language text;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS screen_resolution text;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS city text;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS state text;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS country text;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS timezone text;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS referrer text;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS time_on_page integer;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS gclid text;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS fbclid text;
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS landing_page text;
+
+COMMENT ON COLUMN leads.browser IS 'Navegador do usuário detectado automaticamente';
+COMMENT ON COLUMN leads.os IS 'Sistema operacional detectado automaticamente';
+COMMENT ON COLUMN leads.device IS 'Tipo de dispositivo (Mobile/Desktop)';
+COMMENT ON COLUMN leads.language IS 'Idioma do navegador';
+COMMENT ON COLUMN leads.screen_resolution IS 'Resolução da tela';
+COMMENT ON COLUMN leads.city IS 'Cidade obtida via geolocalização IP';
+COMMENT ON COLUMN leads.state IS 'Estado/região obtido via geolocalização IP';
+COMMENT ON COLUMN leads.country IS 'País obtido via geolocalização IP';
+COMMENT ON COLUMN leads.timezone IS 'Fuso horário do usuário';
+COMMENT ON COLUMN leads.referrer IS 'URL de origem do tráfego';
+COMMENT ON COLUMN leads.time_on_page IS 'Tempo na página em segundos antes da conversão';
+COMMENT ON COLUMN leads.gclid IS 'Google Click ID para rastreamento Google Ads';
+COMMENT ON COLUMN leads.fbclid IS 'Facebook Click ID para rastreamento Facebook Ads';
+COMMENT ON COLUMN leads.landing_page IS 'URL completa da landing page de conversão';
