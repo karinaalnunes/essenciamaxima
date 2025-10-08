@@ -135,7 +135,19 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-hero p-8 antialiased">
       <header className="max-w-6xl mx-auto flex justify-between items-center mb-12">
-        <img src={logo} alt="Máxima iA" className="h-16 md:h-20 w-auto" />
+        <div className="flex items-center gap-4">
+          <img src={logo} alt="Máxima iA" className="h-16 md:h-20 w-auto" />
+          
+          {user && (
+            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-800/70 rounded-full border border-slate-600/50">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              <span className="text-sm text-slate-300">
+                {user.email}
+              </span>
+            </div>
+          )}
+        </div>
+        
         <div className="flex items-center gap-4">
           <Link to="/perfil">
             <Button variant="outline" size="sm">
