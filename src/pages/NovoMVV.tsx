@@ -8,6 +8,7 @@ import { VoiceInput } from "@/components/VoiceInput";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageFormatter } from "@/components/MessageFormatter";
 import { FeedbackForm } from "@/components/FeedbackForm";
+import { useTypingEffect } from "@/hooks/useTypingEffect";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 
 interface Message {
@@ -36,6 +37,7 @@ export default function NovoMVV() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout>();
+  const { displayedText, startTyping, isTyping } = useTypingEffect(20);
 
   useEffect(() => {
     // Prevenir execuções múltiplas
@@ -430,15 +432,8 @@ Pode compartilhar essas informações?`,
             if (content) {
               assistantContent += content;
               
-              // Update last assistant message progressively
-              setMessages(prev => {
-                const newMessages = [...prev];
-                const lastMsg = newMessages[newMessages.length - 1];
-                if (lastMsg?.role === 'assistant') {
-                  lastMsg.content = assistantContent;
-                }
-                return newMessages;
-              });
+              // Use typing effect instead of direct state update
+              startTyping(assistantContent);
             }
           } catch (e) {
             // Incomplete JSON, put it back
@@ -610,22 +605,32 @@ Pode compartilhar essas informações?`,
           className="flex-1 bg-slate-900/30 border-x border-slate-800 p-6"
         >
           <div className="space-y-6 max-w-3xl mx-auto">
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div className={msg.role === 'user' ? 'max-w-[85%]' : 'max-w-[85%]'}>
-                  <MessageFormatter content={msg.content} role={msg.role} />
-                  <p className="text-xs text-slate-500 mt-1 px-1">
-                    {msg.timestamp.toLocaleTimeString('pt-BR', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
-                  </p>
+            {messages.map((msg, index) => {
+              const isLastAssistant = 
+                index === messages.length - 1 && 
+                msg.role === 'assistant' && 
+                isTyping;
+              
+              return (
+                <div
+                  key={index}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={msg.role === 'user' ? 'max-w-[85%]' : 'max-w-[85%]'}>
+                    <MessageFormatter 
+                      content={isLastAssistant ? displayedText : msg.content} 
+                      role={msg.role} 
+                    />
+                    <p className="text-xs text-slate-500 mt-1 px-1">
+                      {msg.timestamp.toLocaleTimeString('pt-BR', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             
             {messageSending && (
               <div className="flex justify-end">
