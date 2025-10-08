@@ -127,7 +127,7 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
   }, [textInput]);
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full max-w-md">
+    <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto">
       <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as "voice" | "text")} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="voice" className="flex items-center gap-2">
