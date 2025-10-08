@@ -29,13 +29,13 @@ Retorne um JSON válido com EXATAMENTE esta estrutura (sem markdown, sem \`\`\`j
   "company_name": "Nome da empresa mencionado",
   "segment": "Segmento/área de atuação",
   "company_size": "Porte da empresa (micro/pequena/média/grande)",
-  "company_context": "STORYTELLING INSPIRADOR da empresa em 3-4 parágrafos: como tudo começou, maiores obstáculos enfrentados, marcos importantes e transformação até o presente. Seja narrativo, emocional e inspirador, contando a história do empresário e da empresa.",
+  "company_context": "STORYTELLING INSPIRADOR da empresa em 3-4 parágrafos: como tudo começou, história pessoal do fundador, obstáculos enfrentados, celebrações familiares, marcos emocionais e transformação até o presente. AQUI você pode mencionar elementos pessoais, familiares, viagens, celebrações - tudo que traz contexto emocional e humaniza a jornada.",
   
-  "vision": "Visão completa da empresa (onde quer chegar em 3-5 anos)",
+  "vision": "VISÃO ORGANIZACIONAL ÉPICA E INSPIRADORA (3-5 anos) - CRÍTICO: Use APENAS VOZ ATIVA com verbos de conquista (alcançar, conquistar, expandir, liderar). Foque EXCLUSIVAMENTE em conquistas organizacionais: expansão geográfica, receita, impacto, equipe, market share. Transforme números em 'conquistas épicas' que motivem a equipe. NUNCA mencione elementos pessoais (família, viagens pessoais, celebrações individuais) - isso fica no company_context. Exemplo: 'Em 5 anos, [EMPRESA] estará conquistando 5 países de língua portuguesa com faturamento de R$ 3 milhões anuais, uma equipe de 7 profissionais de excelência e impactando centenas de PMEs em todo território nacional.'",
   "vision_indicators": [
-    "Indicador mensurável 1",
-    "Indicador mensurável 2",
-    "Indicador mensurável 3"
+    "🎯 [SEMPRE comece com emoji + métrica específica + contexto inspirador]",
+    "📈 [Exemplo: Faturamento de R$ 3M anuais com crescimento sustentável]",
+    "🌎 [Exemplo: Presença ativa em 5 países de língua portuguesa]"
   ],
   
   "mission": "Missão completa (por que a empresa existe - versão inspiradora)",
@@ -72,7 +72,9 @@ REGRAS CRÍTICAS:
 6. Valores devem ter NO MÍNIMO 3 e NO MÁXIMO 5
 7. Cada valor deve ter 2-3 exemplos de vivência, 2-3 de não vivência e 2-3 rituais
 8. CRÍTICO: Extraia TODOS os rituais mencionados na conversa para cada valor, não limite artificialmente
-9. IMPORTANTE: Adicione um emoji relevante no INÍCIO de cada indicador da visão (ex: "📈 Crescimento de 300%...", "🌎 Expansão para...", "⭐ NPS acima de...")`;
+9. OBRIGATÓRIO: TODOS os indicadores da visão DEVEM começar com um emoji relevante + métrica específica + contexto
+10. SEPARAÇÃO CLARA: company_context = história pessoal/familiar/emocional | vision = conquistas organizacionais épicas em voz ativa
+11. VISÃO INSPIRADORA: Transforme números em conquistas que façam a equipe querer batalhar por aquele futuro`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
