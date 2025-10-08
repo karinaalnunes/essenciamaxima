@@ -358,6 +358,13 @@ Pode compartilhar essas informações?`,
 
       setIsLoading(true);
 
+      // Get user session token for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error('User not authenticated');
+      }
+
       // Call consultative chat with streaming
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/consultative-chat`,
@@ -365,7 +372,7 @@ Pode compartilhar essas informações?`,
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            'Authorization': `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
             message: text,
