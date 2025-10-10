@@ -39,7 +39,7 @@ All colors MUST be HSL.
     --radius: 1.5rem;
 
     /* Custom gradients and colors */
-    --gradient-hero: linear-gradient(180deg, hsl(222.2, 47%, 11%) 0%, hsl(0, 0%, 0%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(222.2, 47%, 11%) 0%, hsl(220, 30%, 8%) 100%);
     --gradient-cta: linear-gradient(90deg, hsl(262.1, 83.3%, 57.8%) 0%, hsl(217.2, 91.2%, 59.8%) 100%);
     --gradient-text: linear-gradient(90deg, hsl(262.1, 83.3%, 67.8%) 0%, hsl(217.2, 91.2%, 69.8%) 100%);
     
@@ -88,8 +88,13 @@ All colors MUST be HSL.
 
 /* Starfield background effect */
 @keyframes twinkle {
-  0%, 100% { opacity: 0.3; }
+  0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
+}
+
+@keyframes twinkle-slow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
 }
 
 .starfield-bg {
@@ -105,25 +110,57 @@ All colors MUST be HSL.
   right: 0;
   bottom: 0;
   background-image:
-    radial-gradient(1px 1px at 20% 30%, hsl(var(--foreground) / 0.4), transparent),
-    radial-gradient(1px 1px at 60% 70%, hsl(var(--foreground) / 0.3), transparent),
-    radial-gradient(1px 1px at 50% 50%, hsl(var(--foreground) / 0.35), transparent),
-    radial-gradient(1px 1px at 80% 10%, hsl(var(--foreground) / 0.4), transparent),
-    radial-gradient(1px 1px at 90% 60%, hsl(var(--foreground) / 0.3), transparent),
-    radial-gradient(1px 1px at 33% 80%, hsl(var(--foreground) / 0.35), different),
-    radial-gradient(1px 1px at 15% 90%, hsl(var(--foreground) / 0.4), transparent),
-    radial-gradient(1px 1px at 70% 40%, hsl(var(--foreground) / 0.3), transparent),
-    radial-gradient(1px 1px at 40% 20%, hsl(var(--foreground) / 0.35), transparent),
-    radial-gradient(1px 1px at 85% 85%, hsl(var(--foreground) / 0.4), transparent),
-    radial-gradient(2px 2px at 25% 60%, hsl(var(--primary) / 0.2), transparent),
-    radial-gradient(2px 2px at 75% 25%, hsl(var(--accent) / 0.2), transparent);
-  background-size: 200% 200%, 180% 180%, 220% 220%, 190% 190%, 210% 210%, 195% 195%, 205% 205%, 185% 185%, 215% 215%, 225% 225%, 300% 300%, 320% 320%;
-  animation: twinkle 3s ease-in-out infinite;
+    /* Estrelas brancas pequenas (1px) - opacidade média */
+    radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 60% 70%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 80% 10%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 90% 60%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 33% 80%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 15% 90%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 70% 40%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 40% 20%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 85% 85%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 12% 45%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 95% 35%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 5% 15%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 75% 88%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 42% 65%, rgba(255, 255, 255, 0.6), transparent),
+    /* Estrelas médias (2px) - mais brilho */
+    radial-gradient(2px 2px at 25% 60%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(2px 2px at 75% 25%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(2px 2px at 88% 75%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(2px 2px at 18% 12%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(2px 2px at 52% 38%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(2px 2px at 68% 92%, rgba(255, 255, 255, 0.7), transparent),
+    /* Estrelas grandes (3px) - destaque */
+    radial-gradient(3px 3px at 35% 15%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(3px 3px at 82% 42%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(3px 3px at 10% 68%, rgba(255, 255, 255, 0.9), transparent),
+    /* Estrelas coloridas ROXAS - mais intensas */
+    radial-gradient(2px 2px at 45% 55%, rgba(168, 85, 247, 0.6), transparent),
+    radial-gradient(2px 2px at 62% 18%, rgba(168, 85, 247, 0.5), transparent),
+    radial-gradient(3px 3px at 28% 78%, rgba(168, 85, 247, 0.7), transparent),
+    radial-gradient(2px 2px at 92% 52%, rgba(168, 85, 247, 0.6), transparent),
+    /* Estrelas coloridas AZUIS - mais intensas */
+    radial-gradient(2px 2px at 15% 35%, rgba(59, 130, 246, 0.6), transparent),
+    radial-gradient(2px 2px at 78% 68%, rgba(59, 130, 246, 0.5), transparent),
+    radial-gradient(3px 3px at 48% 8%, rgba(59, 130, 246, 0.7), transparent),
+    radial-gradient(2px 2px at 8% 82%, rgba(59, 130, 246, 0.6), transparent);
+  background-size: 
+    200% 200%, 180% 180%, 220% 220%, 190% 190%, 210% 210%, 
+    195% 195%, 205% 205%, 185% 185%, 215% 215%, 225% 225%,
+    230% 230%, 175% 175%, 240% 240%, 165% 165%, 235% 235%,
+    300% 300%, 320% 320%, 280% 280%, 340% 340%, 310% 310%, 290% 290%,
+    400% 400%, 380% 380%, 420% 420%,
+    350% 350%, 360% 360%, 370% 370%, 390% 390%,
+    330% 330%, 410% 410%, 355% 355%, 385% 385%;
+  animation: twinkle 3s ease-in-out infinite, twinkle-slow 5s ease-in-out infinite;
   pointer-events: none;
   z-index: 1;
 }
 
-/* Noise texture */
+/* Noise texture + Vignette */
 .starfield-bg::after {
   content: '';
   position: absolute;
@@ -131,8 +168,8 @@ All colors MUST be HSL.
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
-  box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.5);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+  box-shadow: inset 0 0 300px rgba(0, 0, 0, 0.7);
   pointer-events: none;
   z-index: 2;
 }
