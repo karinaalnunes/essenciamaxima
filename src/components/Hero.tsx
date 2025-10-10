@@ -19,7 +19,7 @@ export const Hero = () => {
 
       <main className="max-w-6xl mx-auto px-8">
       {/* Section 1: Hero */}
-      <section className="text-center space-y-8 pt-16 pb-20">
+      <section className="text-center space-y-10 pt-16 pb-20">
         <Badge variant="secondary" className="mb-4 text-sm px-4 py-2 animate-fade-in-scale">
           <Clock className="w-4 h-4 mr-2" />
           Teste gratuito - Poucos minutos
