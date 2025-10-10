@@ -7,6 +7,7 @@ import { FileText, LogOut, CheckCircle, Clock, TrendingUp, Network, Users, GitBr
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 import { useToast } from "@/hooks/use-toast";
 import { ModuleCard } from "@/components/ModuleCard";
+import { UpsellEssenciaMaxima } from "@/components/UpsellEssenciaMaxima";
 
 const FUTURE_MODULES = [
   { 
@@ -270,44 +271,11 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* CTA Discreto da Mentoria (apenas se MVV completo) */}
+        {/* Card de Upsell Essência Máxima (apenas se MVV completo) */}
         {mvvStatus === 'complete' && (
-          <Card className="mt-12 bg-gradient-to-r from-purple-950/30 to-blue-950/30 border-purple-500/30">
-            <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-white mb-2">
-                    💡 Quer transformar isso em prática?
-                  </h3>
-                  <p className="text-slate-300 text-lg mb-4">
-                    Aplique seu MVV em toda a empresa em 30 dias com a <strong>Mentoria Express</strong>
-                  </p>
-                  <ul className="space-y-2 text-slate-400">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
-                      Implementação prática guiada
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
-                      Alinhamento de equipe
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
-                      Rituais culturais customizados
-                    </li>
-                  </ul>
-                </div>
-                <Button 
-                  size="lg" 
-                  className="gap-2 whitespace-nowrap"
-                  onClick={() => window.location.href = "mailto:contato@maximaia.com.br?subject=Interesse na Mentoria Express"}
-                >
-                  Quero saber mais
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="mt-12">
+            <UpsellEssenciaMaxima />
+          </div>
         )}
       </main>
     </div>
