@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 export const Hero = () => {
-  return <div className="min-h-screen bg-gradient-hero antialiased">
+  return <div className="min-h-screen bg-gradient-hero antialiased starfield-bg">
       {/* Header */}
       <header className="flex justify-between items-center max-w-6xl mx-auto px-8 pt-8">
         <img src={logo} alt="Máxima iA" className="h-16 md:h-20 lg:h-24 w-auto" />
