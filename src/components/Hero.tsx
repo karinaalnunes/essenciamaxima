@@ -18,36 +18,36 @@ export const Hero = () => {
       </header>
 
       <main className="max-w-6xl mx-auto px-8">
-        {/* Section 1: Hero */}
-        <section className="text-center space-y-8 pt-16 pb-32">
-          <Badge variant="secondary" className="mb-4 text-sm px-4 py-2">
-            <Clock className="w-4 h-4 mr-2" />
-            Teste gratuito - Poucos minutos
-          </Badge>
-          
-          <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-            Defina a{" "}
-            <span className="bg-gradient-text bg-clip-text text-transparent">
-              Identidade
-            </span>{" "}
-            da sua Empresa em Minutos
-          </h1>
-          
-          <p className="text-slate-300 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-            Crie Missão, Visão e Valores profissionais com inteligência artificial.
-            Gratuito, rápido e alinhado com o propósito do seu negócio.
-          </p>
-          
-          <Link to="/capturar">
-            <Button size="lg" className="gap-2 text-lg px-8 py-6">
-              Gerar meu MVV Grátis
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-          </Link>
-        </section>
+      {/* Section 1: Hero */}
+      <section className="text-center space-y-8 pt-16 pb-20">
+        <Badge variant="secondary" className="mb-4 text-sm px-4 py-2 animate-fade-in-scale">
+          <Clock className="w-4 h-4 mr-2" />
+          Teste gratuito - Poucos minutos
+        </Badge>
+        
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight animate-fade-in-up">
+          Defina a{" "}
+          <span className="bg-gradient-text bg-clip-text text-transparent">
+            Identidade
+          </span>{" "}
+          da sua Empresa em Minutos
+        </h1>
+        
+        <p className="text-slate-300 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed animate-fade-in-up animation-delay-100">
+          Crie Missão, Visão e Valores profissionais com inteligência artificial.
+          Gratuito, rápido e alinhado com o propósito do seu negócio.
+        </p>
+        
+        <Link to="/capturar">
+          <Button size="lg" className="gap-2 text-lg px-8 py-6 group animate-fade-in-up animation-delay-200">
+            Gerar meu MVV Grátis
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Button>
+        </Link>
+      </section>
 
-        {/* Section 2: Social Proof - Gallup Data */}
-        <section className="py-32 border-t border-slate-800">
+      {/* Section 2: Social Proof - Gallup Data */}
+      <section className="py-24 border-t border-slate-800">
           <div className="bg-card/50 border border-slate-700/50 rounded-3xl p-12 backdrop-blur-sm">
             <div className="text-center space-y-6">
               <TrendingUp className="w-16 h-16 mx-auto text-primary" />
@@ -88,281 +88,235 @@ export const Hero = () => {
           </div>
         </section>
 
-        {/* Section 3: Como Funciona */}
-        <section className="py-32 border-t border-slate-800">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
-            Como <span className="bg-gradient-text bg-clip-text text-transparent">Funciona</span>
-          </h2>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-card/30 border border-slate-700/50 rounded-3xl p-8 backdrop-blur-sm space-y-4 hover:border-primary/50 transition-all">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">1. Conte sobre sua empresa</h3>
-              <p className="text-slate-300 leading-relaxed">
-                Responda perguntas simples sobre seu negócio, público e propósito em um diálogo consultivo
-              </p>
+      {/* Section 3: Como Funciona */}
+      <section className="py-20 border-t border-slate-800">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 animate-fade-in-up">
+          Como <span className="bg-gradient-text bg-clip-text text-transparent">Funciona</span>
+        </h2>
+        
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="group relative bg-card/40 border border-slate-700/60 rounded-3xl p-8 backdrop-blur-sm space-y-4 hover:bg-card/50 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 animate-fade-in-scale animation-delay-100">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Sparkles className="w-6 h-6 text-primary" />
             </div>
-            
-            <div className="bg-card/30 border border-slate-700/50 rounded-3xl p-8 backdrop-blur-sm space-y-4 hover:border-primary/50 transition-all">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Target className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">2. IA gera seu MVV</h3>
-              <p className="text-slate-300 leading-relaxed">
-                Nossa inteligência artificial cria propostas personalizadas em segundos
-              </p>
-            </div>
-            
-            <div className="bg-card/30 border border-slate-700/50 rounded-3xl p-8 backdrop-blur-sm space-y-4 hover:border-primary/50 transition-all">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <CheckCircle2 className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">3. Exporte e use</h3>
-              <p className="text-slate-300 leading-relaxed">
-                Refine, salve e exporte seu documento para usar imediatamente
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 4: Features Grid */}
-        <section className="py-32 border-t border-slate-800">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
-            Teste Grátis - Crie Seu Primeiro MVV
-          </h2>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-card/30 border border-slate-700/50 rounded-3xl p-6 backdrop-blur-sm hover:border-primary/50 transition-all">
-              <div className="flex items-center gap-4">
-                <Sparkles className="w-6 h-6 text-primary flex-shrink-0" />
-                <span className="text-slate-200 text-lg">Um projeto MVV gratuito por e-mail</span>
-              </div>
-            </div>
-            
-            <div className="bg-card/30 border border-slate-700/50 rounded-3xl p-6 backdrop-blur-sm hover:border-primary/50 transition-all">
-              <div className="flex items-center gap-4">
-                <Target className="w-6 h-6 text-primary flex-shrink-0" />
-                <span className="text-slate-200 text-lg">Refine e personalize seu MVV</span>
-              </div>
-            </div>
-            
-            <div className="bg-card/30 border border-slate-700/50 rounded-3xl p-6 backdrop-blur-sm hover:border-primary/50 transition-all">
-              <div className="flex items-center gap-4">
-                <Clock className="w-6 h-6 text-primary flex-shrink-0" />
-                <span className="text-slate-200 text-lg">Processo rápido (cerca de 10 min)</span>
-              </div>
-            </div>
-            
-            <div className="bg-card/30 border border-slate-700/50 rounded-3xl p-6 backdrop-blur-sm hover:border-primary/50 transition-all">
-              <div className="flex items-center gap-4">
-                <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0" />
-                <span className="text-slate-200 text-lg">Exporte em PDF, Markdown ou copie</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 5: Social Proof - Testimonials */}
-        <section className="py-32 border-t border-slate-800">
-          <div className="text-center space-y-8">
-            <div className="inline-flex items-center gap-3 bg-card/30 border border-slate-700/50 rounded-full px-6 py-3">
-              <Users className="w-5 h-5 text-primary" />
-              <span className="text-slate-200 font-semibold">+150 empresários impactados</span>
-            </div>
-            
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Junte-se a <span className="bg-gradient-text bg-clip-text text-transparent">Centenas de Empresários</span>
-            </h2>
-            
-            <p className="text-slate-300 text-lg max-w-2xl mx-auto">
-              que já definiram a identidade de suas empresas e estão construindo culturas mais fortes e alinhadas
+            <h3 className="text-xl font-semibold">1. Conte sobre sua empresa</h3>
+            <p className="text-slate-300 leading-relaxed">
+              Responda perguntas simples sobre seu negócio, público e propósito em um diálogo consultivo
             </p>
           </div>
-        </section>
-
-        {/* Section 6: Process Walkthrough - 7 Etapas */}
-        <section className="py-32 border-t border-slate-800">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8">
-            7 Etapas para seu <span className="bg-gradient-text bg-clip-text text-transparent">MVV Perfeito</span>
-          </h2>
           
-          <p className="text-slate-300 text-lg text-center mb-16 max-w-2xl mx-auto">
-            Um processo consultivo guiado por IA que leva você do contexto à clareza estratégica
-          </p>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Placeholder for screenshots */}
-            <div className="bg-card/30 border border-slate-700/50 rounded-3xl p-8 space-y-4">
-              <div className="aspect-video bg-slate-800/50 rounded-xl flex items-center justify-center border border-slate-700/30">
-                <BarChart3 className="w-12 h-12 text-slate-600" />
-              </div>
-              <h3 className="text-lg font-semibold">Chat Consultivo em Ação</h3>
-              <p className="text-slate-400 text-sm">
-                Perguntas inteligentes que extraem o máximo do seu contexto empresarial
-              </p>
+          <div className="group relative bg-card/40 border border-slate-700/60 rounded-3xl p-8 backdrop-blur-sm space-y-4 hover:bg-card/50 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 animate-fade-in-scale animation-delay-200">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Target className="w-6 h-6 text-primary" />
             </div>
-            
-            <div className="bg-card/30 border border-slate-700/50 rounded-3xl p-8 space-y-4">
-              <div className="aspect-video bg-slate-800/50 rounded-xl flex items-center justify-center border border-slate-700/30">
-                <Target className="w-12 h-12 text-slate-600" />
-              </div>
-              <h3 className="text-lg font-semibold">MVV Gerado pela IA</h3>
-              <p className="text-slate-400 text-sm">
-                Propostas personalizadas de Missão, Visão e Valores alinhadas ao seu negócio
-              </p>
-            </div>
-            
-            <div className="bg-card/30 border border-slate-700/50 rounded-3xl p-8 space-y-4">
-              <div className="aspect-video bg-slate-800/50 rounded-xl flex items-center justify-center border border-slate-700/30">
-                <CheckCircle2 className="w-12 h-12 text-slate-600" />
-              </div>
-              <h3 className="text-lg font-semibold">Relatório Final em PDF</h3>
-              <p className="text-slate-400 text-sm">
-                Documento profissional pronto para ser compartilhado com seu time
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 7: Bridge to Essência Máxima */}
-        <section className="py-32 border-t border-slate-800">
-          <div className="bg-gradient-to-br from-primary/10 to-blue-500/10 border border-primary/30 rounded-3xl p-12 backdrop-blur-sm">
-            <div className="text-center space-y-6 mb-12">
-              <Badge variant="secondary" className="mb-4">
-                Próximo Passo Exclusivo
-              </Badge>
-              
-              <h2 className="text-3xl md:text-4xl font-bold">
-                Após o MVV, conheça a <span className="bg-gradient-text bg-clip-text text-transparent">Essência Máxima</span>
-              </h2>
-              
-              <p className="text-slate-300 text-lg max-w-3xl mx-auto leading-relaxed">
-                Transforme seus Valores em <strong>Rituais Práticos</strong>, defina <strong>Princípios Norteadores</strong> 
-                e crie um <strong>Plano de Ação SMART</strong> — o DNA da sua empresa em ação
-              </p>
-            </div>
-
-            {/* Features Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              <div className="bg-card/50 border border-slate-700/50 rounded-2xl p-6 space-y-3">
-                <Shield className="w-8 h-8 text-primary" />
-                <h3 className="font-semibold">Princípios Norteadores</h3>
-                <p className="text-slate-400 text-sm">Guias práticos de decisão do dia a dia</p>
-              </div>
-              
-              <div className="bg-card/50 border border-slate-700/50 rounded-2xl p-6 space-y-3">
-                <Users className="w-8 h-8 text-primary" />
-                <h3 className="font-semibold">Rituais Culturais</h3>
-                <p className="text-slate-400 text-sm">Práticas que enraízam seus valores</p>
-              </div>
-              
-              <div className="bg-card/50 border border-slate-700/50 rounded-2xl p-6 space-y-3">
-                <Target className="w-8 h-8 text-primary" />
-                <h3 className="font-semibold">Plano de Ação SMART</h3>
-                <p className="text-slate-400 text-sm">Metas claras e mensuráveis</p>
-              </div>
-              
-              <div className="bg-card/50 border border-slate-700/50 rounded-2xl p-6 space-y-3">
-                <Heart className="w-8 h-8 text-primary" />
-                <h3 className="font-semibold">Desenvolvimento Integral</h3>
-                <p className="text-slate-400 text-sm">Crescimento humano e profissional</p>
-              </div>
-            </div>
-
-            {/* Pricing Options */}
-            <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-              <div className="bg-card/80 border border-slate-700/50 rounded-2xl p-8 space-y-6">
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">Código Completo</h3>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold">R$ 197</span>
-                    <span className="text-slate-400">pagamento único</span>
-                  </div>
-                </div>
-                
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-300">Robô consultivo completo (7 etapas)</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-300">Relatório Essência Máxima em PDF</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-300">Plano de Ação SMART</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-300">Acesso vitalício ao material</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div className="bg-gradient-to-br from-primary/20 to-blue-500/20 border-2 border-primary rounded-2xl p-8 space-y-6 relative">
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary">
-                  MAIS ESCOLHIDA
-                </Badge>
-                
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">Código + Mentoria Individual</h3>
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-4xl font-bold">R$ 697</span>
-                    <span className="text-slate-400 line-through">R$ 1.697</span>
-                  </div>
-                  <p className="text-sm text-primary font-semibold">Economize R$ 1.000</p>
-                </div>
-                
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-300">Tudo da Opção 1</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-300"><strong>1 sessão individual de 1h</strong> comigo</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-300">Revisão personalizada do seu Código</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-300">Suporte na implementação inicial</span>
-                  </li>
-                </ul>
-                
-                <p className="text-xs text-slate-400 pt-4 border-t border-slate-700">
-                  💰 Valor real da sessão: R$ 1.500
-                </p>
-              </div>
-            </div>
-            
-            <p className="text-center text-slate-400 text-sm mt-8">
-              Disponível apenas para quem completar o MVV gratuito
+            <h3 className="text-xl font-semibold">2. IA gera seu MVV</h3>
+            <p className="text-slate-300 leading-relaxed">
+              Nossa inteligência artificial cria propostas personalizadas em segundos
             </p>
           </div>
-        </section>
+          
+          <div className="group relative bg-card/40 border border-slate-700/60 rounded-3xl p-8 backdrop-blur-sm space-y-4 hover:bg-card/50 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 animate-fade-in-scale animation-delay-300">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <CheckCircle2 className="w-6 h-6 text-primary" />
+            </div>
+            <h3 className="text-xl font-semibold">3. Exporte e use</h3>
+            <p className="text-slate-300 leading-relaxed">
+              Refine, salve e exporte seu documento para usar imediatamente
+            </p>
+          </div>
+        </div>
+      </section>
 
-        {/* Section 8: Final CTA */}
-        <section className="text-center space-y-8 py-32">
-          <h2 className="text-3xl md:text-4xl font-bold">
-            Pronto para Definir sua Identidade Corporativa?
+      {/* Section 4: Features Grid */}
+      <section className="py-16 border-t border-slate-800">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 animate-fade-in-up">
+          Teste Grátis - Crie Seu Primeiro MVV
+        </h2>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="group bg-card/40 border border-slate-700/60 rounded-3xl p-6 backdrop-blur-sm hover:bg-card/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <Sparkles className="w-6 h-6 text-primary flex-shrink-0 group-hover:scale-110 transition-transform" />
+              <span className="text-slate-200 text-lg">Um projeto MVV gratuito por e-mail</span>
+            </div>
+          </div>
+          
+          <div className="group bg-card/40 border border-slate-700/60 rounded-3xl p-6 backdrop-blur-sm hover:bg-card/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <Target className="w-6 h-6 text-primary flex-shrink-0 group-hover:scale-110 transition-transform" />
+              <span className="text-slate-200 text-lg">Refine e personalize seu MVV</span>
+            </div>
+          </div>
+          
+          <div className="group bg-card/40 border border-slate-700/60 rounded-3xl p-6 backdrop-blur-sm hover:bg-card/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <Clock className="w-6 h-6 text-primary flex-shrink-0 group-hover:scale-110 transition-transform" />
+              <span className="text-slate-200 text-lg">Processo rápido (cerca de 10 min)</span>
+            </div>
+          </div>
+          
+          <div className="group bg-card/40 border border-slate-700/60 rounded-3xl p-6 backdrop-blur-sm hover:bg-card/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 group-hover:scale-110 transition-transform" />
+              <span className="text-slate-200 text-lg">Exporte em PDF, Markdown ou copie</span>
+            </div>
+          </div>
+          
+          <div className="group bg-card/40 border border-slate-700/60 rounded-3xl p-6 backdrop-blur-sm hover:bg-card/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <Shield className="w-6 h-6 text-primary flex-shrink-0 group-hover:scale-110 transition-transform" />
+              <span className="text-slate-200 text-lg">100% seguro e confidencial</span>
+            </div>
+          </div>
+          
+          <div className="group bg-card/40 border border-slate-700/60 rounded-3xl p-6 backdrop-blur-sm hover:bg-card/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+            <div className="flex items-center gap-4">
+              <Heart className="w-6 h-6 text-primary flex-shrink-0 group-hover:scale-110 transition-transform" />
+              <span className="text-slate-200 text-lg">Alinhado ao seu propósito</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 5: Social Proof - Testimonials */}
+      <section className="py-20 border-t border-slate-800">
+        <div className="text-center space-y-12">
+          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-primary/20 to-blue-500/20 border border-primary/30 rounded-full px-6 py-3 animate-fade-in-scale">
+            <Users className="w-5 h-5 text-primary" />
+            <span className="text-slate-200 font-semibold">+150 empresários impactados</span>
+          </div>
+          
+          <h2 className="text-3xl md:text-4xl font-bold animate-fade-in-up">
+            Junte-se a <span className="bg-gradient-text bg-clip-text text-transparent">Centenas de Empresários</span>
           </h2>
           
-          <p className="text-slate-300 text-lg max-w-2xl mx-auto">
-            Comece agora com seu MVV gratuito e descubra o poder de uma cultura bem definida
-          </p>
+          {/* NOVO: Grid de conquistas */}
+          <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-12">
+            <div className="group bg-card/40 border border-slate-700/60 rounded-2xl p-6 space-y-2 hover:bg-card/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 animate-fade-in-scale animation-delay-100">
+              <div className="text-4xl font-bold text-primary group-hover:scale-110 transition-transform">10min</div>
+              <p className="text-slate-300 text-sm">Tempo médio para completar</p>
+            </div>
+            <div className="group bg-card/40 border border-slate-700/60 rounded-2xl p-6 space-y-2 hover:bg-card/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 animate-fade-in-scale animation-delay-200">
+              <div className="text-4xl font-bold text-primary group-hover:scale-110 transition-transform">100%</div>
+              <p className="text-slate-300 text-sm">Personalizado para seu negócio</p>
+            </div>
+            <div className="group bg-card/40 border border-slate-700/60 rounded-2xl p-6 space-y-2 hover:bg-card/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 animate-fade-in-scale animation-delay-300">
+              <div className="text-4xl font-bold text-primary group-hover:scale-110 transition-transform">Grátis</div>
+              <p className="text-slate-300 text-sm">Sem cartão de crédito</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 6: Process Walkthrough - 7 Etapas */}
+      <section className="py-24 border-t border-slate-800">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 animate-fade-in-up">
+          Veja como funciona na <span className="bg-gradient-text bg-clip-text text-transparent">prática</span>
+        </h2>
+        
+        <p className="text-slate-300 text-lg text-center mb-16 max-w-2xl mx-auto">
+          Um processo consultivo guiado por IA que leva você do contexto à clareza estratégica
+        </p>
+        
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Card 1: Chat Consultivo */}
+          <div className="group bg-card/40 border border-slate-700/60 rounded-3xl p-8 space-y-4 hover:bg-card/50 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 animate-fade-in-scale animation-delay-100">
+            <div className="aspect-video bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-xl flex flex-col items-center justify-center border border-slate-700/30 p-6 group-hover:scale-[1.02] transition-transform">
+              <BarChart3 className="w-16 h-16 text-primary mb-4" />
+              <div className="text-center space-y-2">
+                <div className="text-sm text-slate-400 bg-slate-800/50 rounded-lg px-4 py-2">
+                  "Qual é o principal objetivo do seu negócio?"
+                </div>
+                <div className="text-sm text-slate-300 bg-primary/20 rounded-lg px-4 py-2">
+                  "Transformar vidas através da educação..."
+                </div>
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold">1. Chat Consultivo Inteligente</h3>
+            <p className="text-slate-400 text-sm">
+              Perguntas estratégicas que extraem o máximo do seu contexto empresarial
+            </p>
+          </div>
           
-          <Link to="/capturar">
-            <Button size="lg" className="gap-2 text-lg px-8 py-6">
-              Começar Agora - É Grátis
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-          </Link>
+          {/* Card 2: MVV sendo gerado */}
+          <div className="group bg-card/40 border border-slate-700/60 rounded-3xl p-8 space-y-4 hover:bg-card/50 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 animate-fade-in-scale animation-delay-200">
+            <div className="aspect-video bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-xl flex flex-col items-center justify-center border border-slate-700/30 p-6 group-hover:scale-[1.02] transition-transform">
+              <Target className="w-16 h-16 text-primary mb-4 animate-pulse" />
+              <div className="space-y-2 w-full">
+                <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-primary to-blue-500 w-3/4 animate-gradient-shift"></div>
+                </div>
+                <p className="text-xs text-slate-400 text-center">Analisando contexto...</p>
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold">2. IA Gera Propostas</h3>
+            <p className="text-slate-400 text-sm">
+              Algoritmo cria Missão, Visão e Valores personalizados para seu negócio
+            </p>
+          </div>
+          
+          {/* Card 3: Resultado Final */}
+          <div className="group bg-card/40 border border-slate-700/60 rounded-3xl p-8 space-y-4 hover:bg-card/50 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 animate-fade-in-scale animation-delay-300">
+            <div className="aspect-video bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-xl flex flex-col items-center justify-center border border-slate-700/30 p-6 group-hover:scale-[1.02] transition-transform">
+              <CheckCircle2 className="w-16 h-16 text-primary mb-4" />
+              <div className="text-center space-y-1 w-full px-4">
+                <div className="text-xs font-semibold text-primary">MISSÃO</div>
+                <div className="text-[10px] text-slate-300 leading-relaxed">Transformar realidades através...</div>
+                <div className="h-px bg-slate-700 my-2"></div>
+                <div className="text-xs font-semibold text-primary">VISÃO</div>
+                <div className="text-[10px] text-slate-300 leading-relaxed">Ser referência nacional em...</div>
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold">3. Refine Seu MVV</h3>
+            <p className="text-slate-400 text-sm">
+              Ajuste cada elemento até ficar perfeito para sua empresa
+            </p>
+          </div>
+          
+          {/* Card 4: Export em PDF */}
+          <div className="group bg-card/40 border border-slate-700/60 rounded-3xl p-8 space-y-4 hover:bg-card/50 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 animate-fade-in-scale animation-delay-400">
+            <div className="aspect-video bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-xl flex flex-col items-center justify-center border border-slate-700/30 p-6 group-hover:scale-[1.02] transition-transform">
+              <div className="bg-white/10 rounded-lg p-4 border border-slate-600">
+                <div className="space-y-2">
+                  <div className="h-2 bg-slate-600 rounded w-20"></div>
+                  <div className="h-2 bg-slate-600 rounded w-16"></div>
+                  <div className="h-px bg-slate-600 my-2"></div>
+                  <div className="h-1.5 bg-slate-700 rounded w-24"></div>
+                  <div className="h-1.5 bg-slate-700 rounded w-20"></div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400 mt-3">documento_mvv.pdf</p>
+            </div>
+            <h3 className="text-lg font-semibold">4. Exporte e Compartilhe</h3>
+            <p className="text-slate-400 text-sm">
+              Documento profissional em PDF pronto para apresentar ao seu time
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 7: Final CTA */}
+      <section className="text-center space-y-8 py-20 border-t border-slate-800">
+        <h2 className="text-3xl md:text-4xl font-bold animate-fade-in-up">
+          Pronto para Definir sua Identidade Corporativa?
+        </h2>
+        
+        <p className="text-slate-300 text-lg max-w-2xl mx-auto animate-fade-in-up animation-delay-100">
+          Comece agora com seu MVV gratuito e descubra o poder de uma cultura bem definida
+        </p>
+        
+        <Link to="/capturar">
+          <Button size="lg" className="gap-2 text-lg px-8 py-6 group animate-fade-in-up animation-delay-200">
+            Começar Agora - É Grátis
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Button>
+        </Link>
+        
+        {/* NOVO: Micro-hint sutil */}
+        <p className="text-slate-400 text-sm mt-8 max-w-xl mx-auto leading-relaxed animate-fade-in-up animation-delay-300">
+          💡 <em>Após concluir seu MVV, você descobrirá como transformar isso em 
+          prática no dia a dia da sua empresa</em>
+        </p>
         </section>
       </main>
 
