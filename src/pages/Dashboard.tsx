@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, LogOut, CheckCircle, Clock, TrendingUp, Network, Users, GitBranch, Workflow, BarChart3, Heart, ArrowRight } from "lucide-react";
+import { FileText, LogOut, CheckCircle, Clock, TrendingUp, Network, Users, GitBranch, Workflow, BarChart3, Heart, ArrowRight, Loader2 } from "lucide-react";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 import { useToast } from "@/hooks/use-toast";
 import { ModuleCard } from "@/components/ModuleCard";
@@ -63,19 +63,22 @@ const FUTURE_MODULES = [
     title: "Cultura Máxima", 
     description: "Código de Cultura Completo",
     icon: Heart,
-    locked: true
+    locked: false
   },
 ];
 
 type MVVStatus = 'none' | 'incomplete' | 'complete';
+type CultureStatus = 'none' | 'incomplete' | 'complete';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [document, setDocument] = useState<any>(null);
+  const [cultureDocument, setCultureDocument] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [mvvStatus, setMvvStatus] = useState<MVVStatus>('none');
+  const [cultureStatus, setCultureStatus] = useState<CultureStatus>('none');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -102,6 +105,26 @@ export default function Dashboard() {
         setDocument(doc);
         const isComplete = doc.mission && doc.vision && doc.values;
         setMvvStatus(isComplete ? 'complete' : 'incomplete');
+
+        // Buscar documento de Cultura se MVV completo
+        if (isComplete) {
+          const { data: cultureDocs } = await supabase
+            .from("culture_documents")
+            .select("*")
+            .eq("user_id", session.user.id)
+            .eq("mvv_document_id", doc.id)
+            .order("created_at", { ascending: false });
+
+          if (!cultureDocs || cultureDocs.length === 0) {
+            setCultureStatus('none');
+          } else {
+            const cultureDoc = cultureDocs[0];
+            setCultureDocument(cultureDoc);
+            const principles = Array.isArray(cultureDoc.guiding_principles) ? cultureDoc.guiding_principles : [];
+            const cultureComplete = cultureDoc.reputation_goal && principles.length > 0;
+            setCultureStatus(cultureComplete ? 'complete' : 'incomplete');
+          }
+        }
       }
 
       setLoading(false);
@@ -245,6 +268,65 @@ export default function Dashboard() {
                 
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={() => navigate(`/relatorio/${document.id}`)}>
+                    Ver Relatório
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Card Cultura Máxima - só aparece se MVV completo */}
+          {mvvStatus === 'complete' && cultureStatus === 'none' && (
+            <Card className="bg-slate-800/50 border-purple-500/50 p-6 mt-4">
+              <div className="flex items-start gap-4">
+                <Heart className="text-purple-400 w-8 h-8 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">💜 Cultura Máxima</h3>
+                  <p className="text-slate-400 mb-2">Código de Cultura Completo</p>
+                  <p className="text-sm text-slate-400">
+                    Expanda seu MVV com um Código de Cultura completo: princípios norteadores, rituais, desenvolvimento de pessoas e plano de ação 30/60/90/120 dias.
+                  </p>
+                </div>
+                <Button onClick={() => navigate("/novo-cultura")}>
+                  Iniciar <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {mvvStatus === 'complete' && cultureStatus === 'incomplete' && cultureDocument && (
+            <Card className="bg-slate-800/50 border-yellow-500/50 p-6 mt-4">
+              <div className="flex items-start gap-4">
+                <Clock className="text-yellow-400 w-8 h-8 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">🔄 Cultura Máxima</h3>
+                  <p className="text-slate-400 mb-2">Em andamento</p>
+                  <p className="text-sm text-slate-400">
+                    Continue estruturando o Código de Cultura da sua empresa
+                  </p>
+                </div>
+                <Button onClick={() => navigate("/novo-cultura")}>
+                  Continuar Consultoria
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {mvvStatus === 'complete' && cultureStatus === 'complete' && cultureDocument && (
+            <Card className="bg-slate-800/50 border-green-500/50 p-6 mt-4">
+              <div className="flex items-start gap-4">
+                <CheckCircle className="text-green-400 w-8 h-8 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">✅ Cultura Máxima</h3>
+                  <p className="text-slate-400 mb-2">
+                    Completo em {new Date(cultureDocument.created_at).toLocaleDateString("pt-BR")}
+                  </p>
+                  <p className="text-sm text-slate-400">
+                    Código de Cultura Completo com Plano de Ação 30/60/90/120 dias
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => navigate(`/relatorio-cultura/${cultureDocument.id}`)}>
                     Ver Relatório
                   </Button>
                 </div>

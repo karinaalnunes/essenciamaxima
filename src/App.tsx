@@ -9,10 +9,12 @@ import Obrigado from "./pages/Obrigado";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import NovoMVV from "./pages/NovoMVV";
+import NovoCultura from "./pages/NovoCultura";
 import Termos from "./pages/Termos";
 import Privacidade from "./pages/Privacidade";
 import NotFound from "./pages/NotFound";
 import RelatorioMVV from "./pages/RelatorioMVV";
+import RelatorioCultura from "./pages/RelatorioCultura";
 
 const queryClient = new QueryClient();
 
@@ -29,7 +31,9 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/novo-mvv" element={<NovoMVV />} />
+          <Route path="/novo-cultura" element={<NovoCultura />} />
           <Route path="/relatorio/:id" element={<RelatorioMVV />} />
+          <Route path="/relatorio-cultura/:id" element={<RelatorioCultura />} />
           <Route path="/termos" element={<Termos />} />
           <Route path="/privacidade" element={<Privacidade />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

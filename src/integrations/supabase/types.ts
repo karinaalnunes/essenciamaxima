@@ -46,6 +46,117 @@ export type Database = {
           },
         ]
       }
+      culture_conversation_history: {
+        Row: {
+          content: string
+          created_at: string
+          culture_document_id: string
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          culture_document_id: string
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          culture_document_id?: string
+          id?: string
+          role?: string
+        }
+        Relationships: []
+      }
+      culture_documents: {
+        Row: {
+          action_plan_120: Json | null
+          action_plan_30: Json | null
+          action_plan_60: Json | null
+          action_plan_90: Json | null
+          closing_message: string | null
+          competitive_advantage: string | null
+          created_at: string
+          cultural_challenges: Json | null
+          cultural_essence: string | null
+          cultural_rituals: Json | null
+          cultural_strengths: Json | null
+          culture_indicators: Json | null
+          growth_practices: string | null
+          guiding_principles: Json | null
+          id: string
+          mvv_document_id: string
+          psychological_safety_practices: string | null
+          reputation_goal: string | null
+          stakeholder_guidelines: Json | null
+          strategic_focus: string | null
+          swot_improvements: Json | null
+          swot_strengths: Json | null
+          title: string
+          updated_at: string
+          user_id: string
+          wellbeing_support: string | null
+        }
+        Insert: {
+          action_plan_120?: Json | null
+          action_plan_30?: Json | null
+          action_plan_60?: Json | null
+          action_plan_90?: Json | null
+          closing_message?: string | null
+          competitive_advantage?: string | null
+          created_at?: string
+          cultural_challenges?: Json | null
+          cultural_essence?: string | null
+          cultural_rituals?: Json | null
+          cultural_strengths?: Json | null
+          culture_indicators?: Json | null
+          growth_practices?: string | null
+          guiding_principles?: Json | null
+          id?: string
+          mvv_document_id: string
+          psychological_safety_practices?: string | null
+          reputation_goal?: string | null
+          stakeholder_guidelines?: Json | null
+          strategic_focus?: string | null
+          swot_improvements?: Json | null
+          swot_strengths?: Json | null
+          title: string
+          updated_at?: string
+          user_id: string
+          wellbeing_support?: string | null
+        }
+        Update: {
+          action_plan_120?: Json | null
+          action_plan_30?: Json | null
+          action_plan_60?: Json | null
+          action_plan_90?: Json | null
+          closing_message?: string | null
+          competitive_advantage?: string | null
+          created_at?: string
+          cultural_challenges?: Json | null
+          cultural_essence?: string | null
+          cultural_rituals?: Json | null
+          cultural_strengths?: Json | null
+          culture_indicators?: Json | null
+          growth_practices?: string | null
+          guiding_principles?: Json | null
+          id?: string
+          mvv_document_id?: string
+          psychological_safety_practices?: string | null
+          reputation_goal?: string | null
+          stakeholder_guidelines?: Json | null
+          strategic_focus?: string | null
+          swot_improvements?: Json | null
+          swot_strengths?: Json | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          wellbeing_support?: string | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           browser: string | null
