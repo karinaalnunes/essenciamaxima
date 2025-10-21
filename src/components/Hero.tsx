@@ -177,15 +177,12 @@ export const Hero = () => {
       </section>
 
       {/* Section 5: Social Proof - Testimonials */}
-      <section className="py-20 border-t border-slate-800">
-        <div className="text-center space-y-12">
-          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-primary/20 to-blue-500/20 border border-primary/30 rounded-full px-6 py-3 animate-fade-in-scale">
-            <Users className="w-5 h-5 text-primary" />
-            <span className="text-slate-200 font-semibold">+150 empresários impactados</span>
-          </div>
+      <section className="border-t border-slate-800 py-[8px]">
+        <div className="text-center space-y-12 py-[50px]">
+          
           
           <h2 className="text-3xl md:text-4xl font-bold animate-fade-in-up">
-            Junte-se a <span className="bg-gradient-text bg-clip-text text-transparent">Centenas de Empresários</span>
+            Junte-se a <span className="bg-gradient-text bg-clip-text text-transparent">Diversos de Empresários</span>
           </h2>
           
           {/* NOVO: Grid de conquistas */}
