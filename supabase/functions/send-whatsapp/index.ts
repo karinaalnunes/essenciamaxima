@@ -28,19 +28,19 @@ function getRegionalGreeting(phone: string): string {
   }
   // Rio de Janeiro
   if ([21, 22, 24].includes(dddNum)) {
-    return "E aí, meu rei/rainha! 🏖️";
+    return "Ótimas novidades! 🏖️";
   }
   // Minas Gerais
   if ([31, 32, 33, 34, 35, 37, 38].includes(dddNum)) {
-    return "Opa, sô! ⛰️";
+    return "Boa notícia! ⛰️";
   }
   // São Paulo
   if ([11, 12, 13, 14, 15, 16, 17, 18, 19].includes(dddNum)) {
-    return "E aí, mano! 🏙️";
+    return "Olá! 🚀";
   }
   // Norte (AC, AP, AM, PA, RO, RR, TO)
   if ([61, 62, 63, 64, 65, 66, 67, 68, 69, 91, 92, 93, 94, 95, 96, 97].includes(dddNum)) {
-    return "Fala, brother! 🌳";
+    return "Boa notícia! 🌳";
   }
   
   // Padrão
