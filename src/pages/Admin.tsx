@@ -30,13 +30,13 @@ export default function Admin() {
         return;
       }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_admin')
-        .eq('id', user.id)
-        .single();
+      const { data: hasAdminRole, error: roleError } = await supabase
+        .rpc('has_role', { 
+          _user_id: user.id, 
+          _role: 'admin' 
+        });
 
-      if (!profile?.is_admin) {
+      if (roleError || !hasAdminRole) {
         toast.error("Acesso negado", { description: "Você não tem permissão para acessar esta área." });
         navigate('/dashboard');
         return;

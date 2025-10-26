@@ -92,14 +92,14 @@ export default function Dashboard() {
 
       setUser(session.user);
       
-      // Check admin status
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_admin')
-        .eq('id', session.user.id)
-        .single();
+      // Check admin status using has_role function
+      const { data: hasAdminRole } = await supabase
+        .rpc('has_role', { 
+          _user_id: session.user.id, 
+          _role: 'admin' 
+        });
       
-      if (profile?.is_admin) {
+      if (hasAdminRole) {
         setIsAdmin(true);
       }
       
@@ -185,6 +185,15 @@ export default function Dashboard() {
         </div>
         
         <div className="flex items-center gap-4">
+          {isAdmin && (
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={() => navigate('/admin')}
+            >
+              Admin Dashboard
+            </Button>
+          )}
           <Link to="/perfil">
             <Button variant="outline" size="sm">
               Perfil
