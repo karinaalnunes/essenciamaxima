@@ -26,28 +26,31 @@ serve(async (req: Request) => {
     const user = userData.users.find(u => u.email === email);
 
     const welcomeEmailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #3b82f6; margin-bottom: 24px;">Bem-vindo(a) à Máxima iA! 🚀</h1>
-        <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 16px;">Olá ${name},</p>
-        <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 24px;">
-          É um prazer ter você conosco! Você agora tem acesso às nossas ferramentas de estratégia empresarial.
-        </p>
-        <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 24px;">
-          Crie seu <strong>MVV (Missão, Visão e Valores)</strong> e <strong>Cultura Organizacional</strong> de forma consultiva e personalizada.
-        </p>
-        <div style="text-align: center; margin: 32px 0;">
-          <a href="https://maximaia.com.br/dashboard" style="background: #3b82f6; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-            🚀 Acessar Dashboard
-          </a>
-        </div>
-        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 32px 0;">
-        <p style="font-size: 14px; color: #6b7280; line-height: 1.6;">
-          Precisa de ajuda? Responda este email ou acesse nosso suporte.
-        </p>
-        <p style="font-size: 12px; color: #9ca3af; margin-top: 24px;">
-          Máxima iA - Estratégia Empresarial Inteligente
+      <h2 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0 0 20px 0; text-align: center;">
+        Bem-vindo à Máxima iA, ${name}! 🎉
+      </h2>
+      
+      <p style="color: #e2e8f0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+        Estamos muito felizes em ter você conosco! Você está a um passo de transformar a cultura da sua empresa.
+      </p>
+      
+      <div style="background: linear-gradient(135deg, rgba(155, 135, 245, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-left: 4px solid #9b87f5; padding: 20px; border-radius: 12px; margin: 30px 0;">
+        <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6; margin: 0;">
+          💡 <strong style="color: #ffffff;">Próximo passo:</strong> Crie sua conta e comece a gerar seu MVV profissional gratuitamente.
         </p>
       </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://maximaia.com.br/auth" 
+           style="display: inline-block; background: linear-gradient(135deg, #9b87f5 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 10px 30px rgba(155, 135, 245, 0.3);">
+          Criar Minha Conta Agora
+        </a>
+      </div>
+      
+      <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin: 30px 0 0 0; text-align: center;">
+        Até breve,<br>
+        <strong style="color: #ffffff;">Equipe Máxima iA</strong>
+      </p>
     `;
 
     // 1. Enviar Email
@@ -61,9 +64,39 @@ serve(async (req: Request) => {
       },
     });
 
-    // 2. Enviar WhatsApp (se telefone fornecido)
+    // 2. Enviar WhatsApp regionalizado (se telefone fornecido)
     if (phone) {
-      const whatsappMessage = `Olá ${name}! 👋\n\nBem-vindo(a) à Máxima iA! 🚀\n\nVocê agora tem acesso às nossas ferramentas de estratégia empresarial.\n\nCrie seu MVV (Missão, Visão e Valores) e Cultura Organizacional de forma consultiva e personalizada.\n\n✨ Comece agora: https://maximaia.com.br/dashboard\n\nQualquer dúvida, estamos aqui para ajudar!`;
+      const ddd = phone.replace(/\D/g, "").substring(2, 4);
+      const dddNum = parseInt(ddd);
+      
+      let greeting = "Olá! 👋";
+      if ([41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 53, 54, 55].includes(dddNum)) {
+        greeting = "Bah, tchê! 🧉";
+      } else if ([71, 73, 74, 75, 77, 79, 81, 82, 83, 84, 85, 86, 87, 88, 89, 98, 99].includes(dddNum)) {
+        greeting = "Oxe, visse! 🦀";
+      } else if ([21, 22, 24].includes(dddNum)) {
+        greeting = "E aí, meu rei/rainha! 🏖️";
+      } else if ([31, 32, 33, 34, 35, 37, 38].includes(dddNum)) {
+        greeting = "Opa, sô! ⛰️";
+      } else if ([11, 12, 13, 14, 15, 16, 17, 18, 19].includes(dddNum)) {
+        greeting = "E aí, mano! 🏙️";
+      } else if ([61, 62, 63, 64, 65, 66, 67, 68, 69, 91, 92, 93, 94, 95, 96, 97].includes(dddNum)) {
+        greeting = "Fala, brother! 🌳";
+      }
+
+      const whatsappMessage = `${greeting}
+
+${name}, bem-vindo à *Máxima iA*! 🚀
+
+Recebemos seu cadastro e já tá tudo certo pra você começar a transformar a cultura da sua empresa.
+
+Agora é só criar sua conta e gerar seu *MVV profissional* gratuitamente!
+
+🔗 Acesse: https://maximaia.com.br/auth
+
+Qualquer dúvida, é só chamar!
+
+*Equipe Máxima iA* 💜`;
 
       await supabase.functions.invoke("send-whatsapp", {
         body: {

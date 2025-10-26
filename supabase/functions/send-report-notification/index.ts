@@ -32,69 +32,110 @@ serve(async (req: Request) => {
       throw new Error("Usuário não encontrado");
     }
 
-    const reportTypeName = reportType === "mvv" 
-      ? "MVV (Missão, Visão e Valores)" 
+    const reportTypeLabel = reportType === "mvv" 
+      ? "MVV" 
       : "Cultura Organizacional";
 
     const reportUrl = `https://maximaia.com.br/relatorio-${reportType}/${reportId}`;
 
-    // Template de email
+    // Template de email com identidade visual
     const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #10b981; margin-bottom: 24px;">Seu relatório está pronto! 🎉</h1>
-        <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 16px;">Olá ${profile.name},</p>
-        <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 24px;">
-          Seu relatório <strong>${reportTypeName}</strong> da empresa <strong>${companyName}</strong> foi gerado com sucesso!
-        </p>
-        
-        <div style="text-align: center; margin: 32px 0;">
-          <a href="${reportUrl}" style="background: #10b981; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-            📄 Ver Relatório Completo
-          </a>
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="display: inline-block; background: linear-gradient(135deg, rgba(155, 135, 245, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%); padding: 20px 40px; border-radius: 16px;">
+          <h2 style="color: #ffffff; font-size: 32px; font-weight: 700; margin: 0;">
+            🎉 Seu Relatório está Pronto!
+          </h2>
         </div>
-        
-        <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 16px; margin: 24px 0;">
-          <p style="color: #059669; font-size: 14px; margin: 0;">
-            💡 <strong>Dica:</strong> Na página do relatório você pode baixar em PDF, imprimir ou compartilhar com sua equipe.
-          </p>
-        </div>
-        
-        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 32px 0;">
-        
-        <p style="font-size: 14px; color: #6b7280; line-height: 1.6;">
-          Precisa de ajuda? Responda este email ou acesse nosso suporte.
-        </p>
-        <p style="font-size: 12px; color: #9ca3af; margin-top: 24px;">
-          Máxima iA - Estratégia Empresarial Inteligente
-        </p>
       </div>
+      
+      <p style="color: #e2e8f0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+        Olá, <strong style="color: #ffffff;">${profile.name}</strong>!
+      </p>
+      
+      <p style="color: #e2e8f0; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+        Ótimas notícias! Seu relatório de <strong style="color: #9b87f5;">${reportTypeLabel}</strong> 
+        para <strong style="color: #3b82f6;">${companyName}</strong> foi gerado com sucesso! 🚀
+      </p>
+      
+      <div style="background: linear-gradient(135deg, rgba(155, 135, 245, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border: 1px solid rgba(155, 135, 245, 0.3); padding: 25px; border-radius: 16px; margin: 30px 0;">
+        <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6; margin: 0 0 15px 0;">
+          ✨ <strong style="color: #ffffff;">O que fazer agora?</strong>
+        </p>
+        <ul style="color: #94a3b8; font-size: 14px; line-height: 1.8; margin: 0; padding-left: 20px;">
+          <li>Acesse seu dashboard para visualizar o relatório completo</li>
+          <li>Baixe o PDF para compartilhar com sua equipe</li>
+          <li>Comece a implementar as estratégias recomendadas</li>
+        </ul>
+      </div>
+      
+      <div style="text-align: center; margin: 40px 0;">
+        <a href="${reportUrl}" 
+           style="display: inline-block; background: linear-gradient(135deg, #9b87f5 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 18px 50px; border-radius: 12px; font-weight: 600; font-size: 17px; box-shadow: 0 10px 30px rgba(155, 135, 245, 0.4);">
+          Ver Meu Relatório Agora
+        </a>
+      </div>
+      
+      <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin: 30px 0 0 0; text-align: center;">
+        Continue transformando sua empresa,<br>
+        <strong style="color: #ffffff;">Equipe Máxima iA</strong> 💜
+      </p>
     `;
 
     // 1. Enviar Email
     await supabase.functions.invoke("send-email", {
       body: {
         email: profile.email,
-        subject: `✅ Seu relatório ${reportTypeName} está pronto!`,
+        subject: `Seu Relatório de ${reportTypeLabel} está Pronto! 🎉`,
         html: emailHtml,
         type: "report_ready",
         userId,
       },
     });
 
-    // 2. Enviar WhatsApp (se telefone cadastrado)
+    // 2. Enviar WhatsApp regionalizado (se telefone cadastrado)
     const { data: profileWithPhone } = await supabase
       .from("profiles")
       .select("phone")
       .eq("id", userId)
       .single();
 
-    // Verificar se a coluna phone existe antes de tentar acessá-la
     if (profileWithPhone && 'phone' in profileWithPhone && profileWithPhone.phone) {
-      const whatsappMessage = `🎉 Seu relatório ${reportTypeName.toUpperCase()} está pronto!\n\n📊 ${companyName}\n\n👉 Ver agora: ${reportUrl}\n\nVocê pode baixar em PDF direto da plataforma.\n\n---\nMáxima iA`;
+      const phone = profileWithPhone.phone;
+      const ddd = phone.replace(/\D/g, "").substring(2, 4);
+      const dddNum = parseInt(ddd);
+      
+      let greeting = "Olá! 👋";
+      if ([41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 53, 54, 55].includes(dddNum)) {
+        greeting = "Bah, tchê! 🧉";
+      } else if ([71, 73, 74, 75, 77, 79, 81, 82, 83, 84, 85, 86, 87, 88, 89, 98, 99].includes(dddNum)) {
+        greeting = "Oxe, visse! 🦀";
+      } else if ([21, 22, 24].includes(dddNum)) {
+        greeting = "E aí, meu rei/rainha! 🏖️";
+      } else if ([31, 32, 33, 34, 35, 37, 38].includes(dddNum)) {
+        greeting = "Opa, sô! ⛰️";
+      } else if ([11, 12, 13, 14, 15, 16, 17, 18, 19].includes(dddNum)) {
+        greeting = "E aí, mano! 🏙️";
+      } else if ([61, 62, 63, 64, 65, 66, 67, 68, 69, 91, 92, 93, 94, 95, 96, 97].includes(dddNum)) {
+        greeting = "Fala, brother! 🌳";
+      }
+
+      const whatsappMessage = `${greeting}
+
+${profile.name}, temos novidades! 🎉
+
+Seu relatório de *${reportTypeLabel}* para *${companyName}* ficou pronto agora!
+
+📊 Acesse seu dashboard e confira todas as análises e recomendações que preparamos pra você.
+
+🔗 ${reportUrl}
+
+Continue transformando sua empresa! 💜
+
+*Equipe Máxima iA*`;
 
       await supabase.functions.invoke("send-whatsapp", {
         body: {
-          phone: profileWithPhone.phone,
+          phone,
           message: whatsappMessage,
           type: "report_ready",
           userId,
