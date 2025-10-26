@@ -118,9 +118,13 @@ export default function Capturar() {
         segment: formData.segment,
       }));
 
-      // Enviar email de boas-vindas
-      await supabase.functions.invoke("send-welcome-email", {
-        body: { email: formData.email, name: formData.name },
+      // Enviar mensagens de boas-vindas (email + WhatsApp)
+      await supabase.functions.invoke("send-welcome-messages", {
+        body: { 
+          email: formData.email, 
+          name: formData.name,
+          phone: formData.phone 
+        },
       });
 
       navigate("/obrigado");

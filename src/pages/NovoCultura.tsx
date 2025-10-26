@@ -364,6 +364,20 @@ export default function NovoCultura() {
 
       if (updateError) throw updateError;
 
+      // Enviar notificação de relatório pronto
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        await supabase.functions.invoke("send-report-notification", {
+          body: {
+            userId: user.id,
+            reportType: "cultura",
+            reportId: documentId,
+            companyName: mvvDocument.company_name,
+          },
+        });
+      }
+
       toast({
         title: "Sucesso! 🎉",
         description: "Código de Cultura gerado com sucesso!",

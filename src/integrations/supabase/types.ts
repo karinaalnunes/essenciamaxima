@@ -241,6 +241,42 @@ export type Database = {
         }
         Relationships: []
       }
+      email_logs: {
+        Row: {
+          created_at: string | null
+          email: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          status: string
+          subject: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string
+          subject: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string
+          subject?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       lead_events: {
         Row: {
           created_at: string
@@ -459,6 +495,33 @@ export type Database = {
           },
         ]
       }
+      password_reset_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          used_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          used_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company: string | null
@@ -552,6 +615,48 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_logs: {
+        Row: {
+          created_at: string | null
+          delivered_at: string | null
+          error_message: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          phone: string
+          provider: string | null
+          status: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          delivered_at?: string | null
+          error_message?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          phone: string
+          provider?: string | null
+          status?: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          delivered_at?: string | null
+          error_message?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          phone?: string
+          provider?: string | null
+          status?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -579,6 +684,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      reset_user_password_with_code: {
+        Args: { new_password: string; reset_code: string; user_email: string }
+        Returns: Json
       }
     }
     Enums: {

@@ -9,7 +9,7 @@ verify_jwt = true
 [functions.generate-mvv]
 verify_jwt = true
 
-[functions.send-welcome-email]
+[functions.send-welcome-messages]
 verify_jwt = false
 
 [functions.culture-chat]
@@ -17,3 +17,12 @@ verify_jwt = true
 
 [functions.generate-culture-report]
 verify_jwt = true
+
+[functions.send-whatsapp]
+verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false
+
+[functions.send-report-notification]
+verify_jwt = false

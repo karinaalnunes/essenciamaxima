@@ -546,6 +546,20 @@ Pode compartilhar essas informações?`,
 
       if (updateError) throw updateError;
 
+      // Enviar notificação de relatório pronto
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        await supabase.functions.invoke("send-report-notification", {
+          body: {
+            userId: user.id,
+            reportType: "mvv",
+            reportId: documentId,
+            companyName: data.company_name || 'Empresa',
+          },
+        });
+      }
+
       toast({
         title: "✨ MVV gerado com sucesso!",
         description: "Redirecionando para o relatório completo...",
