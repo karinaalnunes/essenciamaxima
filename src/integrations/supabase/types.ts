@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          function_name: string
+          id: string
+          latency_ms: number | null
+          model: string
+          module: string
+          status: string
+          tokens_input: number | null
+          tokens_output: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          function_name: string
+          id?: string
+          latency_ms?: number | null
+          model: string
+          module: string
+          status: string
+          tokens_input?: number | null
+          tokens_output?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          function_name?: string
+          id?: string
+          latency_ms?: number | null
+          model?: string
+          module?: string
+          status?: string
+          tokens_input?: number | null
+          tokens_output?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       conversation_history: {
         Row: {
           content: string
@@ -45,6 +87,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      conversation_metrics: {
+        Row: {
+          abandoned_at: string | null
+          completed_at: string | null
+          created_at: string
+          document_id: string | null
+          id: string
+          module: string
+          started_at: string
+          status: string
+          total_duration_seconds: number | null
+          total_messages: number | null
+          user_id: string | null
+        }
+        Insert: {
+          abandoned_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          module: string
+          started_at?: string
+          status?: string
+          total_duration_seconds?: number | null
+          total_messages?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          abandoned_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          module?: string
+          started_at?: string
+          status?: string
+          total_duration_seconds?: number | null
+          total_messages?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       culture_conversation_history: {
         Row: {
@@ -154,6 +238,33 @@ export type Database = {
           updated_at?: string
           user_id?: string
           wellbeing_support?: string | null
+        }
+        Relationships: []
+      }
+      lead_events: {
+        Row: {
+          created_at: string
+          email: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          source?: string | null
         }
         Relationships: []
       }
@@ -354,6 +465,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          is_admin: boolean | null
           logo_url: string | null
           name: string
           updated_at: string
@@ -363,6 +475,7 @@ export type Database = {
           created_at?: string
           email: string
           id: string
+          is_admin?: boolean | null
           logo_url?: string | null
           name: string
           updated_at?: string
@@ -372,9 +485,52 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          is_admin?: boolean | null
           logo_url?: string | null
           name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      purchases: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          metadata: Json | null
+          product_type: string
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          product_type: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          product_type?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -404,6 +560,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_culture_completion_rate: {
+        Args: never
+        Returns: {
+          completed: number
+          completion_rate: number
+          total: number
+        }[]
+      }
+      get_mvv_completion_rate: {
+        Args: never
+        Returns: {
+          completed: number
+          completion_rate: number
+          total: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
