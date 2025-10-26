@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@4.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -52,14 +51,22 @@ serve(async (req: Request) => {
       );
     }
 
-    const resend = new Resend(resendApiKey);
-
-    const emailResponse = await resend.emails.send({
-      from: "Máxima iA <onboarding@resend.dev>",
-      to: [email],
-      subject: subject,
-      html: html,
+    // Enviar via Resend API diretamente
+    const emailResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Máxima iA <onboarding@resend.dev>",
+        to: [email],
+        subject: subject,
+        html: html,
+      }),
     });
+
+    const emailData = await emailResponse.json();
 
     // Registrar log no banco
     const supabase = createClient(
@@ -71,20 +78,20 @@ serve(async (req: Request) => {
       email,
       subject,
       type,
-      status: emailResponse.error ? "failed" : "sent",
-      error_message: emailResponse.error?.message || null,
+      status: emailResponse.ok ? "sent" : "failed",
+      error_message: emailResponse.ok ? null : JSON.stringify(emailData),
       user_id: userId || null,
-      metadata: emailResponse,
+      metadata: emailData,
     });
 
-    if (emailResponse.error) {
-      throw new Error(emailResponse.error.message);
+    if (!emailResponse.ok) {
+      throw new Error(`Resend error: ${JSON.stringify(emailData)}`);
     }
 
     console.log(`✅ Email enviado para ${email}`);
 
     return new Response(
-      JSON.stringify({ success: true, id: emailResponse.data?.id }),
+      JSON.stringify({ success: true, id: emailData.id }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: any) {
