@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { getAIConfig, estimateTokens } from '../_shared/ai-config.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -153,6 +154,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const startTime = Date.now();
+
   try {
     const { message, conversationHistory, documentId } = await req.json();
 
@@ -186,16 +189,18 @@ serve(async (req) => {
       content: message,
     });
 
-    // Call Lovable AI API with streaming
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Get AI configuration
+    const aiConfig = getAIConfig('mvv');
+    const AI_API_KEY = Deno.env.get(aiConfig.apiKeyEnv);
+    
+    const aiResponse = await fetch(aiConfig.endpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${AI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: aiConfig.model,
         messages: messages,
         stream: true,
       }),
@@ -203,12 +208,48 @@ serve(async (req) => {
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
-      console.error('AI API Error:', aiResponse.status, errorText);
+      console.error('[MVV] AI API Error:', aiResponse.status, errorText);
+      
+      // Log error
+      await supabase.from('ai_usage_logs').insert({
+        user_id: user.id,
+        module: 'mvv',
+        function_name: 'consultative-chat',
+        model: aiConfig.model,
+        latency_ms: Date.now() - startTime,
+        status: 'error',
+        error_message: `${aiResponse.status}: ${errorText}`
+      });
+      
       throw new Error('AI API error');
     }
 
-    // Return stream directly with CORS headers
-    return new Response(aiResponse.body, {
+    // Track token usage from streamed response
+    let fullResponse = '';
+    const transformStream = new TransformStream({
+      transform(chunk, controller) {
+        const text = new TextDecoder().decode(chunk);
+        fullResponse += text;
+        controller.enqueue(chunk);
+      },
+      flush() {
+        // Log successful usage
+        const inputText = messages.map((m: any) => m.content).join('');
+        supabase.from('ai_usage_logs').insert({
+          user_id: user.id,
+          module: 'mvv',
+          function_name: 'consultative-chat',
+          model: aiConfig.model,
+          tokens_input: estimateTokens(inputText),
+          tokens_output: estimateTokens(fullResponse),
+          latency_ms: Date.now() - startTime,
+          status: 'success'
+        }).then(() => console.log('[MVV] Usage logged'));
+      }
+    });
+
+    // Return stream with transform
+    return new Response(aiResponse.body?.pipeThrough(transformStream), {
       headers: { 
         ...corsHeaders, 
         'Content-Type': 'text/event-stream',

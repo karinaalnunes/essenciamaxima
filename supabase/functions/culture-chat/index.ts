@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { getAIConfig, estimateTokens } from '../_shared/ai-config.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -137,6 +138,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const startTime = Date.now();
+
   try {
     const authHeader = req.headers.get('authorization');
     const token = authHeader?.replace('Bearer ', '');
@@ -195,7 +198,8 @@ serve(async (req) => {
       }
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const aiConfig = getAIConfig('cultura');
+    const AI_API_KEY = Deno.env.get(aiConfig.apiKeyEnv);
 
     const messages = [
       {
@@ -209,14 +213,14 @@ serve(async (req) => {
       }
     ];
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch(aiConfig.endpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${AI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: aiConfig.model,
         messages: messages,
         stream: true,
       }),
@@ -224,7 +228,19 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('AI API Error:', response.status, errorText);
+      console.error('[CULTURA] AI API Error:', response.status, errorText);
+      
+      // Log error
+      await supabase.from('ai_usage_logs').insert({
+        user_id: user.id,
+        module: 'cultura',
+        function_name: 'culture-chat',
+        model: aiConfig.model,
+        latency_ms: Date.now() - startTime,
+        status: 'error',
+        error_message: `${response.status}: ${errorText}`
+      });
+      
       throw new Error('AI API error');
     }
 
@@ -268,7 +284,7 @@ serve(async (req) => {
             }
           }
 
-          // Salvar resposta completa do assistente
+          // Salvar resposta completa do assistente e log de uso
           if (documentId && fullResponse) {
             const { error: saveError } = await supabase
               .from('culture_conversation_history')
@@ -281,6 +297,21 @@ serve(async (req) => {
             if (saveError) {
               console.error('Error saving assistant message:', saveError);
             }
+
+            // Log usage
+            const inputText = messages.map((m: any) => m.content).join('');
+            await supabase.from('ai_usage_logs').insert({
+              user_id: user.id,
+              module: 'cultura',
+              function_name: 'culture-chat',
+              model: aiConfig.model,
+              tokens_input: estimateTokens(inputText),
+              tokens_output: estimateTokens(fullResponse),
+              latency_ms: Date.now() - startTime,
+              status: 'success'
+            });
+            
+            console.log('[CULTURA] Usage logged');
           }
 
           controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));

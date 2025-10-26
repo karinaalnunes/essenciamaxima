@@ -33,6 +33,8 @@ export default function NovoMVV() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const [conversationStartTime, setConversationStartTime] = useState<number>(Date.now());
+  const [conversationMetricId, setConversationMetricId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);

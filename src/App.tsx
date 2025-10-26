@@ -8,6 +8,7 @@ import Capturar from "./pages/Capturar";
 import Obrigado from "./pages/Obrigado";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Admin from "./pages/Admin";
 import NovoMVV from "./pages/NovoMVV";
 import NovoCultura from "./pages/NovoCultura";
 import Termos from "./pages/Termos";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/obrigado" element={<Obrigado />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/novo-mvv" element={<NovoMVV />} />
           <Route path="/novo-cultura" element={<NovoCultura />} />
           <Route path="/relatorio/:id" element={<RelatorioMVV />} />

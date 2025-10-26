@@ -74,6 +74,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [document, setDocument] = useState<any>(null);
   const [cultureDocument, setCultureDocument] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -90,6 +91,17 @@ export default function Dashboard() {
       }
 
       setUser(session.user);
+      
+      // Check admin status
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (profile?.is_admin) {
+        setIsAdmin(true);
+      }
       
       // Buscar documento MVV do usuário
       const { data: docs } = await supabase

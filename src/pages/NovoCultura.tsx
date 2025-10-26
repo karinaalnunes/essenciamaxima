@@ -29,6 +29,8 @@ export default function NovoCultura() {
   const [readyToGenerate, setReadyToGenerate] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [userScrolled, setUserScrolled] = useState(false);
+  const [conversationStartTime] = useState<number>(Date.now());
+  const [conversationMetricId, setConversationMetricId] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

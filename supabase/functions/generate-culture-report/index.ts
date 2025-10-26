@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { getAIConfig, estimateTokens } from '../_shared/ai-config.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,10 +12,13 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const startTime = Date.now();
+
   try {
     const { conversationHistory, mvvData } = await req.json();
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const aiConfig = getAIConfig('cultura');
+    const AI_API_KEY = Deno.env.get(aiConfig.apiKeyEnv);
 
     const prompt = `Com base na conversa completa do Código de Cultura Máxima e no MVV existente abaixo, extraia e estruture o Código de Cultura completo da empresa.
 
@@ -147,14 +151,14 @@ REGRAS CRÍTICAS:
 9. Extraia TODOS os rituais mencionados na conversa
 10. Conecte tudo ao MVV existente da empresa`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch(aiConfig.endpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${AI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: aiConfig.model,
         messages: [
           {
             role: 'user',
@@ -166,7 +170,7 @@ REGRAS CRÍTICAS:
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('AI API Error:', response.status, errorText);
+      console.error('[CULTURA] AI API Error:', response.status, errorText);
       throw new Error('AI API error');
     }
 
@@ -179,6 +183,15 @@ REGRAS CRÍTICAS:
     console.log('Generated Culture Report:', generatedText);
 
     const cultureData = JSON.parse(generatedText);
+
+    // Log usage (note: no user_id available in this function)
+    console.log('[CULTURA] Usage:', {
+      module: 'cultura',
+      function: 'generate-culture-report',
+      tokens_input: estimateTokens(prompt),
+      tokens_output: estimateTokens(generatedText),
+      latency: Date.now() - startTime
+    });
 
     return new Response(
       JSON.stringify(cultureData),
