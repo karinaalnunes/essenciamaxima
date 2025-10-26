@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Download, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useConfetti } from "@/hooks/useConfetti";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 import logoLight from "@/assets/logo-maxima-ia-light.png";
 
@@ -48,6 +49,7 @@ const getIndicatorEmoji = (text: string) => {
 export default function RelatorioMVV() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { fireConfetti } = useConfetti();
   const { toast } = useToast();
   const [doc, setDoc] = useState<MVVDocument | null>(null);
   const [loading, setLoading] = useState(true);
@@ -87,6 +89,21 @@ export default function RelatorioMVV() {
   }, [id, navigate, toast]);
 
   const isComplete = doc && doc.mission && doc.vision && doc.values && doc.values.length > 0;
+
+  // Dispara confetes quando relatório estiver completo (apenas primeira visualização)
+  useEffect(() => {
+    if (isComplete && doc) {
+      const confettiKey = `confetti-mvv-${doc.id}`;
+      const hasShownConfetti = localStorage.getItem(confettiKey);
+      
+      if (!hasShownConfetti) {
+        setTimeout(() => {
+          fireConfetti('normal');
+          localStorage.setItem(confettiKey, 'true');
+        }, 500);
+      }
+    }
+  }, [isComplete, doc, fireConfetti]);
 
   const handleExportPDF = () => {
     window.print();

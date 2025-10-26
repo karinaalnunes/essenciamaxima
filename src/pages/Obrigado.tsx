@@ -1,9 +1,22 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
+import { useConfetti } from "@/hooks/useConfetti";
 
 export default function Obrigado() {
+  const { fireConfetti } = useConfetti();
+
+  useEffect(() => {
+    // Dispara confetes após breve delay para usuário ver a página
+    const timer = setTimeout(() => {
+      fireConfetti('normal');
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [fireConfetti]);
+
   return (
     <div className="min-h-screen bg-gradient-hero p-8 flex items-center justify-center antialiased">
       <div className="max-w-2xl mx-auto text-center space-y-8">

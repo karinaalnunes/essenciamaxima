@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, Download, AlertCircle } from "lucide-react";
+import { useConfetti } from "@/hooks/useConfetti";
 import logo from "@/assets/logo-maxima-ia-original.png";
 
 interface Value {
@@ -78,6 +79,7 @@ interface CultureDocument {
 export default function RelatorioCultura() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { fireConfetti } = useConfetti();
   const [doc, setDoc] = useState<CultureDocument | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -124,6 +126,21 @@ export default function RelatorioCultura() {
   }, [id, navigate]);
 
   const isComplete = doc && doc.reputation_goal && doc.guiding_principles.length > 0;
+
+  // Dispara confetes quando relatório estiver completo (apenas primeira visualização)
+  useEffect(() => {
+    if (isComplete && doc) {
+      const confettiKey = `confetti-cultura-${doc.id}`;
+      const hasShownConfetti = localStorage.getItem(confettiKey);
+      
+      if (!hasShownConfetti) {
+        setTimeout(() => {
+          fireConfetti('intense'); // Mais intenso para relatório final
+          localStorage.setItem(confettiKey, 'true');
+        }, 500);
+      }
+    }
+  }, [isComplete, doc, fireConfetti]);
 
   if (loading) {
     return (
