@@ -1,12 +1,14 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 import { useConfetti } from "@/hooks/useConfetti";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Obrigado() {
   const { fireConfetti } = useConfetti();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Dispara confetes após breve delay para usuário ver a página
@@ -35,11 +37,16 @@ export default function Obrigado() {
           </p>
 
           <div className="pt-4 space-y-4">
-            <Link to="/auth?tab=signup">
-              <Button size="lg" className="w-full">
-                Criar Minha Conta e Começar
-              </Button>
-            </Link>
+            <Button 
+              size="lg" 
+              className="w-full"
+              onClick={async () => {
+                await supabase.auth.signOut({ scope: "global" });
+                navigate("/auth?tab=signup");
+              }}
+            >
+              Criar Minha Conta e Começar
+            </Button>
             
             <p className="text-sm text-slate-400">
               Já tem uma conta?{" "}

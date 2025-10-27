@@ -1,18 +1,45 @@
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { ArrowRight, Clock, Sparkles, Target, Users, Heart, Shield, CheckCircle2, TrendingUp, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
+import { supabase } from "@/integrations/supabase/client";
+
 export const Hero = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Verificar sessão existente
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+
+    // Listener para mudanças em tempo real
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   return <div className="min-h-screen bg-gradient-hero antialiased starfield-bg">
       {/* Header */}
       <header className="flex justify-between items-center max-w-6xl mx-auto px-8 pt-8">
         <img src={logo} alt="Máxima iA" className="h-16 md:h-20 lg:h-24 w-auto" />
-        <Link to="/auth">
-          <Button variant="outline" size="sm">
-            Entrar
-          </Button>
-        </Link>
+        {isAuthenticated ? (
+          <Link to="/dashboard">
+            <Button variant="outline" size="sm">
+              Ir para o Dashboard
+            </Button>
+          </Link>
+        ) : (
+          <Link to="/auth">
+            <Button variant="outline" size="sm">
+              Entrar
+            </Button>
+          </Link>
+        )}
       </header>
 
       <main className="max-w-6xl mx-auto px-8">

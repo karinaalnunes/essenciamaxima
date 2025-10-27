@@ -41,17 +41,24 @@ export default function Auth() {
 
   useEffect(() => {
     const initAuth = async () => {
-      // Setup auth listener FIRST - always redirect to dashboard
+      const wantsSignup = urlTab === "signup";
+
+      // Setup auth listener FIRST
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         if (session && event === "SIGNED_IN") {
           navigate("/dashboard");
         }
       });
 
-      // Check for existing session and auto-redirect
+      // Se usuário quer cadastrar, forçar logout global
+      if (wantsSignup) {
+        await supabase.auth.signOut({ scope: "global" });
+      }
+
+      // Check for existing session and auto-redirect (mas não se quer cadastrar)
       const { data: { session } } = await supabase.auth.getSession();
       
-      if (session) {
+      if (session && !wantsSignup) {
         navigate("/dashboard");
         return subscription;
       }
@@ -88,13 +95,16 @@ export default function Auth() {
     return () => {
       subscription.then(sub => sub?.unsubscribe());
     };
-  }, [navigate]);
+  }, [navigate, urlTab]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Garantir logout global antes de novo login
+      await supabase.auth.signOut({ scope: "global" });
+      
       const { error } = await supabase.auth.signInWithPassword({
         email: loginData.email,
         password: loginData.password,
