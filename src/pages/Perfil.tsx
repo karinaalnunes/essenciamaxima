@@ -8,6 +8,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { KanbanBoard } from "@/components/KanbanBoard";
 import { EditProfileModal } from "@/components/EditProfileModal";
 import { MeetingsList } from "@/components/MeetingsList";
+import { TasksStatusChart } from "@/components/TasksStatusChart";
+import { TasksTimelineChart } from "@/components/TasksTimelineChart";
 import { toast } from "sonner";
 import { 
   Edit, 
@@ -388,6 +390,12 @@ export default function Perfil() {
             maxItems={3}
           />
         </Card>
+
+        {/* Analytics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TasksStatusChart tasks={tasks} />
+          <TasksTimelineChart tasks={tasks} days={30} />
+        </div>
 
         {/* Kanban Board */}
         <Card className="p-6">

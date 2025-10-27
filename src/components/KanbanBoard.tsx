@@ -56,6 +56,7 @@ function SortableTaskCard({ task, onEdit, onDelete }: any) {
 export function KanbanBoard({ tasks, onTaskMove, onTaskEdit, onTaskDelete, onTaskCreate }: KanbanBoardProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>();
+  const [showOverdueOnly, setShowOverdueOnly] = useState(false);
   const [filters, setFilters] = useState({
     priority: "all",
     source: "all",
@@ -91,6 +92,14 @@ export function KanbanBoard({ tasks, onTaskMove, onTaskEdit, onTaskDelete, onTas
   };
 
   const filteredTasks = tasks.filter(task => {
+    // Filtro de atrasadas
+    if (showOverdueOnly) {
+      const isOverdue = task.due_date && 
+        new Date(task.due_date) < new Date() && 
+        task.status !== "done";
+      if (!isOverdue) return false;
+    }
+    
     if (filters.priority !== "all" && task.priority !== filters.priority) return false;
     if (filters.source !== "all" && task.source_type !== filters.source) return false;
     if (filters.period !== "all" && task.plan_period !== filters.period) return false;
@@ -100,6 +109,12 @@ export function KanbanBoard({ tasks, onTaskMove, onTaskEdit, onTaskDelete, onTas
   const getTasksByStatus = (status: string) => 
     filteredTasks.filter(task => task.status === status);
 
+  const overdueCount = tasks.filter(task => 
+    task.due_date && 
+    new Date(task.due_date) < new Date() && 
+    task.status !== "done"
+  ).length;
+
   const completedCount = tasks.filter(t => t.status === "done").length;
   const totalCount = tasks.length;
   const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
@@ -107,14 +122,28 @@ export function KanbanBoard({ tasks, onTaskMove, onTaskEdit, onTaskDelete, onTas
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
           <h3 className="text-lg font-semibold">Kanban de Tarefas</h3>
           <Badge variant="secondary">
             {completedCount}/{totalCount} tarefas ({completionRate}%)
           </Badge>
+          {overdueCount > 0 && (
+            <Badge variant="destructive" className="animate-pulse">
+              ⚠️ {overdueCount} {overdueCount === 1 ? 'tarefa atrasada' : 'tarefas atrasadas'}
+            </Badge>
+          )}
         </div>
 
         <div className="flex gap-2 flex-wrap items-center">
+          <Button 
+            variant={showOverdueOnly ? "destructive" : "outline"} 
+            size="sm"
+            onClick={() => setShowOverdueOnly(!showOverdueOnly)}
+          >
+            {showOverdueOnly ? "Ver Todas" : "Apenas Atrasadas"}
+            {!showOverdueOnly && overdueCount > 0 && ` (${overdueCount})`}
+          </Button>
+
           <Filter className="h-4 w-4 text-muted-foreground" />
           
           <Select value={filters.priority} onValueChange={(value) => setFilters({ ...filters, priority: value })}>

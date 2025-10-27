@@ -15,6 +15,7 @@ interface TaskCardProps {
     due_date?: string;
     plan_period?: string;
     source_type: string;
+    status: string;
   };
   onEdit: (task: any) => void;
   onDelete: (id: string) => void;
@@ -34,6 +35,10 @@ const sourceTypeLabels = {
 };
 
 export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
+  const isOverdue = task.due_date && 
+    new Date(task.due_date) < new Date() && 
+    task.status !== "done";
+
   return (
     <Card className="p-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing">
       <div className="space-y-3">
@@ -72,6 +77,12 @@ export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
         )}
 
         <div className="flex flex-wrap gap-2">
+          {isOverdue && (
+            <Badge variant="destructive" className="text-xs animate-pulse">
+              ⚠️ EM ATRASO
+            </Badge>
+          )}
+          
           <Badge variant={priorityColors[task.priority]} className="text-xs">
             {task.priority === "high" ? "Alta" : task.priority === "medium" ? "Média" : "Baixa"}
           </Badge>
