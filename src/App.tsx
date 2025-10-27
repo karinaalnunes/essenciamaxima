@@ -16,6 +16,7 @@ import Privacidade from "./pages/Privacidade";
 import NotFound from "./pages/NotFound";
 import RelatorioMVV from "./pages/RelatorioMVV";
 import RelatorioCultura from "./pages/RelatorioCultura";
+import Perfil from "./pages/Perfil";
 
 const queryClient = new QueryClient();
 
@@ -31,10 +32,12 @@ const App = () => (
           <Route path="/obrigado" element={<Obrigado />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/perfil" element={<Perfil />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/novo-mvv" element={<NovoMVV />} />
           <Route path="/novo-cultura" element={<NovoCultura />} />
           <Route path="/relatorio/:id" element={<RelatorioMVV />} />
+          <Route path="/relatorio-mvv/:id" element={<RelatorioMVV />} />
           <Route path="/relatorio-cultura/:id" element={<RelatorioCultura />} />
           <Route path="/termos" element={<Termos />} />
           <Route path="/privacidade" element={<Privacidade />} />

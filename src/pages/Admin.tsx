@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { BarChart3, Users, DollarSign, TrendingUp, Activity, ArrowLeft } from "lucide-react";
+import { BarChart3, Users, DollarSign, TrendingUp, Activity, ArrowLeft, UserCog } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { MentorshipManager } from "@/components/MentorshipManager";
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))'];
 
@@ -113,6 +115,20 @@ export default function Admin() {
             Voltar
           </Button>
         </div>
+
+        <Tabs defaultValue="analytics" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+            <TabsTrigger value="analytics">
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="mentorship">
+              <UserCog className="w-4 h-4 mr-2" />
+              Mentoria
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="analytics" className="space-y-8 mt-6">
 
         {/* KPIs Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -285,6 +301,12 @@ export default function Admin() {
             </div>
           </Card>
         </div>
+          </TabsContent>
+
+          <TabsContent value="mentorship" className="mt-6">
+            <MentorshipManager />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

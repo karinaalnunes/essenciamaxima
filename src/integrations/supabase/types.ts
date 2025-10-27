@@ -388,6 +388,105 @@ export type Database = {
         }
         Relationships: []
       }
+      meetings: {
+        Row: {
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          completed_at: string | null
+          confirmed_at: string | null
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          meeting_type: string | null
+          meeting_url: string | null
+          mentor_id: string | null
+          reminder_15min_sent: boolean | null
+          reminder_1h_sent: boolean | null
+          reminder_24h_sent: boolean | null
+          scheduled_at: string
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          meeting_type?: string | null
+          meeting_url?: string | null
+          mentor_id?: string | null
+          reminder_15min_sent?: boolean | null
+          reminder_1h_sent?: boolean | null
+          reminder_24h_sent?: boolean | null
+          scheduled_at: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          meeting_type?: string | null
+          meeting_url?: string | null
+          mentor_id?: string | null
+          reminder_15min_sent?: boolean | null
+          reminder_1h_sent?: boolean | null
+          reminder_24h_sent?: boolean | null
+          scheduled_at?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mentorship_relationships: {
+        Row: {
+          created_at: string | null
+          ended_at: string | null
+          id: string
+          mentee_id: string
+          mentor_id: string
+          notes: string | null
+          started_at: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          ended_at?: string | null
+          id?: string
+          mentee_id: string
+          mentor_id: string
+          notes?: string | null
+          started_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          ended_at?: string | null
+          id?: string
+          mentee_id?: string
+          mentor_id?: string
+          notes?: string | null
+          started_at?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       mvv_documents: {
         Row: {
           company_context: string | null
@@ -522,35 +621,95 @@ export type Database = {
         }
         Relationships: []
       }
+      professional_connections: {
+        Row: {
+          created_at: string | null
+          id: string
+          receiver_id: string
+          requester_id: string
+          responded_at: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          receiver_id: string
+          requester_id: string
+          responded_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          receiver_id?: string
+          requester_id?: string
+          responded_at?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
           company: string | null
+          company_website: string | null
           created_at: string
           email: string
+          facebook_company: string | null
+          facebook_personal: string | null
           id: string
+          instagram_company: string | null
+          instagram_personal: string | null
+          linkedin_company: string | null
+          linkedin_personal: string | null
           logo_url: string | null
           name: string
           phone: string | null
+          position: string | null
+          profile_visibility: string | null
           updated_at: string
         }
         Insert: {
+          avatar_url?: string | null
+          bio?: string | null
           company?: string | null
+          company_website?: string | null
           created_at?: string
           email: string
+          facebook_company?: string | null
+          facebook_personal?: string | null
           id: string
+          instagram_company?: string | null
+          instagram_personal?: string | null
+          linkedin_company?: string | null
+          linkedin_personal?: string | null
           logo_url?: string | null
           name: string
           phone?: string | null
+          position?: string | null
+          profile_visibility?: string | null
           updated_at?: string
         }
         Update: {
+          avatar_url?: string | null
+          bio?: string | null
           company?: string | null
+          company_website?: string | null
           created_at?: string
           email?: string
+          facebook_company?: string | null
+          facebook_personal?: string | null
           id?: string
+          instagram_company?: string | null
+          instagram_personal?: string | null
+          linkedin_company?: string | null
+          linkedin_personal?: string | null
           logo_url?: string | null
           name?: string
           phone?: string | null
+          position?: string | null
+          profile_visibility?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -617,6 +776,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          culture_document_id: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          plan_period: string | null
+          priority: string | null
+          source_type: string
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          culture_document_id?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          plan_period?: string | null
+          priority?: string | null
+          source_type: string
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          culture_document_id?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          plan_period?: string | null
+          priority?: string | null
+          source_type?: string
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_tasks_culture_document_id_fkey"
+            columns: ["culture_document_id"]
+            isOneToOne: false
+            referencedRelation: "culture_documents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       whatsapp_logs: {
         Row: {
