@@ -35,7 +35,7 @@ export default function Obrigado() {
           </p>
 
           <div className="pt-4 space-y-4">
-            <Link to="/auth">
+            <Link to="/auth?tab=signup">
               <Button size="lg" className="w-full">
                 Criar Minha Conta e Começar
               </Button>
@@ -43,7 +43,7 @@ export default function Obrigado() {
             
             <p className="text-sm text-slate-400">
               Já tem uma conta?{" "}
-              <Link to="/auth" className="text-primary hover:underline">
+              <Link to="/auth?tab=login" className="text-primary hover:underline">
                 Faça login aqui
               </Link>
             </p>
