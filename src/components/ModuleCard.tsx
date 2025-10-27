@@ -11,10 +11,10 @@ interface ModuleCardProps {
 
 export const ModuleCard = ({ title, description, icon: Icon, locked = true }: ModuleCardProps) => {
   return (
-    <Card className={`relative overflow-hidden transition-all hover:border-primary/50 ${locked ? 'opacity-60' : ''}`}>
+    <Card className={`relative overflow-hidden transition-all hover:border-primary/50 ${locked ? 'opacity-90' : ''}`}>
       {locked && (
-        <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-10">
-          <Lock className="w-12 h-12 text-slate-500" />
+        <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center z-10">
+          <Lock className="w-8 h-8 text-slate-400/70" />
         </div>
       )}
       
@@ -29,7 +29,7 @@ export const ModuleCard = ({ title, description, icon: Icon, locked = true }: Mo
         <p className="text-sm text-slate-400">{description || "Em breve"}</p>
         {locked && (
           <Badge variant="secondary" className="mt-3">
-            Em breve
+            🔒 Disponível em breve
           </Badge>
         )}
       </CardContent>

@@ -18,6 +18,13 @@ const FUTURE_MODULES = [
     locked: false
   },
   { 
+    id: "cultura", 
+    title: "Cultura Máxima", 
+    description: "Código de Cultura Completo",
+    icon: Heart,
+    locked: false
+  },
+  { 
     id: "cadeia-valor", 
     title: "Cadeia de Valor Máxima", 
     icon: TrendingUp,
@@ -57,13 +64,6 @@ const FUTURE_MODULES = [
     description: "Dashboard da Empresa",
     icon: BarChart3,
     locked: true
-  },
-  { 
-    id: "cultura", 
-    title: "Cultura Máxima", 
-    description: "Código de Cultura Completo",
-    icon: Heart,
-    locked: false
   },
 ];
 

@@ -192,11 +192,11 @@ export function KanbanBoard({ tasks, onTaskMove, onTaskEdit, onTaskDelete, onTas
       </div>
 
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="flex gap-4 overflow-x-auto pb-4">
           {columns.map((column) => {
             const columnTasks = getTasksByStatus(column.id);
             return (
-              <div key={column.id} className={`rounded-lg p-4 min-h-[500px] ${column.color}`}>
+              <div key={column.id} className={`rounded-lg p-4 min-h-[500px] w-80 flex-shrink-0 ${column.color}`}>
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-semibold">{column.title}</h4>
                   <Badge variant="outline">{columnTasks.length}</Badge>

@@ -24,6 +24,52 @@ import {
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
+// Helper function to generate mock data
+const generateMockData = () => {
+  const now = new Date();
+  const mockTasks = [
+    // Concluídas (8)
+    { id: '1', title: 'Definir valores organizacionais', status: 'done', priority: 'high', source_type: 'mvv_report', due_date: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '2', title: 'Revisar missão e visão', status: 'done', priority: 'high', source_type: 'mvv_report', due_date: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '3', title: 'Mapear stakeholders', status: 'done', priority: 'medium', source_type: 'culture_report', plan_period: '30', due_date: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '4', title: 'Criar código de ética', status: 'done', priority: 'high', source_type: 'culture_report', plan_period: '30', due_date: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '5', title: 'Implementar feedback 360', status: 'done', priority: 'medium', source_type: 'culture_report', plan_period: '60', due_date: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '6', title: 'Onboarding cultural', status: 'done', priority: 'medium', source_type: 'manual', due_date: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '7', title: 'Workshop de valores', status: 'done', priority: 'high', source_type: 'meeting', due_date: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '8', title: 'Comunicação interna MVV', status: 'done', priority: 'high', source_type: 'mvv_report', due_date: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString() },
+    
+    // Em progresso (4)
+    { id: '9', title: 'Desenvolver programa de mentoria', status: 'in_progress', priority: 'high', source_type: 'culture_report', plan_period: '60', due_date: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '10', title: 'Sistema de reconhecimento', status: 'in_progress', priority: 'medium', source_type: 'culture_report', plan_period: '60', due_date: new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '11', title: 'Pesquisa de clima', status: 'in_progress', priority: 'high', source_type: 'meeting', due_date: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '12', title: 'Treinamento de liderança', status: 'in_progress', priority: 'medium', source_type: 'manual', due_date: new Date(now.getTime() + 20 * 24 * 60 * 60 * 1000).toISOString() },
+    
+    // A fazer (5)
+    { id: '13', title: 'Implementar rituais culturais', status: 'todo', priority: 'high', source_type: 'culture_report', plan_period: '90', due_date: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '14', title: 'Comitê de cultura', status: 'todo', priority: 'medium', source_type: 'culture_report', plan_period: '90', due_date: new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '15', title: 'Dashboard de indicadores', status: 'todo', priority: 'high', source_type: 'manual', due_date: new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '16', title: 'Evento de integração', status: 'todo', priority: 'low', source_type: 'meeting', due_date: new Date(now.getTime() + 75 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '17', title: 'Revisão anual MVV', status: 'todo', priority: 'medium', source_type: 'mvv_report', due_date: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000).toISOString() },
+    
+    // Backlog (3)
+    { id: '18', title: 'Plano de sucessão', status: 'backlog', priority: 'medium', source_type: 'culture_report', plan_period: '120', due_date: new Date(now.getTime() + 120 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '19', title: 'Programa de diversidade', status: 'backlog', priority: 'high', source_type: 'manual', due_date: new Date(now.getTime() + 150 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '20', title: 'Certificação Great Place', status: 'backlog', priority: 'low', source_type: 'meeting', due_date: new Date(now.getTime() + 180 * 24 * 60 * 60 * 1000).toISOString() },
+    
+    // Atrasadas (2)
+    { id: '21', title: 'Atualizar manual do colaborador', status: 'todo', priority: 'high', source_type: 'manual', due_date: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '22', title: 'Reunião de alinhamento estratégico', status: 'in_progress', priority: 'high', source_type: 'meeting', due_date: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+  ];
+
+  const mockMeetings = [
+    { id: '1', title: 'Reunião de Mentoria', scheduled_at: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString(), meeting_type: 'mentoring', status: 'scheduled' },
+    { id: '2', title: 'Follow-up Cultura Máxima', scheduled_at: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(), meeting_type: 'follow_up', status: 'scheduled' },
+    { id: '3', title: 'Revisão Trimestral', scheduled_at: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString(), meeting_type: 'follow_up', status: 'scheduled' },
+  ];
+
+  return { tasks: mockTasks, meetings: mockMeetings };
+};
+
 export default function Perfil() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -218,6 +264,13 @@ export default function Perfil() {
     setProfile({ ...profile, ...updatedProfile });
   };
 
+  const handleLoadMockData = () => {
+    const mockData = generateMockData();
+    setTasks(mockData.tasks);
+    setMeetings(mockData.meetings);
+    toast.success("Dados simulados carregados para demonstração");
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -238,8 +291,21 @@ export default function Perfil() {
     return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
+  const getPlanBadge = (plan: string) => {
+    const planConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline"; icon: string }> = {
+      trial: { label: "Trial", variant: "secondary", icon: "🆓" },
+      essencia_basica: { label: "Essência Básica", variant: "default", icon: "⭐" },
+      essencia_completa: { label: "Essência Completa", variant: "default", icon: "✨" },
+      acompanhamento_grupo: { label: "Acompanhamento em Grupo", variant: "default", icon: "👥" },
+      acompanhamento_individual: { label: "Acompanhamento Individual", variant: "default", icon: "💎" },
+      consultoria_completa: { label: "Consultoria Completa", variant: "default", icon: "🏆" },
+    };
+    return planConfig[plan] || planConfig.trial;
+  };
+
   const mvvComplete = documents.mvv?.mission && documents.mvv?.vision;
   const cultureComplete = documents.culture?.cultural_essence;
+  const isPaidPlan = profile?.subscription_plan && profile.subscription_plan !== 'trial';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
@@ -277,9 +343,19 @@ export default function Perfil() {
                   <p className="text-muted-foreground">{profile.position}</p>
                 )}
                 <p className="text-sm text-muted-foreground">{profile.email}</p>
-                {profile.company && (
-                  <Badge variant="secondary">{profile.company}</Badge>
-                )}
+                <div className="flex gap-2 flex-wrap">
+                  {profile.company && (
+                    <Badge variant="secondary">{profile.company}</Badge>
+                  )}
+                  {profile.subscription_plan && (() => {
+                    const planBadge = getPlanBadge(profile.subscription_plan);
+                    return (
+                      <Badge variant={planBadge.variant}>
+                        {planBadge.icon} {planBadge.label}
+                      </Badge>
+                    );
+                  })()}
+                </div>
                 {profile.bio && (
                   <p className="text-sm mt-2 max-w-2xl">{profile.bio}</p>
                 )}
@@ -352,28 +428,47 @@ export default function Perfil() {
             </div>
           </Card>
 
-          <Card className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-3">
-                <FileText className="h-5 w-5 text-primary mt-1" />
-                <div>
-                  <h3 className="font-semibold">Cultura Máxima</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {cultureComplete ? "Documento completo" : "Em andamento"}
-                  </p>
+          {isPaidPlan ? (
+            <Card className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-3">
+                  <FileText className="h-5 w-5 text-primary mt-1" />
+                  <div>
+                    <h3 className="font-semibold">Cultura Máxima</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {cultureComplete ? "Documento completo" : "Em andamento"}
+                    </p>
+                  </div>
+                </div>
+                {cultureComplete && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/relatorio-cultura/${documents.culture.id}`)}
+                  >
+                    Ver Relatório
+                  </Button>
+                )}
+              </div>
+            </Card>
+          ) : (
+            <Card className="p-4 relative opacity-60">
+              <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center rounded-lg">
+                <div className="text-center p-4">
+                  <p className="text-sm font-semibold">🔒 Disponível nos planos pagos</p>
                 </div>
               </div>
-              {cultureComplete && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => navigate(`/relatorio-cultura/${documents.culture.id}`)}
-                >
-                  Ver Relatório
-                </Button>
-              )}
-            </div>
-          </Card>
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-3">
+                  <FileText className="h-5 w-5 text-primary mt-1" />
+                  <div>
+                    <h3 className="font-semibold">Cultura Máxima</h3>
+                    <p className="text-sm text-muted-foreground">Código de Cultura Completo</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
         </div>
 
         {/* Upcoming Meetings */}
@@ -383,6 +478,11 @@ export default function Perfil() {
               <Calendar className="h-5 w-5" />
               <h3 className="text-lg font-semibold">Próximas Reuniões</h3>
             </div>
+            {isMentor && (
+              <Button variant="outline" size="sm" onClick={handleLoadMockData}>
+                📊 Carregar Dados Simulados
+              </Button>
+            )}
           </div>
           <MeetingsList 
             meetings={meetings} 

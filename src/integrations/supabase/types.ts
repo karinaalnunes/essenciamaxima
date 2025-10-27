@@ -668,6 +668,7 @@ export type Database = {
           phone: string | null
           position: string | null
           profile_visibility: string | null
+          subscription_plan: string
           updated_at: string
         }
         Insert: {
@@ -689,6 +690,7 @@ export type Database = {
           phone?: string | null
           position?: string | null
           profile_visibility?: string | null
+          subscription_plan?: string
           updated_at?: string
         }
         Update: {
@@ -710,6 +712,7 @@ export type Database = {
           phone?: string | null
           position?: string | null
           profile_visibility?: string | null
+          subscription_plan?: string
           updated_at?: string
         }
         Relationships: []
