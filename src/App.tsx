@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import RelatorioMVV from "./pages/RelatorioMVV";
 import RelatorioCultura from "./pages/RelatorioCultura";
 import Perfil from "./pages/Perfil";
+import AnamnesesCultura from "./pages/AnamnesesCultura";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/novo-mvv" element={<NovoMVV />} />
+          <Route path="/anamnese-cultura" element={<AnamnesesCultura />} />
           <Route path="/novo-cultura" element={<NovoCultura />} />
           <Route path="/relatorio/:id" element={<RelatorioMVV />} />
           <Route path="/relatorio-mvv/:id" element={<RelatorioMVV />} />

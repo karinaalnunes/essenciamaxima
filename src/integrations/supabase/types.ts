@@ -594,6 +594,239 @@ export type Database = {
           },
         ]
       }
+      organizational_anamnesis: {
+        Row: {
+          all_transactions_registered: boolean | null
+          annual_revenue_range: string | null
+          branches_count: number | null
+          business_origin: string | null
+          business_origin_date: string | null
+          change_resistors: string | null
+          change_supporters: string | null
+          communication_style: string | null
+          company_name: string
+          company_size: string | null
+          completed_at: string | null
+          created_at: string | null
+          employees_count: number | null
+          finance_tracking_method: string | null
+          finances_separated: boolean | null
+          financial_literacy_rating: number | null
+          financial_literacy_reason: string | null
+          founding_motivation: string | null
+          has_budget_and_cash_planning: string | null
+          has_loyal_customers: string | null
+          has_organogram: string | null
+          has_partners: boolean | null
+          id: string
+          ideal_customer_profile: string | null
+          import_challenges: string | null
+          innovation_readiness: string | null
+          is_potential_importer: boolean | null
+          leader_satisfaction_with_team: string | null
+          leaders_count: number | null
+          leadership_clarity: string | null
+          leadership_clarity_details: string | null
+          legal_structure: string | null
+          main_frustrations: string | null
+          main_goal_12_months: string | null
+          main_inspiration: string | null
+          main_sales_channels: string | null
+          meeting_routine: string | null
+          mvv_document_id: string | null
+          outsourced_functions: string | null
+          owner_name: string
+          owner_position: string
+          partners_as_investors: boolean | null
+          partners_count: number | null
+          partners_equity_division: string | null
+          partners_equity_practice: string | null
+          partners_positions: string | null
+          partners_strategic_relevance: boolean | null
+          partners_work_in_company: boolean | null
+          people_management_challenges: string | null
+          personal_goals_reflection: string | null
+          products_services_description: string | null
+          sales_challenges: string | null
+          sales_funnel_tracking_method: string | null
+          sales_performance_tracking_method: string | null
+          satisfied_with_partners: string | null
+          satisfied_with_system: string | null
+          segment: string
+          self_leadership_rating: number | null
+          self_leadership_reason: string | null
+          status: string | null
+          team_resistance_to_change: string | null
+          team_satisfaction: string | null
+          team_understands_roles: string | null
+          team_understands_vision: string | null
+          tracked_financial_metrics: string | null
+          tracks_sales_funnel: string | null
+          tracks_sales_performance: string | null
+          updated_at: string | null
+          user_id: string
+          vision_3_5_years: string | null
+          why_customers_buy: string | null
+          would_not_rehire: string | null
+        }
+        Insert: {
+          all_transactions_registered?: boolean | null
+          annual_revenue_range?: string | null
+          branches_count?: number | null
+          business_origin?: string | null
+          business_origin_date?: string | null
+          change_resistors?: string | null
+          change_supporters?: string | null
+          communication_style?: string | null
+          company_name: string
+          company_size?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          employees_count?: number | null
+          finance_tracking_method?: string | null
+          finances_separated?: boolean | null
+          financial_literacy_rating?: number | null
+          financial_literacy_reason?: string | null
+          founding_motivation?: string | null
+          has_budget_and_cash_planning?: string | null
+          has_loyal_customers?: string | null
+          has_organogram?: string | null
+          has_partners?: boolean | null
+          id?: string
+          ideal_customer_profile?: string | null
+          import_challenges?: string | null
+          innovation_readiness?: string | null
+          is_potential_importer?: boolean | null
+          leader_satisfaction_with_team?: string | null
+          leaders_count?: number | null
+          leadership_clarity?: string | null
+          leadership_clarity_details?: string | null
+          legal_structure?: string | null
+          main_frustrations?: string | null
+          main_goal_12_months?: string | null
+          main_inspiration?: string | null
+          main_sales_channels?: string | null
+          meeting_routine?: string | null
+          mvv_document_id?: string | null
+          outsourced_functions?: string | null
+          owner_name: string
+          owner_position: string
+          partners_as_investors?: boolean | null
+          partners_count?: number | null
+          partners_equity_division?: string | null
+          partners_equity_practice?: string | null
+          partners_positions?: string | null
+          partners_strategic_relevance?: boolean | null
+          partners_work_in_company?: boolean | null
+          people_management_challenges?: string | null
+          personal_goals_reflection?: string | null
+          products_services_description?: string | null
+          sales_challenges?: string | null
+          sales_funnel_tracking_method?: string | null
+          sales_performance_tracking_method?: string | null
+          satisfied_with_partners?: string | null
+          satisfied_with_system?: string | null
+          segment: string
+          self_leadership_rating?: number | null
+          self_leadership_reason?: string | null
+          status?: string | null
+          team_resistance_to_change?: string | null
+          team_satisfaction?: string | null
+          team_understands_roles?: string | null
+          team_understands_vision?: string | null
+          tracked_financial_metrics?: string | null
+          tracks_sales_funnel?: string | null
+          tracks_sales_performance?: string | null
+          updated_at?: string | null
+          user_id: string
+          vision_3_5_years?: string | null
+          why_customers_buy?: string | null
+          would_not_rehire?: string | null
+        }
+        Update: {
+          all_transactions_registered?: boolean | null
+          annual_revenue_range?: string | null
+          branches_count?: number | null
+          business_origin?: string | null
+          business_origin_date?: string | null
+          change_resistors?: string | null
+          change_supporters?: string | null
+          communication_style?: string | null
+          company_name?: string
+          company_size?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          employees_count?: number | null
+          finance_tracking_method?: string | null
+          finances_separated?: boolean | null
+          financial_literacy_rating?: number | null
+          financial_literacy_reason?: string | null
+          founding_motivation?: string | null
+          has_budget_and_cash_planning?: string | null
+          has_loyal_customers?: string | null
+          has_organogram?: string | null
+          has_partners?: boolean | null
+          id?: string
+          ideal_customer_profile?: string | null
+          import_challenges?: string | null
+          innovation_readiness?: string | null
+          is_potential_importer?: boolean | null
+          leader_satisfaction_with_team?: string | null
+          leaders_count?: number | null
+          leadership_clarity?: string | null
+          leadership_clarity_details?: string | null
+          legal_structure?: string | null
+          main_frustrations?: string | null
+          main_goal_12_months?: string | null
+          main_inspiration?: string | null
+          main_sales_channels?: string | null
+          meeting_routine?: string | null
+          mvv_document_id?: string | null
+          outsourced_functions?: string | null
+          owner_name?: string
+          owner_position?: string
+          partners_as_investors?: boolean | null
+          partners_count?: number | null
+          partners_equity_division?: string | null
+          partners_equity_practice?: string | null
+          partners_positions?: string | null
+          partners_strategic_relevance?: boolean | null
+          partners_work_in_company?: boolean | null
+          people_management_challenges?: string | null
+          personal_goals_reflection?: string | null
+          products_services_description?: string | null
+          sales_challenges?: string | null
+          sales_funnel_tracking_method?: string | null
+          sales_performance_tracking_method?: string | null
+          satisfied_with_partners?: string | null
+          satisfied_with_system?: string | null
+          segment?: string
+          self_leadership_rating?: number | null
+          self_leadership_reason?: string | null
+          status?: string | null
+          team_resistance_to_change?: string | null
+          team_satisfaction?: string | null
+          team_understands_roles?: string | null
+          team_understands_vision?: string | null
+          tracked_financial_metrics?: string | null
+          tracks_sales_funnel?: string | null
+          tracks_sales_performance?: string | null
+          updated_at?: string | null
+          user_id?: string
+          vision_3_5_years?: string | null
+          why_customers_buy?: string | null
+          would_not_rehire?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organizational_anamnesis_mvv_document_id_fkey"
+            columns: ["mvv_document_id"]
+            isOneToOne: false
+            referencedRelation: "mvv_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       password_reset_codes: {
         Row: {
           code: string
