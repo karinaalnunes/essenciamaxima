@@ -883,13 +883,58 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          company: string | null
+          company_website: string | null
+          created_at: string | null
+          facebook_company: string | null
+          id: string | null
+          instagram_company: string | null
+          linkedin_company: string | null
+          logo_url: string | null
+          name: string | null
+          position: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          company?: string | null
+          company_website?: string | null
+          created_at?: string | null
+          facebook_company?: string | null
+          id?: string | null
+          instagram_company?: string | null
+          linkedin_company?: string | null
+          logo_url?: string | null
+          name?: string | null
+          position?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          company?: string | null
+          company_website?: string | null
+          created_at?: string | null
+          facebook_company?: string | null
+          id?: string | null
+          instagram_company?: string | null
+          linkedin_company?: string | null
+          logo_url?: string | null
+          name?: string | null
+          position?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_view_sensitive_profile_data: {
         Args: { profile_id: string }
         Returns: boolean
       }
+      cleanup_expired_reset_codes: { Args: never; Returns: undefined }
       get_culture_completion_rate: {
         Args: never
         Returns: {
