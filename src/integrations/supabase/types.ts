@@ -886,6 +886,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_view_sensitive_profile_data: {
+        Args: { profile_id: string }
+        Returns: boolean
+      }
       get_culture_completion_rate: {
         Args: never
         Returns: {
