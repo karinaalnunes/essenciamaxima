@@ -608,6 +608,7 @@ export type Database = {
           company_size: string | null
           completed_at: string | null
           created_at: string | null
+          diagnostic_report: string | null
           employees_count: number | null
           finance_tracking_method: string | null
           finances_separated: boolean | null
@@ -647,6 +648,7 @@ export type Database = {
           people_management_challenges: string | null
           personal_goals_reflection: string | null
           products_services_description: string | null
+          report_generated_at: string | null
           sales_challenges: string | null
           sales_funnel_tracking_method: string | null
           sales_performance_tracking_method: string | null
@@ -682,6 +684,7 @@ export type Database = {
           company_size?: string | null
           completed_at?: string | null
           created_at?: string | null
+          diagnostic_report?: string | null
           employees_count?: number | null
           finance_tracking_method?: string | null
           finances_separated?: boolean | null
@@ -721,6 +724,7 @@ export type Database = {
           people_management_challenges?: string | null
           personal_goals_reflection?: string | null
           products_services_description?: string | null
+          report_generated_at?: string | null
           sales_challenges?: string | null
           sales_funnel_tracking_method?: string | null
           sales_performance_tracking_method?: string | null
@@ -756,6 +760,7 @@ export type Database = {
           company_size?: string | null
           completed_at?: string | null
           created_at?: string | null
+          diagnostic_report?: string | null
           employees_count?: number | null
           finance_tracking_method?: string | null
           finances_separated?: boolean | null
@@ -795,6 +800,7 @@ export type Database = {
           people_management_challenges?: string | null
           personal_goals_reflection?: string | null
           products_services_description?: string | null
+          report_generated_at?: string | null
           sales_challenges?: string | null
           sales_funnel_tracking_method?: string | null
           sales_performance_tracking_method?: string | null
