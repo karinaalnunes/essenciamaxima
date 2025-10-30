@@ -37,6 +37,62 @@ interface Ritual {
   description: string;
 }
 
+interface ValueBehavior {
+  value: string;
+  expected_behaviors: string[];
+  anti_behaviors: string[];
+  observable_signs: string[];
+  ritual: {
+    name: string;
+    owner: string;
+    frequency: string;
+    indicator: string;
+  };
+  metric: {
+    baseline: string;
+    target: string;
+  };
+}
+
+interface SymbolsLanguage {
+  expressions: string[];
+  founding_stories: string[];
+  cultural_objects: string[];
+}
+
+interface Governance {
+  guardian: string;
+  committee: string[];
+  annual_review: string;
+  consequences: string;
+}
+
+interface StressDilemma {
+  situation: string;
+  guiding_principle_applied: string;
+  decision: string;
+  outcome: string;
+}
+
+interface KillCriterion {
+  stakeholder: string;
+  criterion: string;
+  exception: string;
+  owner: string;
+}
+
+interface RitualsCalendar {
+  month: string;
+  rituals: string[];
+}
+
+interface ActivationKit {
+  presentation_script: string;
+  one_on_one_script: string;
+  pocket_cards: string[];
+  faqs: string[];
+}
+
 interface CultureDocument {
   id: string;
   title: string;
@@ -44,15 +100,23 @@ interface CultureDocument {
   mvv_document_id: string;
   reputation_goal: string | null;
   competitive_advantage: string | null;
+  cultural_positioning: string | null;
   swot_strengths: string[];
   swot_improvements: string[];
   guiding_principles: string[];
+  value_behaviors: ValueBehavior[];
   growth_practices: string | null;
   wellbeing_support: string | null;
   psychological_safety_practices: string | null;
   cultural_rituals: Ritual[];
+  symbols_language: SymbolsLanguage | null;
   stakeholder_guidelines: Record<string, string>;
+  governance: Governance | null;
+  stress_dilemmas: StressDilemma[];
+  kill_criteria: KillCriterion[];
   culture_indicators: CultureIndicator[];
+  rituals_calendar: RitualsCalendar[];
+  activation_kit: ActivationKit | null;
   action_plan_30: ActionPlan[];
   action_plan_60: ActionPlan[];
   action_plan_90: ActionPlan[];
@@ -62,6 +126,8 @@ interface CultureDocument {
   cultural_challenges: string[];
   strategic_focus: string | null;
   closing_message: string | null;
+  report_version_inspirational: string | null;
+  report_version_technical: string | null;
   mvv_documents: {
     company_name: string;
     segment: string;
@@ -82,6 +148,7 @@ export default function RelatorioCultura() {
   const { fireConfetti } = useConfetti();
   const [doc, setDoc] = useState<CultureDocument | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showTechnical, setShowTechnical] = useState(false);
 
   useEffect(() => {
     const checkAuthAndLoad = async () => {
@@ -188,10 +255,32 @@ export default function RelatorioCultura() {
             </Button>
             <img src={logo} alt="Máxima iA" className="h-12 w-auto" />
           </div>
-          <Button onClick={handlePrint}>
-            <Download className="w-4 h-4 mr-2" />
-            Exportar PDF
-          </Button>
+          <div className="flex items-center gap-3">
+            {(doc?.report_version_inspirational || doc?.report_version_technical) && (
+              <div className="flex gap-2 bg-slate-800 p-1 rounded-lg">
+                <Button
+                  size="sm"
+                  variant={!showTechnical ? "default" : "ghost"}
+                  onClick={() => setShowTechnical(false)}
+                  className="text-xs"
+                >
+                  📖 Inspiradora
+                </Button>
+                <Button
+                  size="sm"
+                  variant={showTechnical ? "default" : "ghost"}
+                  onClick={() => setShowTechnical(true)}
+                  className="text-xs"
+                >
+                  📊 Técnica
+                </Button>
+              </div>
+            )}
+            <Button onClick={handlePrint}>
+              <Download className="w-4 h-4 mr-2" />
+              Exportar PDF
+            </Button>
+          </div>
         </header>
 
         {!isComplete && (
@@ -296,6 +385,361 @@ export default function RelatorioCultura() {
               </div>
             )}
           </section>
+
+          <div className="print-break" />
+
+          {/* Frase de Posicionamento Cultural */}
+          {doc.cultural_positioning && (
+            <section className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 p-8 rounded-xl border-2 border-purple-500/50">
+              <div className="text-center space-y-4">
+                <h2 className="text-2xl font-bold text-purple-300">🎯 Posicionamento Cultural</h2>
+                <p className="text-2xl md:text-3xl font-bold text-white leading-relaxed italic">
+                  "{doc.cultural_positioning}"
+                </p>
+              </div>
+            </section>
+          )}
+
+          <div className="print-break" />
+
+          {/* Valores em Ação */}
+          {doc.value_behaviors && doc.value_behaviors.length > 0 && (
+            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
+              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+                💎 Valores em Ação
+              </h2>
+              <div className="space-y-8">
+                {doc.value_behaviors.map((vb, index) => (
+                  <div key={index} className="bg-slate-700/30 p-6 rounded-lg space-y-4">
+                    <h3 className="text-2xl font-bold text-purple-300">{vb.value}</h3>
+                    
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <h4 className="text-lg font-semibold text-green-300">✅ Comportamentos Esperados</h4>
+                        <ul className="space-y-1 text-sm">
+                          {vb.expected_behaviors.map((behavior, i) => (
+                            <li key={i} className="text-slate-300 flex items-start gap-2">
+                              <span className="text-green-400">•</span>
+                              {behavior}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h4 className="text-lg font-semibold text-red-300">❌ Anti-Comportamentos</h4>
+                        <ul className="space-y-1 text-sm">
+                          {vb.anti_behaviors.map((anti, i) => (
+                            <li key={i} className="text-slate-300 flex items-start gap-2">
+                              <span className="text-red-400">•</span>
+                              {anti}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 mt-4">
+                      <h4 className="text-lg font-semibold text-blue-300">👁️ Sinais Observáveis</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {vb.observable_signs.map((sign, i) => (
+                          <span key={i} className="bg-blue-900/30 text-blue-200 px-3 py-1 rounded-full text-sm">
+                            {sign}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-600">
+                      <div className="space-y-2">
+                        <h4 className="text-lg font-semibold text-yellow-300">🎭 Ritual Associado</h4>
+                        <div className="text-sm space-y-1 text-slate-300">
+                          <p><strong>Nome:</strong> {vb.ritual.name}</p>
+                          <p><strong>Responsável:</strong> {vb.ritual.owner}</p>
+                          <p><strong>Frequência:</strong> {vb.ritual.frequency}</p>
+                          <p><strong>Indicador:</strong> {vb.ritual.indicator}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h4 className="text-lg font-semibold text-purple-300">📊 Métrica de Vivência</h4>
+                        <div className="text-sm space-y-1 text-slate-300">
+                          <p><strong>Baseline:</strong> {vb.metric.baseline}</p>
+                          <p><strong>Meta:</strong> {vb.metric.target}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <div className="print-break" />
+
+          {/* Símbolos e Linguagem Interna */}
+          {doc.symbols_language && (
+            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
+              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+                🗣️ Símbolos e Linguagem Interna
+              </h2>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                {doc.symbols_language.expressions && doc.symbols_language.expressions.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-semibold text-purple-300">💬 Expressões Internas</h3>
+                    <ul className="space-y-2">
+                      {doc.symbols_language.expressions.map((expr, i) => (
+                        <li key={i} className="text-slate-300 bg-slate-700/30 p-2 rounded italic">
+                          "{expr}"
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {doc.symbols_language.founding_stories && doc.symbols_language.founding_stories.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-semibold text-purple-300">📖 Histórias Fundadoras</h3>
+                    <ul className="space-y-2">
+                      {doc.symbols_language.founding_stories.map((story, i) => (
+                        <li key={i} className="text-slate-300 bg-slate-700/30 p-2 rounded text-sm">
+                          {story}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {doc.symbols_language.cultural_objects && doc.symbols_language.cultural_objects.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-semibold text-purple-300">🎁 Objetos Culturais</h3>
+                    <ul className="space-y-2">
+                      {doc.symbols_language.cultural_objects.map((obj, i) => (
+                        <li key={i} className="text-slate-300 bg-slate-700/30 p-2 rounded text-sm">
+                          {obj}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          <div className="print-break" />
+
+          {/* Medição e Governança */}
+          {doc.governance && (
+            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
+              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+                🏛️ Medição e Governança da Cultura
+              </h2>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-purple-900/20 p-4 rounded-lg border border-purple-500/30">
+                  <h3 className="text-xl font-semibold text-purple-300 mb-2">🛡️ Guardião da Cultura</h3>
+                  <p className="text-slate-200">{doc.governance.guardian}</p>
+                </div>
+
+                {doc.governance.committee && doc.governance.committee.length > 0 && (
+                  <div className="bg-blue-900/20 p-4 rounded-lg border border-blue-500/30">
+                    <h3 className="text-xl font-semibold text-blue-300 mb-2">👥 Comitê de Cultura</h3>
+                    <ul className="space-y-1">
+                      {doc.governance.committee.map((member, i) => (
+                        <li key={i} className="text-slate-300 flex items-start gap-2">
+                          <span className="text-blue-400">•</span>
+                          {member}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4 mt-6">
+                {doc.governance.annual_review && (
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold text-purple-300">📅 Revisão Anual</h3>
+                    <p className="text-slate-200 leading-relaxed">{doc.governance.annual_review}</p>
+                  </div>
+                )}
+
+                {doc.governance.consequences && (
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold text-yellow-300">⚠️ Consequências</h3>
+                    <p className="text-slate-200 leading-relaxed">{doc.governance.consequences}</p>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          <div className="print-break" />
+
+          {/* Dilemas de Estresse */}
+          {doc.stress_dilemmas && doc.stress_dilemmas.length > 0 && (
+            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
+              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+                ⚡ Dilemas de Estresse: Cultura na Prática
+              </h2>
+              <div className="space-y-6">
+                {doc.stress_dilemmas.map((dilemma, i) => (
+                  <div key={i} className="bg-slate-700/30 p-6 rounded-lg space-y-3">
+                    <div className="flex items-start gap-3">
+                      <span className="text-3xl">🔥</span>
+                      <div className="flex-1 space-y-3">
+                        <div>
+                          <h3 className="text-lg font-semibold text-red-300">Situação</h3>
+                          <p className="text-slate-200">{dilemma.situation}</p>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-purple-300">Princípio Aplicado</h3>
+                          <p className="text-slate-200">{dilemma.guiding_principle_applied}</p>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-blue-300">Decisão</h3>
+                          <p className="text-slate-200">{dilemma.decision}</p>
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-green-300">Resultado Esperado</h3>
+                          <p className="text-slate-200">{dilemma.outcome}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <div className="print-break" />
+
+          {/* Decisões Limite (Kill Criteria) */}
+          {doc.kill_criteria && doc.kill_criteria.length > 0 && (
+            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
+              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+                🚫 Decisões Limite (Kill Criteria)
+              </h2>
+              <div className="overflow-x-auto">
+                <table className="w-full border border-slate-600">
+                  <thead className="bg-slate-700/50">
+                    <tr>
+                      <th className="p-3 border border-slate-600 text-left text-white">Stakeholder</th>
+                      <th className="p-3 border border-slate-600 text-left text-white">Critério de Rompimento</th>
+                      <th className="p-3 border border-slate-600 text-left text-white">Exceção</th>
+                      <th className="p-3 border border-slate-600 text-left text-white">Responsável</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {doc.kill_criteria.map((criterion, i) => (
+                      <tr key={i} className="border-t border-slate-600">
+                        <td className="p-3 border border-slate-600 text-slate-200 font-semibold">
+                          {criterion.stakeholder}
+                        </td>
+                        <td className="p-3 border border-slate-600 text-slate-200">
+                          {criterion.criterion}
+                        </td>
+                        <td className="p-3 border border-slate-600 text-slate-300 text-sm italic">
+                          {criterion.exception}
+                        </td>
+                        <td className="p-3 border border-slate-600 text-slate-200">
+                          {criterion.owner}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          <div className="print-break" />
+
+          {/* Calendário de Rituais */}
+          {doc.rituals_calendar && doc.rituals_calendar.length > 0 && (
+            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
+              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+                📅 Calendário de Rituais (12 Meses)
+              </h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {doc.rituals_calendar.map((month, i) => (
+                  <div key={i} className="bg-slate-700/30 p-4 rounded-lg">
+                    <h3 className="text-lg font-bold text-purple-300 mb-2">{month.month}</h3>
+                    <ul className="space-y-1">
+                      {month.rituals.map((ritual, j) => (
+                        <li key={j} className="text-slate-300 text-sm flex items-start gap-2">
+                          <span className="text-purple-400">•</span>
+                          {ritual}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <div className="print-break" />
+
+          {/* Kit de Ativação */}
+          {doc.activation_kit && (
+            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
+              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+                🎁 Kit de Ativação Cultural
+              </h2>
+              
+              <div className="space-y-6">
+                {doc.activation_kit.presentation_script && (
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-semibold text-purple-300">🎤 Roteiro de Apresentação (15 min)</h3>
+                    <div className="bg-slate-700/30 p-4 rounded-lg">
+                      <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">
+                        {doc.activation_kit.presentation_script}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {doc.activation_kit.one_on_one_script && (
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-semibold text-purple-300">👥 Roteiro de 1:1 para Líderes</h3>
+                    <div className="bg-slate-700/30 p-4 rounded-lg">
+                      <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">
+                        {doc.activation_kit.one_on_one_script}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {doc.activation_kit.pocket_cards && doc.activation_kit.pocket_cards.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-semibold text-purple-300">💳 Pocket Cards</h3>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {doc.activation_kit.pocket_cards.map((card, i) => (
+                        <div key={i} className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 p-4 rounded-lg border border-purple-500/30 text-center">
+                          <p className="text-slate-200 text-sm">{card}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {doc.activation_kit.faqs && doc.activation_kit.faqs.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-semibold text-purple-300">❓ FAQs</h3>
+                    <div className="space-y-2">
+                      {doc.activation_kit.faqs.map((faq, i) => (
+                        <div key={i} className="bg-slate-700/30 p-3 rounded-lg">
+                          <p className="text-slate-200 text-sm">{faq}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
 
           <div className="print-break" />
 
@@ -626,11 +1070,28 @@ export default function RelatorioCultura() {
 
           <div className="print-break" />
 
-          {/* Resumo Consultivo Final */}
+          {/* Resumo Consultivo Final com Toggle de Versões */}
           <section className="space-y-6 bg-gradient-to-br from-purple-900/30 to-slate-800/30 p-8 rounded-xl border border-purple-500/30">
             <h2 className="text-3xl font-bold text-white border-b border-purple-600 pb-3">
               💡 Resumo Consultivo Final
             </h2>
+
+            {/* Exibir versão inspiradora ou técnica baseado no toggle */}
+            {showTechnical && doc.report_version_technical ? (
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-blue-300">📊 Versão Técnica (Executiva)</h3>
+                <div className="text-slate-200 leading-relaxed whitespace-pre-wrap">
+                  {doc.report_version_technical}
+                </div>
+              </div>
+            ) : doc.report_version_inspirational ? (
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-purple-300">📖 Versão Inspiradora</h3>
+                <div className="text-slate-200 leading-relaxed whitespace-pre-wrap">
+                  {doc.report_version_inspirational}
+                </div>
+              </div>
+            ) : null}
 
             {doc.cultural_essence && (
               <div className="space-y-3">

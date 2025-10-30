@@ -160,27 +160,37 @@ export type Database = {
           action_plan_30: Json | null
           action_plan_60: Json | null
           action_plan_90: Json | null
+          activation_kit: Json | null
           closing_message: string | null
           competitive_advantage: string | null
           created_at: string
           cultural_challenges: Json | null
           cultural_essence: string | null
+          cultural_positioning: string | null
           cultural_rituals: Json | null
           cultural_strengths: Json | null
           culture_indicators: Json | null
+          governance: Json | null
           growth_practices: string | null
           guiding_principles: Json | null
           id: string
+          kill_criteria: Json | null
           mvv_document_id: string
           psychological_safety_practices: string | null
+          report_version_inspirational: string | null
+          report_version_technical: string | null
           reputation_goal: string | null
+          rituals_calendar: Json | null
           stakeholder_guidelines: Json | null
           strategic_focus: string | null
+          stress_dilemmas: Json | null
           swot_improvements: Json | null
           swot_strengths: Json | null
+          symbols_language: Json | null
           title: string
           updated_at: string
           user_id: string
+          value_behaviors: Json | null
           wellbeing_support: string | null
         }
         Insert: {
@@ -188,27 +198,37 @@ export type Database = {
           action_plan_30?: Json | null
           action_plan_60?: Json | null
           action_plan_90?: Json | null
+          activation_kit?: Json | null
           closing_message?: string | null
           competitive_advantage?: string | null
           created_at?: string
           cultural_challenges?: Json | null
           cultural_essence?: string | null
+          cultural_positioning?: string | null
           cultural_rituals?: Json | null
           cultural_strengths?: Json | null
           culture_indicators?: Json | null
+          governance?: Json | null
           growth_practices?: string | null
           guiding_principles?: Json | null
           id?: string
+          kill_criteria?: Json | null
           mvv_document_id: string
           psychological_safety_practices?: string | null
+          report_version_inspirational?: string | null
+          report_version_technical?: string | null
           reputation_goal?: string | null
+          rituals_calendar?: Json | null
           stakeholder_guidelines?: Json | null
           strategic_focus?: string | null
+          stress_dilemmas?: Json | null
           swot_improvements?: Json | null
           swot_strengths?: Json | null
+          symbols_language?: Json | null
           title: string
           updated_at?: string
           user_id: string
+          value_behaviors?: Json | null
           wellbeing_support?: string | null
         }
         Update: {
@@ -216,27 +236,37 @@ export type Database = {
           action_plan_30?: Json | null
           action_plan_60?: Json | null
           action_plan_90?: Json | null
+          activation_kit?: Json | null
           closing_message?: string | null
           competitive_advantage?: string | null
           created_at?: string
           cultural_challenges?: Json | null
           cultural_essence?: string | null
+          cultural_positioning?: string | null
           cultural_rituals?: Json | null
           cultural_strengths?: Json | null
           culture_indicators?: Json | null
+          governance?: Json | null
           growth_practices?: string | null
           guiding_principles?: Json | null
           id?: string
+          kill_criteria?: Json | null
           mvv_document_id?: string
           psychological_safety_practices?: string | null
+          report_version_inspirational?: string | null
+          report_version_technical?: string | null
           reputation_goal?: string | null
+          rituals_calendar?: Json | null
           stakeholder_guidelines?: Json | null
           strategic_focus?: string | null
+          stress_dilemmas?: Json | null
           swot_improvements?: Json | null
           swot_strengths?: Json | null
+          symbols_language?: Json | null
           title?: string
           updated_at?: string
           user_id?: string
+          value_behaviors?: Json | null
           wellbeing_support?: string | null
         }
         Relationships: []
