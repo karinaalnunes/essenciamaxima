@@ -169,6 +169,14 @@ serve(async (req) => {
       hasMVV: !!mvvData
     });
 
+    // Buscar dados da anamnese do usuário
+    const { data: anamnesis } = await supabase
+      .from('organizational_anamnesis')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
     // Construir contexto do MVV se fornecido
     let mvvContext = '';
     if (mvvData) {
@@ -181,6 +189,41 @@ serve(async (req) => {
         mvvContext += `**Valores:** ${mvvData.values.map((v: any) => v.name).join(', ')}\n`;
       }
       mvvContext += `\nUse estas informações como contexto ao longo da conversa.\n\n`;
+    }
+
+    // Adicionar contexto da Anamnese Máxima se disponível
+    let anamnesisContext = '';
+    if (anamnesis && anamnesis.length > 0) {
+      const anam = anamnesis[0];
+      anamnesisContext = `\n\n🏢 **DIAGNÓSTICO ORGANIZACIONAL (ANAMNESE MÁXIMA):**\n`;
+      anamnesisContext += `**Empresa:** ${anam.company_name}\n`;
+      anamnesisContext += `**Segmento:** ${anam.segment}\n`;
+      anamnesisContext += `**Porte:** ${anam.company_size || 'Não informado'}\n`;
+      anamnesisContext += `**Colaboradores:** ${anam.employees_count || 'Não informado'}\n`;
+      
+      if (anam.vision_3_5_years) {
+        anamnesisContext += `**Visão 3-5 anos:** ${anam.vision_3_5_years}\n`;
+      }
+      if (anam.main_goal_12_months) {
+        anamnesisContext += `**Meta principal 12 meses:** ${anam.main_goal_12_months}\n`;
+      }
+      if (anam.main_frustrations) {
+        anamnesisContext += `**Principais Frustrações:** ${anam.main_frustrations}\n`;
+      }
+      if (anam.people_management_challenges) {
+        anamnesisContext += `**Desafios de Gestão de Pessoas:** ${anam.people_management_challenges}\n`;
+      }
+      if (anam.self_leadership_rating) {
+        anamnesisContext += `**Auto-avaliação de Liderança:** ${anam.self_leadership_rating}/10\n`;
+      }
+      if (anam.team_understands_vision) {
+        anamnesisContext += `**Time entende a visão:** ${anam.team_understands_vision}\n`;
+      }
+      if (anam.leadership_clarity) {
+        anamnesisContext += `**Clareza de liderança:** ${anam.leadership_clarity}\n`;
+      }
+      
+      anamnesisContext += `\n**IMPORTANTE:** Use esses dados para tornar suas perguntas e recomendações mais contextuais e precisas. Personalize a consultoria baseado na realidade atual da empresa.\n\n`;
     }
 
     // Salvar mensagem do usuário
@@ -204,7 +247,7 @@ serve(async (req) => {
     const messages = [
       {
         role: 'system',
-        content: SYSTEM_PROMPT + mvvContext
+        content: SYSTEM_PROMPT + mvvContext + anamnesisContext
       },
       ...(conversationHistory || []),
       {

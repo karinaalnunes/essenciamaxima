@@ -18,6 +18,8 @@ import RelatorioMVV from "./pages/RelatorioMVV";
 import RelatorioCultura from "./pages/RelatorioCultura";
 import Perfil from "./pages/Perfil";
 import AnamnesesCultura from "./pages/AnamnesesCultura";
+import CheckoutCultura from "./pages/CheckoutCultura";
+import RelatorioAnamnese from "./pages/RelatorioAnamnese";
 
 const queryClient = new QueryClient();
 
@@ -37,10 +39,12 @@ const App = () => (
           <Route path="/admin" element={<Admin />} />
           <Route path="/novo-mvv" element={<NovoMVV />} />
           <Route path="/anamnese-cultura" element={<AnamnesesCultura />} />
+          <Route path="/checkout-cultura" element={<CheckoutCultura />} />
           <Route path="/novo-cultura" element={<NovoCultura />} />
           <Route path="/relatorio/:id" element={<RelatorioMVV />} />
           <Route path="/relatorio-mvv/:id" element={<RelatorioMVV />} />
           <Route path="/relatorio-cultura/:id" element={<RelatorioCultura />} />
+          <Route path="/relatorio-anamnese/:id" element={<RelatorioAnamnese />} />
           <Route path="/termos" element={<Termos />} />
           <Route path="/privacidade" element={<Privacidade />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

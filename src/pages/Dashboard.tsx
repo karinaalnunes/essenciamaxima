@@ -80,6 +80,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [mvvStatus, setMvvStatus] = useState<MVVStatus>('none');
   const [cultureStatus, setCultureStatus] = useState<CultureStatus>('none');
+  const [hasCulturaPurchase, setHasCulturaPurchase] = useState(false);
+  const [hasCompletedAnamnesis, setHasCompletedAnamnesis] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -118,23 +120,51 @@ export default function Dashboard() {
         const isComplete = doc.mission && doc.vision && doc.values;
         setMvvStatus(isComplete ? 'complete' : 'incomplete');
 
-        // Buscar documento de Cultura se MVV completo
+        // Verificar compra do Cultura Máxima se MVV completo
         if (isComplete) {
-          const { data: cultureDocs } = await supabase
-            .from("culture_documents")
+          // Verificar se comprou Cultura Máxima
+          const { data: purchases } = await supabase
+            .from("purchases")
             .select("*")
             .eq("user_id", session.user.id)
-            .eq("mvv_document_id", doc.id)
-            .order("created_at", { ascending: false });
+            .eq("product_type", "cultura_maxima")
+            .in("status", ["completed", "succeeded"])
+            .limit(1);
 
-          if (!cultureDocs || cultureDocs.length === 0) {
-            setCultureStatus('none');
-          } else {
-            const cultureDoc = cultureDocs[0];
-            setCultureDocument(cultureDoc);
-            const principles = Array.isArray(cultureDoc.guiding_principles) ? cultureDoc.guiding_principles : [];
-            const cultureComplete = cultureDoc.reputation_goal && principles.length > 0;
-            setCultureStatus(cultureComplete ? 'complete' : 'incomplete');
+          const hasPurchase = purchases && purchases.length > 0;
+          setHasCulturaPurchase(hasPurchase);
+
+          // Se comprou, verificar anamnese
+          if (hasPurchase) {
+            const { data: anamnesis } = await supabase
+              .from("organizational_anamnesis")
+              .select("*")
+              .eq("user_id", session.user.id)
+              .order("created_at", { ascending: false })
+              .limit(1);
+
+            const hasAnamnesis = anamnesis && anamnesis.length > 0 && !!anamnesis[0].completed_at;
+            setHasCompletedAnamnesis(hasAnamnesis);
+
+            // Se completou anamnese, buscar documento de cultura
+            if (hasAnamnesis) {
+              const { data: cultureDocs } = await supabase
+                .from("culture_documents")
+                .select("*")
+                .eq("user_id", session.user.id)
+                .eq("mvv_document_id", doc.id)
+                .order("created_at", { ascending: false });
+
+              if (!cultureDocs || cultureDocs.length === 0) {
+                setCultureStatus('none');
+              } else {
+                const cultureDoc = cultureDocs[0];
+                setCultureDocument(cultureDoc);
+                const principles = Array.isArray(cultureDoc.guiding_principles) ? cultureDoc.guiding_principles : [];
+                const cultureComplete = cultureDoc.reputation_goal && principles.length > 0;
+                setCultureStatus(cultureComplete ? 'complete' : 'incomplete');
+              }
+            }
           }
         }
       }
@@ -296,8 +326,8 @@ export default function Dashboard() {
             </Card>
           )}
 
-          {/* Card Cultura Máxima - só aparece se MVV completo */}
-          {mvvStatus === 'complete' && cultureStatus === 'none' && (
+          {/* Card Cultura Máxima - fluxo com checkout e anamnese */}
+          {mvvStatus === 'complete' && !hasCulturaPurchase && (
             <Card className="bg-slate-800/50 border-purple-500/50 p-6 mt-4">
               <div className="flex items-start gap-4">
                 <Heart className="text-purple-400 w-8 h-8 flex-shrink-0" />
@@ -305,11 +335,47 @@ export default function Dashboard() {
                   <h3 className="text-xl font-bold text-white">💜 Cultura Máxima</h3>
                   <p className="text-slate-400 mb-2">Código de Cultura Completo</p>
                   <p className="text-sm text-slate-400">
-                    Expanda seu MVV com um Código de Cultura completo: princípios norteadores, rituais, desenvolvimento de pessoas e plano de ação 30/60/90/120 dias.
+                    Expanda seu MVV com um Código de Cultura completo: diagnóstico organizacional, princípios norteadores, rituais e plano de ação 30/60/90/120 dias.
+                  </p>
+                </div>
+                <Button onClick={() => navigate("/checkout-cultura")}>
+                  Adquirir <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {mvvStatus === 'complete' && hasCulturaPurchase && !hasCompletedAnamnesis && (
+            <Card className="bg-slate-800/50 border-yellow-500/50 p-6 mt-4">
+              <div className="flex items-start gap-4">
+                <Heart className="text-yellow-400 w-8 h-8 flex-shrink-0 animate-pulse" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">🔄 Complete sua Anamnese Máxima</h3>
+                  <p className="text-slate-400 mb-2">Diagnóstico Organizacional Pendente</p>
+                  <p className="text-sm text-slate-400">
+                    Antes de criar seu Código de Cultura, complete o diagnóstico organizacional para personalizar as recomendações.
+                  </p>
+                </div>
+                <Button onClick={() => navigate("/anamnese-cultura")}>
+                  Continuar Anamnese <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {mvvStatus === 'complete' && hasCulturaPurchase && hasCompletedAnamnesis && cultureStatus === 'none' && (
+            <Card className="bg-slate-800/50 border-green-500/50 p-6 mt-4">
+              <div className="flex items-start gap-4">
+                <Heart className="text-green-400 w-8 h-8 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">✅ Anamnese Completa - Iniciar Cultura</h3>
+                  <p className="text-slate-400 mb-2">Código de Cultura Personalizado</p>
+                  <p className="text-sm text-slate-400">
+                    Diagnóstico concluído! Agora crie seu Código de Cultura baseado no contexto real da sua empresa.
                   </p>
                 </div>
                 <Button onClick={() => navigate("/novo-cultura")}>
-                  Iniciar <ArrowRight className="w-4 h-4 ml-2" />
+                  Iniciar Cultura <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </div>
             </Card>
