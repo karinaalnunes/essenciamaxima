@@ -39,7 +39,7 @@ export default function RelatorioProcesso() {
       }
 
       const { data, error } = await supabase
-        .from("process_documents")
+        .from("process_documents" as any)
         .select("*")
         .eq("id", id)
         .eq("user_id", session.user.id)
@@ -51,7 +51,7 @@ export default function RelatorioProcesso() {
         return;
       }
 
-      setDoc(data as ProcessDocument);
+      setDoc(data as any as ProcessDocument);
       setIsLoading(false);
     };
 

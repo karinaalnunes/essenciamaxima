@@ -42,20 +42,21 @@ export default function NovoProcesso() {
 
       // Check for existing document or create new one
       const { data: existingDoc } = await supabase
-        .from("process_documents")
+        .from("process_documents" as any)
         .select("*")
         .eq("user_id", session.user.id)
         .eq("status", "mapping")
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (existingDoc) {
-        setDocumentId(existingDoc.id);
-        if (existingDoc.conversation_history && Array.isArray(existingDoc.conversation_history)) {
-          setMessages(existingDoc.conversation_history as unknown as Message[]);
+        const doc = existingDoc as any;
+        setDocumentId(doc.id);
+        if (doc.conversation_history && Array.isArray(doc.conversation_history)) {
+          setMessages(doc.conversation_history as Message[]);
         } else {
-          await initializeConversation(existingDoc.id);
+          await initializeConversation(doc.id);
         }
       } else {
         await createNewDocument(session.user.id);
@@ -69,7 +70,7 @@ export default function NovoProcesso() {
 
   const createNewDocument = async (uid: string) => {
     const { data, error } = await supabase
-      .from("process_documents")
+      .from("process_documents" as any)
       .insert({
         user_id: uid,
         status: "mapping",
@@ -84,8 +85,9 @@ export default function NovoProcesso() {
       return;
     }
 
-    setDocumentId(data.id);
-    await initializeConversation(data.id);
+    const doc = data as any;
+    setDocumentId(doc.id);
+    await initializeConversation(doc.id);
   };
 
   const initializeConversation = async (docId: string) => {
@@ -99,8 +101,8 @@ export default function NovoProcesso() {
     setMessages(initialMessages);
 
     await supabase
-      .from("process_documents")
-      .update({ conversation_history: initialMessages as any })
+      .from("process_documents" as any)
+      .update({ conversation_history: initialMessages })
       .eq("id", docId);
   };
 
@@ -146,8 +148,8 @@ export default function NovoProcesso() {
     try {
       // Save user message
       await supabase
-        .from("process_documents")
-        .update({ conversation_history: updatedMessages as any })
+        .from("process_documents" as any)
+        .update({ conversation_history: updatedMessages })
         .eq("id", documentId);
 
       // Call process-chat edge function
@@ -204,8 +206,8 @@ export default function NovoProcesso() {
       // Save complete conversation
       const finalMessages = [...updatedMessages, { role: "assistant", content: assistantMessage }];
       await supabase
-        .from("process_documents")
-        .update({ conversation_history: finalMessages as any })
+        .from("process_documents" as any)
+        .update({ conversation_history: finalMessages })
         .eq("id", documentId);
 
       // Check if ready to generate
@@ -232,7 +234,7 @@ export default function NovoProcesso() {
     try {
       // Get complete conversation
       const { data: doc } = await supabase
-        .from("process_documents")
+        .from("process_documents" as any)
         .select("*")
         .eq("id", documentId)
         .single();
@@ -242,8 +244,8 @@ export default function NovoProcesso() {
       // Generate report
       const { data, error } = await supabase.functions.invoke("generate-process-report", {
         body: {
-          conversationHistory: doc.conversation_history,
-          functionContext: doc.function_description || null
+          conversationHistory: (doc as any).conversation_history,
+          functionContext: (doc as any).function_description || null
         }
       });
 
@@ -255,12 +257,12 @@ export default function NovoProcesso() {
 
       // Save to database
       await supabase
-        .from("process_documents")
+        .from("process_documents" as any)
         .update({
           function_name: data.data.function_name,
           function_description: data.data.function_description,
           has_function_descriptor: data.data.has_function_descriptor,
-          processes: data.data.processes as any,
+          processes: data.data.processes,
           status: "completed"
         })
         .eq("id", documentId);
