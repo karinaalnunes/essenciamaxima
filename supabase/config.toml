@@ -3,6 +3,12 @@ project_id = "qhoycusyoptmgvensgdu"
 [functions.transcribe-audio]
 verify_jwt = true
 
+[functions.value-chain-chat]
+verify_jwt = true
+
+[functions.generate-value-chain-report]
+verify_jwt = true
+
 [functions.consultative-chat]
 verify_jwt = true
 

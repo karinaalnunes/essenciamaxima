@@ -312,7 +312,7 @@ Retorne APENAS o JSON, sem texto adicional, sem markdown, sem explicações.`;
           function_name: 'generate-process-report',
           model: 'unknown',
           status: 'error',
-          error_message: error.message,
+          error_message: error instanceof Error ? error.message : 'Unknown error',
           latency_ms: Date.now() - startTime,
         });
       }
@@ -323,7 +323,7 @@ Retorne APENAS o JSON, sem texto adicional, sem markdown, sem explicações.`;
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         details: 'Failed to generate process report'
       }),
       { 
