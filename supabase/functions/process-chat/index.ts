@@ -150,7 +150,7 @@ NÃO gere o relatório automaticamente. Aguarde o usuário pedir.`;
     console.error('❌ Process chat error:', error);
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         details: 'Failed to process conversation'
       }), 
       { 

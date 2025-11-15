@@ -25,9 +25,10 @@ const FUTURE_MODULES = [
     locked: false
   },
   { 
-    id: "cadeia-valor", 
-    title: "Cadeia de Valor Máxima", 
-    icon: TrendingUp,
+    id: "processos", 
+    title: "Processos Máxima", 
+    description: "Fluxos Detalhados",
+    icon: Workflow,
     locked: true
   },
   { 
@@ -49,13 +50,6 @@ const FUTURE_MODULES = [
     title: "Fluxo Máxima", 
     description: "Macrofluxo",
     icon: GitBranch,
-    locked: true
-  },
-  { 
-    id: "processos", 
-    title: "Processos Máxima", 
-    description: "Fluxos Detalhados",
-    icon: Workflow,
     locked: true
   },
   { 
@@ -82,6 +76,8 @@ export default function Dashboard() {
   const [cultureStatus, setCultureStatus] = useState<CultureStatus>('none');
   const [hasCulturaPurchase, setHasCulturaPurchase] = useState(false);
   const [hasCompletedAnamnesis, setHasCompletedAnamnesis] = useState(false);
+  const [valueChainStatus, setValueChainStatus] = useState<'none' | 'incomplete' | 'complete'>('none');
+  const [valueChainDoc, setValueChainDoc] = useState<any>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -163,6 +159,22 @@ export default function Dashboard() {
                 const principles = Array.isArray(cultureDoc.guiding_principles) ? cultureDoc.guiding_principles : [];
                 const cultureComplete = cultureDoc.reputation_goal && principles.length > 0;
                 setCultureStatus(cultureComplete ? 'complete' : 'incomplete');
+              }
+
+              // Check value chain documents
+              const { data: valueChainDocs } = await supabase
+                .from("value_chain_documents")
+                .select("*")
+                .eq("user_id", session.user.id)
+                .order("created_at", { ascending: false });
+
+              if (!valueChainDocs || valueChainDocs.length === 0) {
+                setValueChainStatus('none');
+              } else {
+                const vcDoc = valueChainDocs[0] as any;
+                setValueChainDoc(vcDoc);
+                const isComplete = vcDoc.status === 'completed' && vcDoc.activities && Array.isArray(vcDoc.activities) && vcDoc.activities.length > 0;
+                setValueChainStatus(isComplete ? 'complete' : 'incomplete');
               }
             }
           }
@@ -414,6 +426,65 @@ export default function Dashboard() {
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={() => navigate(`/relatorio-cultura/${cultureDocument.id}`)}>
+                    Ver Relatório
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Cadeia de Valor Máxima */}
+          {hasCompletedAnamnesis && valueChainStatus === 'none' && (
+            <Card className="bg-slate-800/50 border-blue-500/50 p-6 mt-4">
+              <div className="flex items-start gap-4">
+                <TrendingUp className="text-blue-400 w-8 h-8 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">📊 Cadeia de Valor Máxima 2.0</h3>
+                  <p className="text-slate-400 mb-2">Mapeamento estratégico do macrofluxo empresarial</p>
+                  <p className="text-sm text-slate-400">
+                    Análise completa de atividades, matriz de valor agregado e checkpoint emocional
+                  </p>
+                </div>
+                <Button onClick={() => navigate("/novo-valor-cadeia")}>
+                  Iniciar Mapeamento
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {hasCompletedAnamnesis && valueChainStatus === 'incomplete' && (
+            <Card className="bg-slate-800/50 border-yellow-500/50 p-6 mt-4">
+              <div className="flex items-start gap-4">
+                <Clock className="text-yellow-400 w-8 h-8 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">🔄 Cadeia de Valor Máxima</h3>
+                  <p className="text-slate-400 mb-2">Em andamento</p>
+                  <p className="text-sm text-slate-400">
+                    Continue mapeando a cadeia de valor da sua empresa
+                  </p>
+                </div>
+                <Button onClick={() => navigate("/novo-valor-cadeia")}>
+                  Continuar Mapeamento
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {hasCompletedAnamnesis && valueChainStatus === 'complete' && valueChainDoc && (
+            <Card className="bg-slate-800/50 border-green-500/50 p-6 mt-4">
+              <div className="flex items-start gap-4">
+                <CheckCircle className="text-green-400 w-8 h-8 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">✅ Cadeia de Valor Máxima</h3>
+                  <p className="text-slate-400 mb-2">
+                    Completo em {new Date(valueChainDoc.created_at).toLocaleDateString("pt-BR")}
+                  </p>
+                  <p className="text-sm text-slate-400">
+                    Análise estratégica completa com matriz de valor agregado
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => navigate(`/relatorio-valor-cadeia/${valueChainDoc.id}`)}>
                     Ver Relatório
                   </Button>
                 </div>

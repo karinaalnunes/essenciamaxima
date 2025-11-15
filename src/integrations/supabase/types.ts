@@ -1147,6 +1147,65 @@ export type Database = {
           },
         ]
       }
+      value_chain_documents: {
+        Row: {
+          activities: Json | null
+          anamnesis_id: string | null
+          conversation_history: Json | null
+          created_at: string | null
+          emotional_summary: Json | null
+          id: string
+          investment_summary: Json | null
+          maturity_summary: Json | null
+          recommendations: Json | null
+          status: string | null
+          top_priorities: Json | null
+          updated_at: string | null
+          user_id: string
+          value_matrix: Json | null
+        }
+        Insert: {
+          activities?: Json | null
+          anamnesis_id?: string | null
+          conversation_history?: Json | null
+          created_at?: string | null
+          emotional_summary?: Json | null
+          id?: string
+          investment_summary?: Json | null
+          maturity_summary?: Json | null
+          recommendations?: Json | null
+          status?: string | null
+          top_priorities?: Json | null
+          updated_at?: string | null
+          user_id: string
+          value_matrix?: Json | null
+        }
+        Update: {
+          activities?: Json | null
+          anamnesis_id?: string | null
+          conversation_history?: Json | null
+          created_at?: string | null
+          emotional_summary?: Json | null
+          id?: string
+          investment_summary?: Json | null
+          maturity_summary?: Json | null
+          recommendations?: Json | null
+          status?: string | null
+          top_priorities?: Json | null
+          updated_at?: string | null
+          user_id?: string
+          value_matrix?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "value_chain_documents_anamnesis_id_fkey"
+            columns: ["anamnesis_id"]
+            isOneToOne: false
+            referencedRelation: "organizational_anamnesis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_logs: {
         Row: {
           created_at: string | null
