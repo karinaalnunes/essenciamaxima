@@ -890,6 +890,45 @@ export type Database = {
         }
         Relationships: []
       }
+      process_documents: {
+        Row: {
+          conversation_history: Json | null
+          created_at: string
+          function_description: string | null
+          function_name: string | null
+          has_function_descriptor: boolean | null
+          id: string
+          processes: Json | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_history?: Json | null
+          created_at?: string
+          function_description?: string | null
+          function_name?: string | null
+          has_function_descriptor?: boolean | null
+          id?: string
+          processes?: Json | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_history?: Json | null
+          created_at?: string
+          function_description?: string | null
+          function_name?: string | null
+          has_function_descriptor?: boolean | null
+          id?: string
+          processes?: Json | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       professional_connections: {
         Row: {
           created_at: string | null
