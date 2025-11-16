@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,15 @@ export default function NovoValorCadeia() {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [readyToGenerate, setReadyToGenerate] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     const checkPrerequisites = async () => {
@@ -219,7 +228,15 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
               const content = parsed.choices?.[0]?.delta?.content;
               if (content) {
                 assistantMessage += content;
-                setMessages([...updatedMessages, { role: "assistant", content: assistantMessage }]);
+                setMessages((prev) => {
+                  const newMessages = [...updatedMessages];
+                  const lastMsg = newMessages[newMessages.length - 1];
+                  if (lastMsg && lastMsg.role === "assistant") {
+                    lastMsg.content = assistantMessage;
+                    return newMessages;
+                  }
+                  return [...newMessages, { role: "assistant", content: assistantMessage }];
+                });
               }
             } catch (e) {
               // Skip invalid JSON
@@ -391,6 +408,7 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </CardContent>
         </Card>
 
