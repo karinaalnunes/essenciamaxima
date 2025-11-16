@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Download, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
+import mermaid from "mermaid";
 
 interface Activity {
   name: string;
@@ -97,6 +98,14 @@ export default function RelatorioValorCadeia() {
 
     loadDocument();
   }, [id, navigate]);
+
+  // Initialize Mermaid
+  useEffect(() => {
+    if (doc) {
+      mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+      mermaid.contentLoaded();
+    }
+  }, [doc]);
 
   const getMermaidChainMap = () => {
     if (!doc) return "";
@@ -550,13 +559,6 @@ export default function RelatorioValorCadeia() {
           </CardContent>
         </Card>
       </div>
-
-      <script type="module">
-        {`
-          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-          mermaid.initialize({ startOnLoad: true, theme: 'dark' });
-        `}
-      </script>
     </div>
   );
 }
