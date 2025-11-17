@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, LogOut, CheckCircle, Clock, TrendingUp, Network, Users, GitBranch, Workflow, BarChart3, Heart, ArrowRight, Loader2 } from "lucide-react";
+import { FileText, LogOut, CheckCircle, Clock, TrendingUp, Network, Users, GitBranch, Workflow, BarChart3, Heart, ArrowRight, Loader2, Lock } from "lucide-react";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 import { useToast } from "@/hooks/use-toast";
 import { ModuleCard } from "@/components/ModuleCard";
@@ -433,8 +433,42 @@ export default function Dashboard() {
             </Card>
           )}
 
-          {/* Cadeia de Valor Máxima */}
-          {hasCompletedAnamnesis && valueChainStatus === 'none' && (
+          {/* Cadeia de Valor Máxima - Card Bloqueado */}
+          {mvvStatus === 'complete' && cultureStatus !== 'complete' && (
+            <Card className="bg-slate-800/30 border-slate-600/50 p-6 mt-4 relative overflow-hidden">
+              <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center z-10">
+                <Lock className="w-12 h-12 text-slate-400/70" />
+              </div>
+              <div className="flex items-start gap-4 opacity-60">
+                <TrendingUp className="text-slate-400 w-8 h-8 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">📊 Cadeia de Valor Máxima 2.0</h3>
+                  <p className="text-slate-400 mb-2">Bloqueado - Complete o Cultura Máxima primeiro</p>
+                  <p className="text-sm text-slate-400">
+                    Mapeamento estratégico do macrofluxo empresarial disponível após conclusão do Cultura Máxima
+                  </p>
+                </div>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    if (!hasCulturaPurchase) {
+                      navigate("/checkout-cultura");
+                    } else if (!hasCompletedAnamnesis) {
+                      navigate("/anamnese-cultura");
+                    } else {
+                      navigate("/novo-cultura");
+                    }
+                  }}
+                  className="relative z-20"
+                >
+                  {!hasCulturaPurchase ? "Adquirir Cultura Máxima" : !hasCompletedAnamnesis ? "Completar Anamnese" : "Iniciar Cultura"}
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {/* Cadeia de Valor Máxima - Card Desbloqueado */}
+          {cultureStatus === 'complete' && valueChainStatus === 'none' && (
             <Card className="bg-slate-800/50 border-blue-500/50 p-6 mt-4">
               <div className="flex items-start gap-4">
                 <TrendingUp className="text-blue-400 w-8 h-8 flex-shrink-0" />
@@ -452,7 +486,7 @@ export default function Dashboard() {
             </Card>
           )}
 
-          {hasCompletedAnamnesis && valueChainStatus === 'incomplete' && (
+          {cultureStatus === 'complete' && valueChainStatus === 'incomplete' && (
             <Card className="bg-slate-800/50 border-yellow-500/50 p-6 mt-4">
               <div className="flex items-start gap-4">
                 <Clock className="text-yellow-400 w-8 h-8 flex-shrink-0" />
@@ -470,7 +504,7 @@ export default function Dashboard() {
             </Card>
           )}
 
-          {hasCompletedAnamnesis && valueChainStatus === 'complete' && valueChainDoc && (
+          {cultureStatus === 'complete' && valueChainStatus === 'complete' && valueChainDoc && (
             <Card className="bg-slate-800/50 border-green-500/50 p-6 mt-4">
               <div className="flex items-start gap-4">
                 <CheckCircle className="text-green-400 w-8 h-8 flex-shrink-0" />
