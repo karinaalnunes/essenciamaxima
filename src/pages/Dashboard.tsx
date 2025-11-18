@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useConfetti } from "@/hooks/useConfetti";
 import { ModuleCard } from "@/components/ModuleCard";
 import { UpsellEssenciaMaxima } from "@/components/UpsellEssenciaMaxima";
+import { AchievementBadge } from "@/components/AchievementBadge";
+import { MODULE_GAINS, getModuleStatus } from "@/config/moduleGains";
 
 const FUTURE_MODULES = [
   { 
@@ -567,6 +569,47 @@ export default function Dashboard() {
               </div>
             </Card>
           )}
+        </div>
+
+        {/* Seção: Conquistas */}
+        <div className="mt-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white">🏆 Suas Conquistas</h2>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate("/vitorias")}
+              className="gap-2"
+            >
+              Ver Todas as Vitórias
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <AchievementBadge
+              emoji={MODULE_GAINS.mvv.emoji}
+              name={MODULE_GAINS.mvv.name}
+              status={getModuleStatus('mvv', mvvStatus, cultureStatus, valueChainStatus, 'none')}
+              color={MODULE_GAINS.mvv.color}
+            />
+            <AchievementBadge
+              emoji={MODULE_GAINS.cultura.emoji}
+              name={MODULE_GAINS.cultura.name}
+              status={getModuleStatus('cultura', mvvStatus, cultureStatus, valueChainStatus, 'none')}
+              color={MODULE_GAINS.cultura.color}
+            />
+            <AchievementBadge
+              emoji={MODULE_GAINS.valorChain.emoji}
+              name={MODULE_GAINS.valorChain.name}
+              status={getModuleStatus('valorChain', mvvStatus, cultureStatus, valueChainStatus, 'none')}
+              color={MODULE_GAINS.valorChain.color}
+            />
+            <AchievementBadge
+              emoji={MODULE_GAINS.processos.emoji}
+              name={MODULE_GAINS.processos.name}
+              status={getModuleStatus('processos', mvvStatus, cultureStatus, valueChainStatus, 'none')}
+              color={MODULE_GAINS.processos.color}
+            />
+          </div>
         </div>
 
         {/* Seção: Próximos Módulos */}
