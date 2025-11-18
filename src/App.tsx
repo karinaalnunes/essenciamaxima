@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import RelatorioMVV from "./pages/RelatorioMVV";
 import RelatorioCultura from "./pages/RelatorioCultura";
 import Perfil from "./pages/Perfil";
+import Vitorias from "./pages/Vitorias";
 import AnamnesesCultura from "./pages/AnamnesesCultura";
 import CheckoutCultura from "./pages/CheckoutCultura";
 import RelatorioAnamnese from "./pages/RelatorioAnamnese";
@@ -38,9 +39,10 @@ const App = () => (
           <Route path="/capturar" element={<Capturar />} />
           <Route path="/obrigado" element={<Obrigado />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/perfil" element={<Perfil />} />
-          <Route path="/admin" element={<Admin />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/vitorias" element={<Vitorias />} />
+            <Route path="/admin" element={<Admin />} />
           <Route path="/novo-mvv" element={<NovoMVV />} />
           <Route path="/anamnese-cultura" element={<AnamnesesCultura />} />
           <Route path="/checkout-cultura" element={<CheckoutCultura />} />
