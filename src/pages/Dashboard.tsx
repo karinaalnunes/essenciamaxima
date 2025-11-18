@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FileText, LogOut, CheckCircle, Clock, TrendingUp, Network, Users, GitBranch, Workflow, BarChart3, Heart, ArrowRight, Loader2, Lock } from "lucide-react";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 import { useToast } from "@/hooks/use-toast";
+import { useConfetti } from "@/hooks/useConfetti";
 import { ModuleCard } from "@/components/ModuleCard";
 import { UpsellEssenciaMaxima } from "@/components/UpsellEssenciaMaxima";
 
@@ -67,7 +68,10 @@ type CultureStatus = 'none' | 'incomplete' | 'complete';
 export default function Dashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { fireConfetti } = useConfetti();
+  
   const [user, setUser] = useState<any>(null);
+  const [previousCultureStatus, setPreviousCultureStatus] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [document, setDocument] = useState<any>(null);
   const [cultureDocument, setCultureDocument] = useState<any>(null);
@@ -194,6 +198,18 @@ export default function Dashboard() {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Confetti quando desbloquear Cadeia de Valor
+  useEffect(() => {
+    if (previousCultureStatus !== null && previousCultureStatus !== 'complete' && cultureStatus === 'complete') {
+      fireConfetti('intense');
+      toast({
+        title: "🎉 Novo módulo desbloqueado!",
+        description: "A Cadeia de Valor Máxima agora está disponível!",
+      });
+    }
+    setPreviousCultureStatus(cultureStatus);
+  }, [cultureStatus, fireConfetti, toast]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -433,7 +449,33 @@ export default function Dashboard() {
             </Card>
           )}
 
-          {/* Cadeia de Valor Máxima - Card Bloqueado */}
+          {/* Cadeia de Valor Máxima - Card Bloqueado por MVV */}
+          {mvvStatus !== 'complete' && (
+            <Card className="bg-slate-800/30 border-slate-600/50 p-6 mt-4 relative overflow-hidden">
+              <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center z-10">
+                <Lock className="w-12 h-12 text-slate-400/70" />
+              </div>
+              <div className="flex items-start gap-4 opacity-60">
+                <TrendingUp className="text-slate-400 w-8 h-8 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white">📊 Cadeia de Valor Máxima 2.0</h3>
+                  <p className="text-slate-400 mb-2">Bloqueado - Complete o Essência Máxima (MVV) primeiro</p>
+                  <p className="text-sm text-slate-400">
+                    Mapeamento estratégico do macrofluxo empresarial disponível após conclusão do MVV e Cultura Máxima
+                  </p>
+                </div>
+                <Button 
+                  variant="outline"
+                  onClick={() => navigate("/novo-mvv")}
+                  className="relative z-20"
+                >
+                  {mvvStatus === 'none' ? "Iniciar MVV" : "Continuar MVV"}
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {/* Cadeia de Valor Máxima - Card Bloqueado por Cultura */}
           {mvvStatus === 'complete' && cultureStatus !== 'complete' && (
             <Card className="bg-slate-800/30 border-slate-600/50 p-6 mt-4 relative overflow-hidden">
               <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center z-10">
