@@ -40,7 +40,7 @@ export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
     task.status !== "done";
 
   return (
-    <Card className="p-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing">
+    <Card className="p-4 bg-card border border-border hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing">
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-2">
           <h4 className="font-medium text-sm flex-1 line-clamp-2">{task.title}</h4>
