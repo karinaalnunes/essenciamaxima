@@ -12,8 +12,16 @@ import { UpsellEssenciaMaxima } from "@/components/UpsellEssenciaMaxima";
 import { AchievementBadge } from "@/components/AchievementBadge";
 import { MODULE_GAINS, getModuleStatus } from "@/config/moduleGains";
 
-// Apenas módulos futuros (não inclui Essência, Cultura e Cadeia de Valor que estão na trilha)
-const FUTURE_MODULES = [
+// Módulos futuros (inclui Cadeia de Valor com status dinâmico)
+const getFutureModules = (cultureStatus: string, valueChainStatus: string) => [
+  { 
+    id: "valorChain", 
+    title: "Cadeia de Valor Máxima 2.0", 
+    description: "Mapeamento Estratégico",
+    icon: TrendingUp,
+    locked: cultureStatus !== 'complete',
+    status: valueChainStatus
+  },
   { 
     id: "processos", 
     title: "Processos Máxima", 
@@ -483,124 +491,7 @@ export default function Dashboard() {
             </Card>
           )}
 
-          {/* Cadeia de Valor Máxima - Card Bloqueado por MVV */}
-          {mvvStatus !== 'complete' && (
-            <Card className="bg-slate-800/30 border-slate-600/50 p-6 mt-4 relative overflow-hidden">
-              <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center z-10">
-                <Lock className="w-12 h-12 text-slate-400/70" />
-              </div>
-              <div className="flex items-start gap-4 opacity-60">
-                <TrendingUp className="text-slate-400 w-8 h-8 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white">📊 Cadeia de Valor Máxima 2.0</h3>
-                  <p className="text-slate-400 mb-2">Bloqueado - Complete o Essência Máxima (MVV) primeiro</p>
-                  <p className="text-sm text-slate-400">
-                    Mapeamento estratégico do macrofluxo empresarial disponível após conclusão do MVV e Cultura Máxima
-                  </p>
-                </div>
-                <Button 
-                  variant="outline"
-                  onClick={() => navigate("/novo-mvv")}
-                  className="relative z-20"
-                >
-                  {mvvStatus === 'none' ? "Iniciar MVV" : "Continuar MVV"}
-                </Button>
-              </div>
-            </Card>
-          )}
-
-          {/* Cadeia de Valor Máxima - Card Bloqueado por Cultura */}
-          {mvvStatus === 'complete' && cultureStatus !== 'complete' && (
-            <Card className="bg-slate-800/30 border-slate-600/50 p-6 mt-4 relative overflow-hidden">
-              <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center z-10">
-                <Lock className="w-12 h-12 text-slate-400/70" />
-              </div>
-              <div className="flex items-start gap-4 opacity-60">
-                <TrendingUp className="text-slate-400 w-8 h-8 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white">📊 Cadeia de Valor Máxima 2.0</h3>
-                  <p className="text-slate-400 mb-2">Bloqueado - Complete o Cultura Máxima primeiro</p>
-                  <p className="text-sm text-slate-400">
-                    Mapeamento estratégico do macrofluxo empresarial disponível após conclusão do Cultura Máxima
-                  </p>
-                </div>
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    if (!hasCulturaPurchase) {
-                      navigate("/checkout-cultura");
-                    } else if (!hasCompletedAnamnesis) {
-                      navigate("/anamnese-cultura");
-                    } else {
-                      navigate("/novo-cultura");
-                    }
-                  }}
-                  className="relative z-20"
-                >
-                  {!hasCulturaPurchase ? "Adquirir Cultura Máxima" : !hasCompletedAnamnesis ? "Completar Anamnese" : "Iniciar Cultura"}
-                </Button>
-              </div>
-            </Card>
-          )}
-
-          {/* Cadeia de Valor Máxima - Card Desbloqueado */}
-          {cultureStatus === 'complete' && valueChainStatus === 'none' && (
-            <Card className="bg-slate-800/50 border-blue-500/50 p-6 mt-4">
-              <div className="flex items-start gap-4">
-                <TrendingUp className="text-blue-400 w-8 h-8 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white">📊 Cadeia de Valor Máxima 2.0</h3>
-                  <p className="text-slate-400 mb-2">Mapeamento estratégico do macrofluxo empresarial</p>
-                  <p className="text-sm text-slate-400">
-                    Análise completa de atividades, matriz de valor agregado e checkpoint emocional
-                  </p>
-                </div>
-                <Button onClick={() => navigate("/novo-valor-cadeia")}>
-                  Iniciar Mapeamento
-                </Button>
-              </div>
-            </Card>
-          )}
-
-          {cultureStatus === 'complete' && valueChainStatus === 'incomplete' && (
-            <Card className="bg-slate-800/50 border-yellow-500/50 p-6 mt-4">
-              <div className="flex items-start gap-4">
-                <Clock className="text-yellow-400 w-8 h-8 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white">🔄 Cadeia de Valor Máxima</h3>
-                  <p className="text-slate-400 mb-2">Em andamento</p>
-                  <p className="text-sm text-slate-400">
-                    Continue mapeando a cadeia de valor da sua empresa
-                  </p>
-                </div>
-                <Button onClick={() => navigate("/novo-valor-cadeia")}>
-                  Continuar Mapeamento
-                </Button>
-              </div>
-            </Card>
-          )}
-
-          {cultureStatus === 'complete' && valueChainStatus === 'complete' && valueChainDoc && (
-            <Card className="bg-slate-800/50 border-green-500/50 p-6 mt-4">
-              <div className="flex items-start gap-4">
-                <CheckCircle className="text-green-400 w-8 h-8 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white">✅ Cadeia de Valor Máxima</h3>
-                  <p className="text-slate-400 mb-2">
-                    Completo em {new Date(valueChainDoc.created_at).toLocaleDateString("pt-BR")}
-                  </p>
-                  <p className="text-sm text-slate-400">
-                    Análise estratégica completa com matriz de valor agregado
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => navigate(`/relatorio-valor-cadeia/${valueChainDoc.id}`)}>
-                    Ver Relatório
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          )}
+          {/* Cards de Cadeia de Valor removidos - agora exibido em Próximos Módulos */}
         </div>
 
 
@@ -610,13 +501,25 @@ export default function Dashboard() {
             Próximos Módulos da Trilha
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FUTURE_MODULES.map((module) => (
+            {getFutureModules(cultureStatus, valueChainStatus).map((module) => (
               <ModuleCard
                 key={module.id}
                 title={module.title}
                 description={module.description}
                 icon={module.icon}
                 locked={module.locked}
+                status={module.id === 'valorChain' ? valueChainStatus : undefined}
+                onClick={
+                  module.id === 'valorChain' && !module.locked
+                    ? () => {
+                        if (valueChainStatus === 'complete' && valueChainDoc) {
+                          navigate(`/relatorio-valor-cadeia/${valueChainDoc.id}`);
+                        } else {
+                          navigate('/novo-valor-cadeia');
+                        }
+                      }
+                    : undefined
+                }
               />
             ))}
           </div>
