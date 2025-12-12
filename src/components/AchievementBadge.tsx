@@ -49,7 +49,8 @@ export const AchievementBadge = ({ emoji, name, status, color, mainGain }: Achie
         "relative flex flex-col items-center p-4 rounded-lg border-2 transition-all",
         config.bgColor,
         config.borderColor,
-        status === 'complete' && "hover:scale-105 cursor-pointer"
+        status === 'complete' && "hover:scale-105 cursor-pointer",
+        status === 'locked' && "grayscale opacity-50"
       )}
     >
       <div className="text-4xl mb-2 relative">
