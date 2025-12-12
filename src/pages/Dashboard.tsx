@@ -12,8 +12,16 @@ import { UpsellEssenciaMaxima } from "@/components/UpsellEssenciaMaxima";
 import { AchievementBadge } from "@/components/AchievementBadge";
 import { MODULE_GAINS, getModuleStatus } from "@/config/moduleGains";
 
-// Módulos futuros (inclui Cadeia de Valor com status dinâmico)
-const getFutureModules = (cultureStatus: string, valueChainStatus: string) => [
+// Módulos futuros (inclui Cultura e Cadeia de Valor com status dinâmico)
+const getFutureModules = (mvvStatus: string, cultureStatus: string, valueChainStatus: string) => [
+  { 
+    id: "cultura", 
+    title: "Cultura Máxima", 
+    description: "Código de Cultura",
+    icon: Heart,
+    locked: mvvStatus !== 'complete',
+    status: cultureStatus
+  },
   { 
     id: "valorChain", 
     title: "Cadeia de Valor Máxima 2.0", 
@@ -501,21 +509,35 @@ export default function Dashboard() {
             Próximos Módulos da Trilha
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {getFutureModules(cultureStatus, valueChainStatus).map((module) => (
+            {getFutureModules(mvvStatus, cultureStatus, valueChainStatus).map((module) => (
               <ModuleCard
                 key={module.id}
                 title={module.title}
                 description={module.description}
                 icon={module.icon}
                 locked={module.locked}
-                status={module.id === 'valorChain' ? valueChainStatus : undefined}
+                status={module.id === 'cultura' ? cultureStatus : module.id === 'valorChain' ? valueChainStatus : undefined}
                 onClick={
-                  module.id === 'valorChain' && !module.locked
+                  !module.locked
                     ? () => {
-                        if (valueChainStatus === 'complete' && valueChainDoc) {
-                          navigate(`/relatorio-valor-cadeia/${valueChainDoc.id}`);
-                        } else {
-                          navigate('/novo-valor-cadeia');
+                        if (module.id === 'cultura') {
+                          if (cultureStatus === 'complete' && cultureDocument) {
+                            navigate(`/relatorio-cultura/${cultureDocument.id}`);
+                          } else if (cultureStatus === 'incomplete' && cultureDocument) {
+                            navigate(`/novo-cultura?doc=${cultureDocument.id}`);
+                          } else if (hasCulturaPurchase && hasCompletedAnamnesis) {
+                            navigate('/novo-cultura');
+                          } else if (hasCulturaPurchase && !hasCompletedAnamnesis) {
+                            navigate('/anamneses-cultura');
+                          } else {
+                            navigate('/checkout-cultura');
+                          }
+                        } else if (module.id === 'valorChain') {
+                          if (valueChainStatus === 'complete' && valueChainDoc) {
+                            navigate(`/relatorio-valor-cadeia/${valueChainDoc.id}`);
+                          } else {
+                            navigate('/novo-valor-cadeia');
+                          }
                         }
                       }
                     : undefined
