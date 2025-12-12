@@ -14,7 +14,7 @@ interface Task {
   id: string;
   title: string;
   description?: string;
-  status: "backlog" | "todo" | "in_progress" | "done";
+  status: "backlog" | "todo" | "in_progress" | "done"; // backlog mantido para compatibilidade
   priority: "high" | "medium" | "low";
   source_type: string;
   plan_period?: string;
@@ -31,10 +31,9 @@ interface KanbanBoardProps {
 }
 
 const columns = [
-  { id: "backlog", title: "Backlog", color: "bg-slate-100 dark:bg-slate-800" },
-  { id: "todo", title: "A Fazer", color: "bg-blue-50 dark:bg-blue-950" },
-  { id: "in_progress", title: "Em Progresso", color: "bg-yellow-50 dark:bg-yellow-950" },
-  { id: "done", title: "Concluído", color: "bg-green-50 dark:bg-green-950" },
+  { id: "todo", title: "A Fazer", color: "bg-blue-100/50 dark:bg-blue-900/30", dotColor: "bg-blue-500" },
+  { id: "in_progress", title: "Em Progresso", color: "bg-amber-100/50 dark:bg-amber-900/30", dotColor: "bg-amber-500" },
+  { id: "done", title: "Concluído", color: "bg-green-100/50 dark:bg-green-900/30", dotColor: "bg-green-500" },
 ];
 
 function SortableTaskCard({ task, onEdit, onDelete }: any) {
@@ -107,7 +106,11 @@ export function KanbanBoard({ tasks, onTaskMove, onTaskEdit, onTaskDelete, onTas
   });
 
   const getTasksByStatus = (status: string) => 
-    filteredTasks.filter(task => task.status === status);
+    filteredTasks.filter(task => {
+      // Migrar tarefas com status "backlog" para "todo"
+      const effectiveStatus = task.status === "backlog" ? "todo" : task.status;
+      return effectiveStatus === status;
+    });
 
   const overdueCount = tasks.filter(task => 
     task.due_date && 
@@ -197,8 +200,9 @@ export function KanbanBoard({ tasks, onTaskMove, onTaskEdit, onTaskDelete, onTas
             const columnTasks = getTasksByStatus(column.id);
             return (
               <div key={column.id} className={`rounded-lg p-4 min-h-[500px] w-80 flex-shrink-0 ${column.color}`}>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold">{column.title}</h4>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className={`w-3 h-3 rounded-full ${column.dotColor}`} />
+                  <h4 className="font-semibold text-foreground flex-1">{column.title}</h4>
                   <Badge variant="outline">{columnTasks.length}</Badge>
                 </div>
 
