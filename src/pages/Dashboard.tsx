@@ -12,21 +12,8 @@ import { UpsellEssenciaMaxima } from "@/components/UpsellEssenciaMaxima";
 import { AchievementBadge } from "@/components/AchievementBadge";
 import { MODULE_GAINS, getModuleStatus } from "@/config/moduleGains";
 
+// Apenas módulos futuros (não inclui Essência, Cultura e Cadeia de Valor que estão na trilha)
 const FUTURE_MODULES = [
-  { 
-    id: "essencia", 
-    title: "Essência Máxima", 
-    description: "Missão, Visão e Valores",
-    icon: CheckCircle,
-    locked: false
-  },
-  { 
-    id: "cultura", 
-    title: "Cultura Máxima", 
-    description: "Código de Cultura Completo",
-    icon: Heart,
-    locked: false
-  },
   { 
     id: "processos", 
     title: "Processos Máxima", 
@@ -288,9 +275,54 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Seção: Seu Progresso */}
+        {/* Seção: Conquistas - MOVIDA PARA O TOPO */}
         <div>
-          <h2 className="text-2xl font-bold text-white mb-4">Seu Progresso</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white">🏆 Suas Conquistas</h2>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate("/vitorias")}
+              className="gap-2"
+            >
+              Ver Todas as Vitórias
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <AchievementBadge
+              emoji={MODULE_GAINS.mvv.emoji}
+              name={MODULE_GAINS.mvv.name}
+              status={getModuleStatus('mvv', mvvStatus, cultureStatus, valueChainStatus, 'none')}
+              color={MODULE_GAINS.mvv.color}
+              mainGain={MODULE_GAINS.mvv.gains[0]?.title}
+            />
+            <AchievementBadge
+              emoji={MODULE_GAINS.cultura.emoji}
+              name={MODULE_GAINS.cultura.name}
+              status={getModuleStatus('cultura', mvvStatus, cultureStatus, valueChainStatus, 'none')}
+              color={MODULE_GAINS.cultura.color}
+              mainGain={MODULE_GAINS.cultura.gains[0]?.title}
+            />
+            <AchievementBadge
+              emoji={MODULE_GAINS.valorChain.emoji}
+              name={MODULE_GAINS.valorChain.name}
+              status={getModuleStatus('valorChain', mvvStatus, cultureStatus, valueChainStatus, 'none')}
+              color={MODULE_GAINS.valorChain.color}
+              mainGain={MODULE_GAINS.valorChain.gains[0]?.title}
+            />
+            <AchievementBadge
+              emoji={MODULE_GAINS.processos.emoji}
+              name={MODULE_GAINS.processos.name}
+              status={getModuleStatus('processos', mvvStatus, cultureStatus, valueChainStatus, 'none')}
+              color={MODULE_GAINS.processos.color}
+              mainGain={MODULE_GAINS.processos.gains[0]?.title}
+            />
+          </div>
+        </div>
+
+        {/* Seção: Sua Trilha de Consultoria - RENOMEADA */}
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-4">📋 Sua Trilha de Consultoria</h2>
           
           {mvvStatus === 'none' && (
             <Card className="bg-slate-800/50 border-slate-700/50 p-12 text-center space-y-4">
@@ -571,50 +603,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Seção: Conquistas */}
-        <div className="mt-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white">🏆 Suas Conquistas</h2>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate("/vitorias")}
-              className="gap-2"
-            >
-              Ver Todas as Vitórias
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <AchievementBadge
-              emoji={MODULE_GAINS.mvv.emoji}
-              name={MODULE_GAINS.mvv.name}
-              status={getModuleStatus('mvv', mvvStatus, cultureStatus, valueChainStatus, 'none')}
-              color={MODULE_GAINS.mvv.color}
-              mainGain={MODULE_GAINS.mvv.gains[0]?.title}
-            />
-            <AchievementBadge
-              emoji={MODULE_GAINS.cultura.emoji}
-              name={MODULE_GAINS.cultura.name}
-              status={getModuleStatus('cultura', mvvStatus, cultureStatus, valueChainStatus, 'none')}
-              color={MODULE_GAINS.cultura.color}
-              mainGain={MODULE_GAINS.cultura.gains[0]?.title}
-            />
-            <AchievementBadge
-              emoji={MODULE_GAINS.valorChain.emoji}
-              name={MODULE_GAINS.valorChain.name}
-              status={getModuleStatus('valorChain', mvvStatus, cultureStatus, valueChainStatus, 'none')}
-              color={MODULE_GAINS.valorChain.color}
-              mainGain={MODULE_GAINS.valorChain.gains[0]?.title}
-            />
-            <AchievementBadge
-              emoji={MODULE_GAINS.processos.emoji}
-              name={MODULE_GAINS.processos.name}
-              status={getModuleStatus('processos', mvvStatus, cultureStatus, valueChainStatus, 'none')}
-              color={MODULE_GAINS.processos.color}
-              mainGain={MODULE_GAINS.processos.gains[0]?.title}
-            />
-          </div>
-        </div>
 
         {/* Seção: Próximos Módulos */}
         <div className="mt-12">
