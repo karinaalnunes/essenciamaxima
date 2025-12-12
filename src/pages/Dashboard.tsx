@@ -590,24 +590,28 @@ export default function Dashboard() {
               name={MODULE_GAINS.mvv.name}
               status={getModuleStatus('mvv', mvvStatus, cultureStatus, valueChainStatus, 'none')}
               color={MODULE_GAINS.mvv.color}
+              mainGain={MODULE_GAINS.mvv.gains[0]?.title}
             />
             <AchievementBadge
               emoji={MODULE_GAINS.cultura.emoji}
               name={MODULE_GAINS.cultura.name}
               status={getModuleStatus('cultura', mvvStatus, cultureStatus, valueChainStatus, 'none')}
               color={MODULE_GAINS.cultura.color}
+              mainGain={MODULE_GAINS.cultura.gains[0]?.title}
             />
             <AchievementBadge
               emoji={MODULE_GAINS.valorChain.emoji}
               name={MODULE_GAINS.valorChain.name}
               status={getModuleStatus('valorChain', mvvStatus, cultureStatus, valueChainStatus, 'none')}
               color={MODULE_GAINS.valorChain.color}
+              mainGain={MODULE_GAINS.valorChain.gains[0]?.title}
             />
             <AchievementBadge
               emoji={MODULE_GAINS.processos.emoji}
               name={MODULE_GAINS.processos.name}
               status={getModuleStatus('processos', mvvStatus, cultureStatus, valueChainStatus, 'none')}
               color={MODULE_GAINS.processos.color}
+              mainGain={MODULE_GAINS.processos.gains[0]?.title}
             />
           </div>
         </div>

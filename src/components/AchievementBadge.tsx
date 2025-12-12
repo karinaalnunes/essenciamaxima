@@ -6,9 +6,10 @@ interface AchievementBadgeProps {
   name: string;
   status: 'complete' | 'in-progress' | 'locked';
   color?: string;
+  mainGain?: string;
 }
 
-export const AchievementBadge = ({ emoji, name, status, color }: AchievementBadgeProps) => {
+export const AchievementBadge = ({ emoji, name, status, color, mainGain }: AchievementBadgeProps) => {
   const statusConfig = {
     complete: {
       icon: Trophy,
@@ -16,6 +17,7 @@ export const AchievementBadge = ({ emoji, name, status, color }: AchievementBadg
       borderColor: 'border-emerald-500/50',
       textColor: 'text-emerald-400',
       iconColor: 'text-emerald-400',
+      gainColor: 'text-emerald-300',
       label: 'Concluído'
     },
     'in-progress': {
@@ -24,6 +26,7 @@ export const AchievementBadge = ({ emoji, name, status, color }: AchievementBadg
       borderColor: 'border-yellow-500/50',
       textColor: 'text-yellow-400',
       iconColor: 'text-yellow-400',
+      gainColor: 'text-yellow-300',
       label: 'Em andamento'
     },
     locked: {
@@ -32,6 +35,7 @@ export const AchievementBadge = ({ emoji, name, status, color }: AchievementBadg
       borderColor: 'border-slate-600/30',
       textColor: 'text-slate-500',
       iconColor: 'text-slate-500',
+      gainColor: 'text-slate-400',
       label: 'Bloqueado'
     }
   };
@@ -59,6 +63,11 @@ export const AchievementBadge = ({ emoji, name, status, color }: AchievementBadg
       <p className={cn("text-sm font-medium text-center mb-1", config.textColor)}>
         {name}
       </p>
+      {mainGain && (
+        <p className={cn("text-xs text-center italic mb-1", config.gainColor)}>
+          "{mainGain}"
+        </p>
+      )}
       <span className={cn("text-xs", config.textColor)}>
         {config.label}
       </span>
