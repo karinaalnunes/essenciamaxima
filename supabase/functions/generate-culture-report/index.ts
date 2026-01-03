@@ -20,75 +20,175 @@ serve(async (req) => {
     const aiConfig = getAIConfig('cultura');
     const AI_API_KEY = Deno.env.get(aiConfig.apiKeyEnv);
 
-    const prompt = `Com base na conversa completa do Código de Cultura Máxima e no MVV existente abaixo, extraia e estruture o Código de Cultura completo da empresa.
+    const prompt = `Você é um gerador de relatórios do método Código de Cultura Máxima.
 
-CONVERSA COMPLETA:
+Com base na conversa completa do Código de Cultura Máxima e no MVV existente abaixo, extraia e estruture o Código de Cultura completo da empresa.
+
+═══════════════════════════════════════════════════════════════════
+📋 CONVERSA COMPLETA
+═══════════════════════════════════════════════════════════════════
 ${conversationHistory}
 
-MVV EXISTENTE:
+═══════════════════════════════════════════════════════════════════
+📋 ESSÊNCIA MÁXIMA (MVV EXISTENTE)
+═══════════════════════════════════════════════════════════════════
 Empresa: ${mvvData.company_name}
 Segmento: ${mvvData.segment}
 Visão: ${mvvData.vision || 'N/A'}
 Missão: ${mvvData.mission || 'N/A'}
+Missão Pocket: ${mvvData.mission_pocket || 'N/A'}
+Missão Punchline: ${mvvData.mission_punchline || 'N/A'}
 Valores: ${mvvData.values ? JSON.stringify(mvvData.values) : 'N/A'}
+Indicadores da Visão: ${mvvData.vision_indicators ? JSON.stringify(mvvData.vision_indicators) : 'N/A'}
 
-IMPORTANTE: Analise TODA a conversa com atenção e extraia TODAS as informações relevantes mencionadas pelo cliente.
-USE "Guardião da Cultura" ao invés de "Patrono" em toda a estrutura.
+═══════════════════════════════════════════════════════════════════
+📄 ESTRUTURA DO RELATÓRIO (OBRIGATÓRIA - 12 SEÇÕES)
+═══════════════════════════════════════════════════════════════════
+
+O relatório deve conter EXATAMENTE estas 12 seções:
+
+1. INTRODUÇÃO
+   - Por que a empresa decidiu estruturar sua cultura
+   - Que este documento é um norte vivo, não um manual engessado
+   - Que cultura orienta decisões, comportamentos e prioridades
+
+2. CONTEXTO ESTRATÉGICO — ESSÊNCIA DA EMPRESA
+   - Missão (versão final aprovada)
+   - Visão (com horizonte temporal e indicadores)
+   - Valores Essenciais (nome + significado essencial)
+
+3. PRINCÍPIOS NORTEADORES (REGRAS DE OURO)
+   - 3-5 regras para decisões difíceis
+   - Conexão com situações reais da empresa
+
+4. VALORES EM AÇÃO
+   Para cada valor:
+   - Comportamentos esperados
+   - Comportamentos não tolerados
+   - Sinais observáveis
+   - Rituais associados
+   - Métrica de vivência
+
+5. RITUAIS E PRÁTICAS CULTURAIS
+   - Rituais existentes e criados
+   - Dono, frequência e propósito
+   - O que foi eliminado conscientemente
+
+6. RELACIONAMENTOS ÉTICOS E LIMITES
+   - Padrões de convivência
+   - Limites claros com clientes, parceiros e colaboradores
+   - Critérios objetivos para encerramento de relações
+
+7. DESENVOLVIMENTO CONTÍNUO E SEGURANÇA PSICOLÓGICA
+   - Práticas de desenvolvimento técnico e humano
+   - Como a empresa cuida de aprendizagem, feedback e bem-estar
+   - Princípios de segurança psicológica
+
+8. SÍMBOLOS E LINGUAGEM DA CULTURA
+   - Expressões internas
+   - Histórias que representam a cultura
+   - Gestos, rituais simbólicos e marcos
+
+9. GOVERNANÇA CULTURAL
+   - Guardião da Cultura (papel e responsabilidades)
+   - Comitê de Cultura (se aplicável)
+   - Papel das Lideranças
+   - Ritmo de revisão
+   - Consequências quando a cultura não é vivida
+
+10. INDICADORES E ACOMPANHAMENTO
+    - KPIs culturais definidos
+    - Linha de base e metas
+    - Responsáveis
+    - Frequência de acompanhamento
+
+11. DILEMAS DE ESTRESSE
+    - Situações simuladas
+    - Aplicação prática das Regras de Ouro
+    - Exemplos de decisão coerente com a cultura
+
+12. ENCERRAMENTO
+    - Reforço de que cultura é prática recorrente
+    - Responsabilidade compartilhada
+    - Convite à vivência consciente da cultura
+
+═══════════════════════════════════════════════════════════════════
+✔️ DUAS VERSÕES DO RELATÓRIO
+═══════════════════════════════════════════════════════════════════
+
+VERSÃO INSPIRADORA (PARA O TIME):
+- Objetivo: gerar pertencimento e clareza prática
+- Linguagem humana, acessível e motivadora
+- Explicar a cultura de forma compreensível para o dia a dia
+- Traduzir valores, rituais, expectativas sem jargão
+- Reforçar responsabilidade compartilhada
+- Tom: storytelling, emocional, conectivo
+- Formato: 5-7 parágrafos narrativos
+
+VERSÃO TÉCNICA (PARA LIDERANÇA):
+- Objetivo: garantir coerência, governança e aplicação consistente
+- Linguagem objetiva e estruturada
+- Critérios claros para decisões difíceis
+- Papéis de governança explicitados
+- Indicadores, métricas e responsáveis
+- Ritmo de revisão e consequências
+- Tom: executivo, direto, sumário
+- Formato: bullets e estrutura clara
+
+═══════════════════════════════════════════════════════════════════
+📊 ESTRUTURA JSON DE RETORNO
+═══════════════════════════════════════════════════════════════════
 
 Retorne um JSON válido com EXATAMENTE esta estrutura (sem markdown, sem \`\`\`json):
 
 {
-  "reputation_goal": "Como a empresa quer ser reconhecida no futuro",
+  "reputation_goal": "Como a empresa quer ser reconhecida no futuro (extraído da Etapa 1)",
   "competitive_advantage": "O que torna a empresa diferente dos concorrentes",
-  "swot_strengths": ["Ponto forte 1", "Ponto forte 2", "Ponto forte 3"],
-  "swot_improvements": ["Melhoria necessária 1", "Melhoria necessária 2"],
+  "swot_strengths": ["Força 1 com evidência", "Força 2 com evidência", "Força 3 com evidência"],
+  "swot_improvements": ["Melhoria 1 necessária", "Melhoria 2 necessária", "Melhoria 3 necessária"],
   
-  "cultural_positioning": "Frase única de posicionamento cultural (1 frase impactante)",
+  "cultural_positioning": "Frase única de posicionamento cultural (1 frase impactante que sintetiza a cultura)",
   
   "guiding_principles": [
-    "Princípio norteador 1 (regra de ouro)",
-    "Princípio norteador 2 (regra de ouro)",
-    "Princípio norteador 3 (regra de ouro)"
+    "Regra de Ouro 1 - clara e aplicável sob pressão",
+    "Regra de Ouro 2 - clara e aplicável sob pressão",
+    "Regra de Ouro 3 - clara e aplicável sob pressão"
   ],
   
   "value_behaviors": [
     {
       "value": "Nome do valor",
-      "expected_behaviors": ["Comportamento esperado 1", "Comportamento esperado 2", "Comportamento esperado 3", "Comportamento esperado 4", "Comportamento esperado 5"],
+      "expected_behaviors": ["Comportamento 1", "Comportamento 2", "Comportamento 3", "Comportamento 4", "Comportamento 5"],
       "anti_behaviors": ["Anti-comportamento 1", "Anti-comportamento 2", "Anti-comportamento 3", "Anti-comportamento 4", "Anti-comportamento 5"],
       "observable_signs": ["Sinal observável 1", "Sinal observável 2", "Sinal observável 3"],
       "ritual": {
         "name": "Nome do ritual associado ao valor",
-        "owner": "Cargo responsável pelo ritual",
-        "frequency": "Frequência do ritual (ex: Mensal, Trimestral)",
-        "indicator": "Indicador de sucesso do ritual"
+        "owner": "Cargo responsável",
+        "frequency": "Frequência (Semanal/Mensal/Trimestral)",
+        "indicator": "Indicador de sucesso"
       },
       "metric": {
-        "baseline": "Linha de base atual (ex: 30% de vivência)",
-        "target": "Meta desejada (ex: 70% de vivência)"
+        "baseline": "Linha de base atual",
+        "target": "Meta desejada"
       }
     }
   ],
   
-  "growth_practices": "Como a empresa incentiva crescimento e desenvolvimento da equipe",
-  "wellbeing_support": "Como a empresa apoia o bem-estar físico, mental, emocional e espiritual",
-  "psychological_safety_practices": "Práticas de segurança psicológica (NR-1) implementadas",
+  "growth_practices": "Como a empresa incentiva crescimento e desenvolvimento (extraído da Etapa 4)",
+  "wellbeing_support": "Como a empresa apoia bem-estar físico, mental e emocional",
+  "psychological_safety_practices": "Práticas de segurança psicológica implementadas",
   
   "cultural_rituals": [
     {
-      "name": "Nome do ritual 1",
-      "description": "Descrição completa do ritual"
-    },
-    {
-      "name": "Nome do ritual 2",
-      "description": "Descrição completa do ritual"
+      "name": "Nome do ritual",
+      "description": "Descrição completa incluindo dono, frequência e propósito"
     }
   ],
   
   "symbols_language": {
-    "expressions": ["Expressão interna 1", "Expressão interna 2", "Expressão interna 3"],
-    "founding_stories": ["História fundadora 1", "História fundadora 2"],
-    "cultural_objects": ["Objeto cultural 1", "Objeto cultural 2"]
+    "expressions": ["Expressão interna 1", "Expressão interna 2"],
+    "founding_stories": ["História que representa a cultura 1", "História 2"],
+    "cultural_objects": ["Símbolo ou marco cultural 1", "Símbolo 2"]
   },
   
   "stakeholder_guidelines": {
@@ -100,142 +200,138 @@ Retorne um JSON válido com EXATAMENTE esta estrutura (sem markdown, sem \`\`\`j
   },
   
   "governance": {
-    "guardian": "Nome/cargo do Guardião da Cultura (pessoa responsável por zelar pela cultura)",
-    "committee": ["Membro 1 do comitê", "Membro 2 do comitê", "Membro 3 do comitê"],
-    "annual_review": "Descrição do ritual de revisão anual da cultura",
+    "guardian": "Nome/cargo do Guardião da Cultura com suas responsabilidades",
+    "committee": ["Membro 1", "Membro 2", "Membro 3"],
+    "leadership_role": "Papel das lideranças na sustentação da cultura",
+    "annual_review": "Descrição do ritual de revisão (frequência e formato)",
     "consequences": "O que acontece quando a cultura não é vivida"
   },
   
   "stress_dilemmas": [
     {
-      "situation": "Descrição de um dilema real ou hipotético de estresse",
-      "guiding_principle_applied": "Regra de ouro aplicada para resolver o dilema",
-      "decision": "Decisão tomada baseada no princípio",
-      "outcome": "Resultado esperado da decisão"
-    },
-    {
-      "situation": "Dilema 2",
-      "guiding_principle_applied": "Princípio aplicado",
-      "decision": "Decisão",
-      "outcome": "Resultado"
+      "situation": "Descrição do dilema de estresse",
+      "guiding_principle_applied": "Regra de ouro aplicada",
+      "decision": "Decisão tomada",
+      "outcome": "Resultado esperado"
     }
   ],
   
   "kill_criteria": [
     {
       "stakeholder": "Cliente/Fornecedor/Colaborador/Parceiro",
-      "criterion": "Critério que levaria ao rompimento da relação",
-      "exception": "Exceção possível ao critério (se houver)",
-      "owner": "Cargo responsável pela decisão final"
+      "criterion": "Critério que leva ao rompimento",
+      "exception": "Exceção possível (se houver)",
+      "owner": "Cargo responsável pela decisão"
     }
   ],
   
   "culture_indicators": [
     {
-      "name": "Nome do indicador 1",
-      "metric": "Como será medido (ex: NPS interno, turnover, etc)",
-      "target": "Meta ou objetivo do indicador"
+      "name": "Nome do indicador",
+      "metric": "Como será medido",
+      "baseline": "Linha de base atual",
+      "target": "Meta",
+      "responsible": "Responsável pelo acompanhamento",
+      "frequency": "Frequência de medição"
     }
   ],
   
   "rituals_calendar": [
-    {"month": "Janeiro", "rituals": ["Ritual 1", "Ritual 2"]},
-    {"month": "Fevereiro", "rituals": ["Ritual 3"]},
-    {"month": "Março", "rituals": ["Ritual 4"]},
-    {"month": "Abril", "rituals": ["Ritual 5"]},
-    {"month": "Maio", "rituals": ["Ritual 6"]},
-    {"month": "Junho", "rituals": ["Ritual 7"]},
-    {"month": "Julho", "rituals": ["Ritual 8"]},
-    {"month": "Agosto", "rituals": ["Ritual 9"]},
-    {"month": "Setembro", "rituals": ["Ritual 10"]},
-    {"month": "Outubro", "rituals": ["Ritual 11"]},
-    {"month": "Novembro", "rituals": ["Ritual 12"]},
-    {"month": "Dezembro", "rituals": ["Ritual 13", "Ritual de encerramento"]}
+    {"month": "Janeiro", "rituals": ["Ritual 1"]},
+    {"month": "Fevereiro", "rituals": ["Ritual 2"]},
+    {"month": "Março", "rituals": ["Ritual 3"]},
+    {"month": "Abril", "rituals": ["Ritual 4"]},
+    {"month": "Maio", "rituals": ["Ritual 5"]},
+    {"month": "Junho", "rituals": ["Ritual 6"]},
+    {"month": "Julho", "rituals": ["Ritual 7"]},
+    {"month": "Agosto", "rituals": ["Ritual 8"]},
+    {"month": "Setembro", "rituals": ["Ritual 9"]},
+    {"month": "Outubro", "rituals": ["Ritual 10"]},
+    {"month": "Novembro", "rituals": ["Ritual 11"]},
+    {"month": "Dezembro", "rituals": ["Ritual 12", "Ritual de encerramento"]}
   ],
   
   "activation_kit": {
-    "presentation_script": "Roteiro completo de apresentação de 15 minutos do Código de Cultura para o time",
-    "one_on_one_script": "Roteiro de 1:1 para líderes aplicarem com suas equipes",
-    "pocket_cards": ["Card de valor 1", "Card de valor 2", "Card de valor 3"],
-    "faqs": ["FAQ 1", "FAQ 2", "FAQ 3", "FAQ 4", "FAQ 5"]
+    "presentation_script": "Roteiro de apresentação de 15 minutos do Código de Cultura",
+    "one_on_one_script": "Roteiro de 1:1 para líderes aplicarem",
+    "pocket_cards": ["Card resumo 1", "Card resumo 2", "Card resumo 3"],
+    "faqs": ["Pergunta frequente 1 + resposta", "Pergunta 2 + resposta", "Pergunta 3 + resposta"]
   },
   
   "action_plan_30": [
     {
       "what": "O que será feito",
       "why": "Por que / objetivo",
-      "who": "Quem será responsável (cargo genérico)",
-      "when": "Quando - data ou marco",
-      "where": "Onde - departamento/local/sistema",
+      "who": "Responsável",
+      "when": "Prazo",
+      "where": "Local/Departamento",
       "how": "Como será executado",
-      "how_much": "Quanto custará - faixas de investimento em dinheiro ou tempo"
+      "how_much": "Investimento necessário"
     }
   ],
   "action_plan_60": [
     {
-      "what": "O que será feito",
-      "why": "Por que / objetivo",
-      "who": "Quem será responsável",
-      "when": "Quando",
-      "where": "Onde",
-      "how": "Como",
-      "how_much": "Custo/tempo"
+      "what": "Ação do segundo mês",
+      "why": "Objetivo",
+      "who": "Responsável",
+      "when": "Prazo",
+      "where": "Local",
+      "how": "Execução",
+      "how_much": "Investimento"
     }
   ],
   "action_plan_90": [
     {
-      "what": "O que será feito",
-      "why": "Por que / objetivo",
-      "who": "Quem será responsável",
-      "when": "Quando",
-      "where": "Onde",
-      "how": "Como",
-      "how_much": "Custo/tempo"
+      "what": "Ação do terceiro mês",
+      "why": "Objetivo",
+      "who": "Responsável",
+      "when": "Prazo",
+      "where": "Local",
+      "how": "Execução",
+      "how_much": "Investimento"
     }
   ],
   "action_plan_120": [
     {
-      "what": "O que será feito",
-      "why": "Por que / objetivo",
-      "who": "Quem será responsável",
-      "when": "Quando",
-      "where": "Onde",
-      "how": "Como",
-      "how_much": "Custo/tempo"
+      "what": "Ação do quarto mês",
+      "why": "Objetivo",
+      "who": "Responsável",
+      "when": "Prazo",
+      "where": "Local",
+      "how": "Execução",
+      "how_much": "Investimento"
     }
   ],
   
-  "cultural_essence": "Síntese da identidade cultural: o que move, inspira e diferencia a empresa (2-3 parágrafos)",
-  "cultural_strengths": [
-    "Ponto forte 1 da cultura atual",
-    "Ponto forte 2 da cultura atual",
-    "Ponto forte 3 da cultura atual"
-  ],
-  "cultural_challenges": [
-    "Desafio cultural 1 a endereçar",
-    "Desafio cultural 2 a endereçar",
-    "Desafio cultural 3 a endereçar"
-  ],
-  "strategic_focus": "2-3 prioridades práticas ligadas ao Plano SMART para os próximos 90 dias",
-  "closing_message": "Mensagem inspiradora de encerramento (2-3 parágrafos)",
+  "cultural_essence": "Síntese da identidade cultural: o que move, inspira e diferencia a empresa (2-3 parágrafos narrativos)",
+  "cultural_strengths": ["Força cultural 1", "Força cultural 2", "Força cultural 3"],
+  "cultural_challenges": ["Desafio cultural 1", "Desafio cultural 2", "Desafio cultural 3"],
+  "strategic_focus": "2-3 prioridades práticas para os próximos 90 dias",
+  "closing_message": "Mensagem inspiradora de encerramento reforçando que cultura é prática recorrente e responsabilidade compartilhada (2-3 parágrafos)",
   
-  "report_version_inspirational": "Versão INSPIRADORA do relatório completo em formato narrativo e motivacional, focado em pessoas e propósito (3-5 parágrafos, tom emocional e storytelling)",
-  "report_version_technical": "Versão TÉCNICA do relatório em formato executivo e estruturado, focado em métricas e governança (formato sumário executivo com bullets, tom objetivo)"
+  "report_version_inspirational": "VERSÃO INSPIRADORA COMPLETA DO RELATÓRIO (para o time):\n\n[Título: CÓDIGO DE CULTURA MÁXIMA - Nome da Empresa]\n\n[Introdução narrativa explicando por que a empresa estruturou sua cultura...]\n\n[Nossa Essência: missão, visão, valores explicados de forma acessível...]\n\n[Nossas Regras de Ouro: como decidimos quando a pressão aperta...]\n\n[Como Vivemos Nossos Valores: comportamentos do dia a dia...]\n\n[Nossos Rituais: momentos que reforçam quem somos...]\n\n[Como Nos Relacionamos: com colegas, clientes, parceiros...]\n\n[Como Crescemos Juntos: desenvolvimento e segurança psicológica...]\n\n[Nossa Linguagem: expressões e histórias que nos definem...]\n\n[Quem Cuida da Cultura: guardiões e líderes...]\n\n[Como Sabemos que Estamos no Caminho: indicadores...]\n\n[Quando a Pressão Aperta: exemplos de decisões...]\n\n[Encerramento inspirador convidando à vivência...]\n\n(Tom: narrativo, emocional, acessível, 5-7 parágrafos por seção)",
+  
+  "report_version_technical": "VERSÃO TÉCNICA COMPLETA DO RELATÓRIO (para liderança):\n\n# CÓDIGO DE CULTURA MÁXIMA - Nome da Empresa\n## Documento Estratégico de Governança Cultural\n\n### 1. SUMÁRIO EXECUTIVO\n- Objetivo do documento\n- Metodologia utilizada\n- Principais definições\n\n### 2. CONTEXTO ESTRATÉGICO\n- Missão: [texto]\n- Visão: [texto + horizonte + indicadores]\n- Valores: [lista com significados]\n\n### 3. PRINCÍPIOS NORTEADORES\n- Regra 1: [descrição + aplicação]\n- Regra 2: [descrição + aplicação]\n- Regra 3: [descrição + aplicação]\n\n### 4. MATRIZ DE VALORES E COMPORTAMENTOS\n[Tabela para cada valor com comportamentos esperados, não tolerados, sinais, rituais, métricas]\n\n### 5. RITUAIS E PRÁTICAS\n[Lista com dono, frequência, propósito, indicador]\n\n### 6. DIRETRIZES DE RELACIONAMENTO\n[Stakeholder | Padrão | Limite | Critério de encerramento]\n\n### 7. DESENVOLVIMENTO E SEGURANÇA PSICOLÓGICA\n[Práticas estruturadas]\n\n### 8. SÍMBOLOS E LINGUAGEM\n[Lista objetiva]\n\n### 9. GOVERNANÇA CULTURAL\n- Guardião: [cargo + responsabilidades]\n- Comitê: [membros + papel]\n- Lideranças: [papel]\n- Revisão: [frequência + formato]\n- Consequências: [descrição]\n\n### 10. INDICADORES E METAS\n[Tabela: Indicador | Baseline | Meta | Responsável | Frequência]\n\n### 11. DILEMAS DE ESTRESSE\n[Situação | Princípio | Decisão | Resultado]\n\n### 12. PLANO DE AÇÃO (5W2H)\n[30 dias | 60 dias | 90 dias | 120 dias]\n\n(Tom: executivo, objetivo, estruturado, bullets)"
 }
 
-REGRAS CRÍTICAS:
+═══════════════════════════════════════════════════════════════════
+⚠️ REGRAS CRÍTICAS DE GERAÇÃO
+═══════════════════════════════════════════════════════════════════
+
 1. Retorne APENAS o JSON, sem texto adicional antes ou depois
 2. Não use markdown (\`\`\`json)
 3. Use TODAS as informações da conversa
-4. Se alguma informação não foi mencionada, use null ou array vazio []
-5. Mantenha o tom inspirador mas profissional
-6. Princípios norteadores: 3-5 regras de ouro
+4. Se alguma informação não foi mencionada, use valores coerentes baseados no contexto
+5. Mantenha o tom profissional e consultivo
+6. Princípios norteadores: EXATAMENTE 3-5 regras de ouro
 7. Cada período do plano de ação (30/60/90/120) deve ter 3-5 ações
 8. Indicadores de cultura: pelo menos 3-5 indicadores práticos
 9. Extraia TODOS os rituais mencionados na conversa
-10. Conecte tudo ao MVV existente da empresa
+10. Conecte TUDO ao MVV existente da empresa
 11. USE "Guardião da Cultura" em vez de "Patrono" na governança
-12. Gere as duas versões do relatório (inspiracional e técnica) no final`;
+12. Gere as DUAS versões COMPLETAS do relatório (inspiracional e técnica)
+13. A versão inspiracional deve ser narrativa e emocional
+14. A versão técnica deve ser estruturada com bullets e tabelas`;
 
     const response = await fetch(aiConfig.endpoint, {
       method: 'POST',
@@ -266,11 +362,11 @@ REGRAS CRÍTICAS:
     // Clean up markdown if present
     generatedText = generatedText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
-    console.log('Generated Culture Report:', generatedText);
+    console.log('Generated Culture Report:', generatedText.substring(0, 500) + '...');
 
     const cultureData = JSON.parse(generatedText);
 
-    // Log usage (note: no user_id available in this function)
+    // Log usage
     console.log('[CULTURA] Usage:', {
       module: 'cultura',
       function: 'generate-culture-report',
