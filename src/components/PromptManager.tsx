@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { FileText, Edit, Clock, CheckCircle, Archive, Plus } from "lucide-react";
+import { FileText, Edit, Clock, CheckCircle, Archive, MessageSquare, ClipboardList } from "lucide-react";
 import { PromptEditor } from "./PromptEditor";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -29,6 +29,40 @@ const statusConfig = {
   archived: { label: "Arquivado", color: "bg-muted text-muted-foreground border-border", icon: Archive },
 };
 
+// Mapping of modules to their chat and report prompt keys
+const promptPairs = [
+  { 
+    module: 'Anamnese', 
+    emoji: '📋',
+    chatKey: null, 
+    reportKey: 'generate-anamnesis-report' 
+  },
+  { 
+    module: 'MVV', 
+    emoji: '🎯',
+    chatKey: 'consultative-chat', 
+    reportKey: 'generate-mvv' 
+  },
+  { 
+    module: 'Cultura', 
+    emoji: '🧬',
+    chatKey: 'culture-chat', 
+    reportKey: 'generate-culture-report' 
+  },
+  { 
+    module: 'Cadeia de Valor', 
+    emoji: '⛓️',
+    chatKey: 'value-chain-chat', 
+    reportKey: 'generate-value-chain-report' 
+  },
+  { 
+    module: 'Processos', 
+    emoji: '⚙️',
+    chatKey: 'process-chat', 
+    reportKey: 'generate-process-report' 
+  },
+];
+
 export function PromptManager() {
   const [prompts, setPrompts] = useState<AssistantPrompt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +81,6 @@ export function PromptManager() {
         .order('name');
 
       if (error) throw error;
-      // Cast status to the correct type
       const typedData = (data || []).map(p => ({
         ...p,
         status: p.status as 'draft' | 'active' | 'archived'
@@ -63,7 +96,6 @@ export function PromptManager() {
 
   const handleSave = async (prompt: AssistantPrompt, newData: Partial<AssistantPrompt>) => {
     try {
-      // If activating this version, deactivate others with same key
       if (newData.status === 'active') {
         await supabase
           .from('assistant_prompts')
@@ -96,7 +128,6 @@ export function PromptManager() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // If activating, archive the current active one
       if (newData.status === 'active') {
         await supabase
           .from('assistant_prompts')
@@ -129,20 +160,96 @@ export function PromptManager() {
     }
   };
 
-  const filteredPrompts = prompts.filter(p => 
-    filter === 'all' ? true : p.status === filter
-  );
+  // Get prompt by key with filter applied
+  const getPromptByKey = (key: string | null): AssistantPrompt | null => {
+    if (!key) return null;
+    
+    const matchingPrompts = prompts.filter(p => p.assistant_key === key);
+    if (matchingPrompts.length === 0) return null;
+    
+    // Apply status filter
+    const filtered = filter === 'all' 
+      ? matchingPrompts 
+      : matchingPrompts.filter(p => p.status === filter);
+    
+    if (filtered.length === 0) return null;
+    
+    // Prefer active, then most recent
+    return filtered.find(p => p.status === 'active') || filtered[0];
+  };
 
-  // Group by assistant_key and show only the latest active or most recent
-  const groupedPrompts = filteredPrompts.reduce((acc, prompt) => {
-    const existing = acc.find(p => p.assistant_key === prompt.assistant_key);
-    if (!existing) {
-      acc.push(prompt);
-    } else if (prompt.status === 'active' && existing.status !== 'active') {
-      acc[acc.indexOf(existing)] = prompt;
+  const renderPromptCard = (prompt: AssistantPrompt | null, type: 'chat' | 'report', moduleInfo: typeof promptPairs[0]) => {
+    if (!prompt) {
+      if (type === 'chat' && moduleInfo.chatKey === null) {
+        // Special placeholder for Anamnese chat
+        return (
+          <Card className="p-4 bg-muted/30 border-dashed cursor-default">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-muted">
+                <ClipboardList className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Entrada via formulário</p>
+                <p className="text-xs text-muted-foreground/70">Este módulo não possui assistente de chat</p>
+              </div>
+            </div>
+          </Card>
+        );
+      }
+      
+      // No prompt found (filtered out or doesn't exist)
+      return (
+        <Card className="p-4 border-dashed opacity-50">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-muted">
+              {type === 'chat' ? (
+                <MessageSquare className="w-5 h-5 text-muted-foreground" />
+              ) : (
+                <FileText className="w-5 h-5 text-muted-foreground" />
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground">Prompt não encontrado</p>
+          </div>
+        </Card>
+      );
     }
-    return acc;
-  }, [] as AssistantPrompt[]);
+
+    const StatusIcon = statusConfig[prompt.status].icon;
+    const versions = prompts.filter(p => p.assistant_key === prompt.assistant_key);
+
+    return (
+      <Card 
+        className="p-4 hover:border-primary/50 transition-colors cursor-pointer"
+        onClick={() => setEditingPrompt(prompt)}
+      >
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <h4 className="text-sm font-semibold text-foreground truncate">{prompt.name}</h4>
+              <Badge className={`${statusConfig[prompt.status].color} text-xs`}>
+                <StatusIcon className="w-3 h-3 mr-1" />
+                {statusConfig[prompt.status].label}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Badge variant="outline" className="text-xs">
+                {prompt.version}
+              </Badge>
+              {versions.length > 1 && (
+                <span>{versions.length} versões</span>
+              )}
+              <span className="truncate">
+                {format(new Date(prompt.updated_at), "dd/MM", { locale: ptBR })}
+              </span>
+            </div>
+          </div>
+          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+            <Edit className="w-4 h-4" />
+          </Button>
+        </div>
+      </Card>
+    );
+  };
 
   if (loading) {
     return (
@@ -168,7 +275,7 @@ export function PromptManager() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h2 className="text-2xl font-bold text-foreground">Prompt Hub</h2>
           <p className="text-muted-foreground">Gerencie os prompts dos assistentes</p>
@@ -187,67 +294,52 @@ export function PromptManager() {
         </div>
       </div>
 
-      {groupedPrompts.length === 0 ? (
-        <Card className="p-12 text-center">
-          <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">Nenhum prompt encontrado</h3>
-          <p className="text-muted-foreground">
-            {filter === 'all' 
-              ? 'Os prompts serão migrados automaticamente ao carregar.'
-              : `Não há prompts com status "${statusConfig[filter as keyof typeof statusConfig].label}".`
-            }
-          </p>
-        </Card>
-      ) : (
-        <div className="grid gap-4">
-          {groupedPrompts.map((prompt) => {
-            const StatusIcon = statusConfig[prompt.status].icon;
-            const versions = prompts.filter(p => p.assistant_key === prompt.assistant_key);
-            
-            return (
-              <Card 
-                key={prompt.id} 
-                className="p-6 hover:border-primary/50 transition-colors cursor-pointer"
-                onClick={() => setEditingPrompt(prompt)}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-foreground">{prompt.name}</h3>
-                      <Badge className={statusConfig[prompt.status].color}>
-                        <StatusIcon className="w-3 h-3 mr-1" />
-                        {statusConfig[prompt.status].label}
-                      </Badge>
-                      <Badge variant="outline">
-                        {prompt.version}
-                      </Badge>
-                      {versions.length > 1 && (
-                        <Badge variant="secondary">
-                          {versions.length} versões
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {prompt.description || `Prompt do assistente ${prompt.assistant_key}`}
-                    </p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>
-                        Atualizado: {format(new Date(prompt.updated_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                      </span>
-                      <span>
-                        {prompt.system_prompt.length.toLocaleString()} caracteres
-                      </span>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                </div>
-              </Card>
-            );
-          })}
+      {/* Two-column header */}
+      <div className="grid grid-cols-[200px_1fr_1fr] gap-4 items-center px-2">
+        <div className="text-sm font-medium text-muted-foreground">Módulo</div>
+        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          <MessageSquare className="w-4 h-4" />
+          Assistente de Chat
         </div>
-      )}
+        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          <FileText className="w-4 h-4" />
+          Gerador de Relatório
+        </div>
+      </div>
+
+      {/* Module rows */}
+      <div className="space-y-3">
+        {promptPairs.map((pair) => {
+          const chatPrompt = getPromptByKey(pair.chatKey);
+          const reportPrompt = getPromptByKey(pair.reportKey);
+          
+          // Check if row should be hidden based on filter
+          const hasVisiblePrompt = filter === 'all' || chatPrompt || reportPrompt;
+          
+          if (!hasVisiblePrompt && pair.chatKey !== null) {
+            return null;
+          }
+
+          return (
+            <div 
+              key={pair.module} 
+              className="grid grid-cols-[200px_1fr_1fr] gap-4 items-stretch"
+            >
+              {/* Module label */}
+              <div className="flex items-center gap-2 px-2">
+                <span className="text-xl">{pair.emoji}</span>
+                <span className="font-medium text-foreground">{pair.module}</span>
+              </div>
+              
+              {/* Chat prompt card */}
+              {renderPromptCard(chatPrompt, 'chat', pair)}
+              
+              {/* Report prompt card */}
+              {renderPromptCard(reportPrompt, 'report', pair)}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
