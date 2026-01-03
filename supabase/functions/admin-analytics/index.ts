@@ -42,9 +42,23 @@ serve(async (req) => {
       });
     }
 
-    const url = new URL(req.url);
-    const metric = url.searchParams.get('metric') || 'overview';
-    const days = parseInt(url.searchParams.get('days') || '30');
+    // Parse body for POST requests, fallback to URL params for GET
+    let metric = 'overview';
+    let days = 30;
+    
+    if (req.method === 'POST') {
+      try {
+        const body = await req.json();
+        metric = body.metric || 'overview';
+        days = parseInt(body.days) || 30;
+      } catch {
+        // Use defaults if body parsing fails
+      }
+    } else {
+      const url = new URL(req.url);
+      metric = url.searchParams.get('metric') || 'overview';
+      days = parseInt(url.searchParams.get('days') || '30');
+    }
 
     const dateLimit = new Date();
     dateLimit.setDate(dateLimit.getDate() - days);
