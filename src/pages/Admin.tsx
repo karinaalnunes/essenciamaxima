@@ -56,33 +56,19 @@ export default function Admin() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
-
       // Load overview
       const overviewRes = await supabase.functions.invoke('admin-analytics', {
-        body: {},
-        method: 'GET',
-        headers: { Authorization: `Bearer ${token}` },
+        body: { metric: 'overview' },
       });
 
       if (overviewRes.data) setOverview(overviewRes.data);
 
       // Load AI usage
-      const aiUsageRes = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-analytics?metric=ai_usage&days=${days}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const aiUsageRes = await supabase.functions.invoke('admin-analytics', {
+        body: { metric: 'ai_usage', days },
+      });
       
-      if (aiUsageRes.ok) {
-        const aiData = await aiUsageRes.json();
-        setAiUsage(aiData);
-      }
+      if (aiUsageRes.data) setAiUsage(aiUsageRes.data);
     } catch (error) {
       console.error('Error loading analytics:', error);
       toast.error("Erro ao carregar dados");
