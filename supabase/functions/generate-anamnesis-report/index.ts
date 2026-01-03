@@ -1,5 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { loadActivePrompt } from "../_shared/prompt-loader.ts";
+
+const FALLBACK_PROMPT = `Você é um consultor estratégico da Máxima IA. Analise a anamnese organizacional e gere um relatório diagnóstico estruturado.`;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -33,30 +36,14 @@ serve(async (req) => {
 
     if (anamnesisError) throw anamnesisError;
 
+    // Load prompt from database
+    const basePrompt = await loadActivePrompt('generate-anamnesis-report', FALLBACK_PROMPT);
+
     // Gerar relatório usando Lovable AI
-    const prompt = `
-Você é um consultor estratégico da Máxima IA. Analise a anamnese organizacional abaixo e gere um relatório diagnóstico estruturado.
+    const prompt = `${basePrompt}
 
 DADOS DA ANAMNESE:
 ${JSON.stringify(anamnesis, null, 2)}
-
-GERE UM RELATÓRIO COM:
-
-1. PONTOS FORTES OBSERVADOS
-Liste 3-5 pontos fortes claros identificados na empresa.
-
-2. PRINCIPAIS LACUNAS IDENTIFICADAS
-Liste 3-5 lacunas ou áreas de atenção prioritárias.
-
-3. INSIGHTS CONSULTIVOS INICIAIS
-Forneça 3-5 insights estratégicos baseados nos dados, SEM dar soluções prontas.
-Seja consultivo: faça o empresário refletir sobre os pontos críticos.
-
-IMPORTANTE:
-- Seja direto e objetivo
-- Use linguagem consultiva e empática
-- NÃO forneça planos de ação ou soluções prontas
-- O relatório é apenas diagnóstico para reflexão
 
 Formato: Markdown estruturado.
 `;
