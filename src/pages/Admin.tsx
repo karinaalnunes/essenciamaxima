@@ -5,9 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { BarChart3, Users, DollarSign, TrendingUp, Activity, ArrowLeft, UserCog } from "lucide-react";
+import { BarChart3, Users, DollarSign, TrendingUp, Activity, ArrowLeft, UserCog, FileText } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { MentorshipManager } from "@/components/MentorshipManager";
+import { PromptManager } from "@/components/PromptManager";
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))'];
 
@@ -117,10 +118,14 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="analytics" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+          <TabsList className="grid w-full grid-cols-3 max-w-[500px]">
             <TabsTrigger value="analytics">
               <BarChart3 className="w-4 h-4 mr-2" />
               Analytics
+            </TabsTrigger>
+            <TabsTrigger value="prompts">
+              <FileText className="w-4 h-4 mr-2" />
+              Prompts
             </TabsTrigger>
             <TabsTrigger value="mentorship">
               <UserCog className="w-4 h-4 mr-2" />
@@ -301,6 +306,10 @@ export default function Admin() {
             </div>
           </Card>
         </div>
+          </TabsContent>
+
+          <TabsContent value="prompts" className="mt-6">
+            <PromptManager />
           </TabsContent>
 
           <TabsContent value="mentorship" className="mt-6">
