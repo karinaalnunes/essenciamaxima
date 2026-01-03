@@ -7,9 +7,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { FileText, Edit, Clock, CheckCircle, Archive, MessageSquare, ClipboardList } from "lucide-react";
 import { PromptEditor } from "./PromptEditor";
+import { AnamnesisQuestionsEditor } from "./AnamnesisQuestionsEditor";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-
 interface AssistantPrompt {
   id: string;
   assistant_key: string;
@@ -67,6 +67,7 @@ export function PromptManager() {
   const [prompts, setPrompts] = useState<AssistantPrompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingPrompt, setEditingPrompt] = useState<AssistantPrompt | null>(null);
+  const [editingAnamnesisQuestions, setEditingAnamnesisQuestions] = useState(false);
   const [filter, setFilter] = useState<'all' | 'active' | 'draft' | 'archived'>('all');
 
   useEffect(() => {
@@ -181,17 +182,25 @@ export function PromptManager() {
   const renderPromptCard = (prompt: AssistantPrompt | null, type: 'chat' | 'report', moduleInfo: typeof promptPairs[0]) => {
     if (!prompt) {
       if (type === 'chat' && moduleInfo.chatKey === null) {
-        // Special placeholder for Anamnese chat
+        // Special clickable card for Anamnese - opens questions editor
         return (
-          <Card className="p-4 bg-muted/30 border-dashed cursor-default">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-muted">
-                <ClipboardList className="w-5 h-5 text-muted-foreground" />
+          <Card 
+            className="p-4 bg-muted/30 border-dashed cursor-pointer hover:border-primary/50 transition-colors"
+            onClick={() => setEditingAnamnesisQuestions(true)}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <ClipboardList className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Formulário de Anamnese</p>
+                  <p className="text-xs text-muted-foreground">Clique para editar as perguntas</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Entrada via formulário</p>
-                <p className="text-xs text-muted-foreground/70">Este módulo não possui assistente de chat</p>
-              </div>
+              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                <Edit className="w-4 h-4" />
+              </Button>
             </div>
           </Card>
         );
@@ -258,6 +267,14 @@ export function PromptManager() {
           <Skeleton key={i} className="h-24 w-full" />
         ))}
       </div>
+    );
+  }
+
+  if (editingAnamnesisQuestions) {
+    return (
+      <AnamnesisQuestionsEditor
+        onClose={() => setEditingAnamnesisQuestions(false)}
+      />
     );
   }
 
