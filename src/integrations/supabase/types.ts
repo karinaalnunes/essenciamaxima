@@ -56,6 +56,48 @@ export type Database = {
         }
         Relationships: []
       }
+      assistant_prompts: {
+        Row: {
+          assistant_key: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          status: string
+          system_prompt: string
+          updated_at: string
+          version: string
+          version_notes: string | null
+        }
+        Insert: {
+          assistant_key: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          status?: string
+          system_prompt: string
+          updated_at?: string
+          version?: string
+          version_notes?: string | null
+        }
+        Update: {
+          assistant_key?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          status?: string
+          system_prompt?: string
+          updated_at?: string
+          version?: string
+          version_notes?: string | null
+        }
+        Relationships: []
+      }
       conversation_history: {
         Row: {
           content: string
