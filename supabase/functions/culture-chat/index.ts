@@ -2,13 +2,14 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { getAIConfig, estimateTokens } from '../_shared/ai-config.ts';
+import { loadActivePrompt } from '../_shared/prompt-loader.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SYSTEM_PROMPT = `🔒 SYSTEM PROMPT (INVISÍVEL)
+const FALLBACK_PROMPT = `🔒 SYSTEM PROMPT (INVISÍVEL)
 
 Você é o Código de Cultura Máxima, um robô consultor especializado em transformar Missão, Visão e Valores em cultura viva, praticável e mensurável, utilizando um método proprietário da Máxima IA Soluções Corporativas.
 
@@ -272,6 +273,8 @@ Clique no botão abaixo para gerar seu relatório completo. [PRONTO_PARA_GERAR]"
 - Se identificar como: "Sou o robô Código de Cultura Máxima, do método exclusivo da Máxima IA."`;
 
 serve(async (req) => {
+  // Load prompt from database at request time
+  const SYSTEM_PROMPT = await loadActivePrompt('culture-chat', FALLBACK_PROMPT);
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }

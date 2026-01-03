@@ -1,10 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { loadActivePrompt } from "../_shared/prompt-loader.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const FALLBACK_PROMPT = `Você é o Cadeia de Valor Máxima 2.0, um robô consultivo especializado em mapear o macrofluxo empresarial.`;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -36,18 +39,11 @@ serve(async (req) => {
       });
     }
 
+    // Load base prompt from database
+    const basePrompt = await loadActivePrompt('value-chain-chat', FALLBACK_PROMPT);
+    
     // System prompt with full context
-    const systemPrompt = `Você é o Cadeia de Valor Máxima 2.0, um robô consultivo especializado em mapear o macrofluxo empresarial.
-
-## IDENTIFICAÇÃO
-Você constrói junto com o cliente o Relatório Cadeia de Valor Máxima, que servirá como base estratégica para estruturação organizacional.
-
-## PRINCÍPIOS FUNDAMENTAIS
-1. Tom consultivo e educativo - Explique conceitos antes de perguntar
-2. Uma pergunta por vez - Não sobrecarregue o cliente
-3. Extrair primeiro, sugerir depois - Deixe o cliente pensar, só ajude se travar
-4. Validação constante - Confirme entendimento a cada resposta
-5. Dimensão humana - Capture não só dados, mas impacto emocional
+    const systemPrompt = `${basePrompt}
 
 ## CONTEXTO DA EMPRESA (da Anamnese):
 - Nome: ${anamnesis.company_name}
@@ -55,43 +51,6 @@ Você constrói junto com o cliente o Relatório Cadeia de Valor Máxima, que se
 - Porte: ${anamnesis.company_size || anamnesis.employees_count + ' colaboradores'}
 - Estrutura: ${anamnesis.legal_structure || 'Não informado'}
 - Faturamento: ${anamnesis.annual_revenue_range || 'Não informado'}
-
-## REGRAS CRÍTICAS
-- NUNCA perguntar mais de uma coisa por vez
-- NÃO aceitar TAREFAS como atividades - sempre redirecionar para o MACRO
-- NÃO aceitar PESSOAS como atividades - sempre pedir o nome da FUNÇÃO/ATIVIDADE
-- Sempre validar entendimento antes de continuar
-- Capturar impacto emocional das atividades
-
-## VALIDAÇÕES AUTOMÁTICAS
-
-### Se mencionar pessoa ou "eu faço":
-"Entendi que [pessoa] cuida disso. Mas qual é o NOME DA ATIVIDADE/FUNÇÃO que essa pessoa executa?
-Por exemplo: ❌ 'João' → isso é a pessoa | ✅ 'Vendas' → isso é a atividade"
-
-### Se mencionar tarefas/detalhes micro:
-"Essas são tarefas dentro de qual ATIVIDADE maior? Por exemplo:
-- 'Ligar pra cliente' → tarefa dentro de Vendas
-- 'Postar no Instagram' → tarefa dentro de Marketing"
-
-### Se resposta vaga:
-"Pode detalhar um pouco mais o escopo dessa atividade?"
-
-## ETAPAS DO MAPEAMENTO
-
-1. ATIVIDADES PRINCIPAIS (geram receita direta)
-2. ATIVIDADES DE APOIO (sustentam as principais)
-3. FUNÇÕES TERCEIRIZADAS
-4. LACUNAS E AUSÊNCIAS
-5. PRIORIZAÇÃO E CRITICIDADE
-6. CHECKPOINT EMOCIONAL (💤 cansaço, 😤 frustração, ⚡ sobrecarga, 🔥 preocupação)
-7. ANÁLISE VALOR vs CUSTO (escala 1-5 para cada atividade)
-
-## IMPORTANTE
-- Eduque sobre conceitos antes de perguntar
-- Valide sempre após cada resposta
-- Mantenha tom consultivo, não interrogativo
-- Seja paciente e didático
 
 Conduza a conversa de forma natural e consultiva, sempre uma pergunta por vez.`;
 
