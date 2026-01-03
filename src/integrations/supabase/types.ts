@@ -56,6 +56,57 @@ export type Database = {
         }
         Relationships: []
       }
+      anamnesis_questions: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          display_order: number
+          field_key: string
+          field_type: string
+          id: string
+          is_core: boolean | null
+          is_required: boolean | null
+          label: string
+          microchat_prompt: string | null
+          options: Json | null
+          placeholder: string | null
+          step_number: number
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order: number
+          field_key: string
+          field_type: string
+          id?: string
+          is_core?: boolean | null
+          is_required?: boolean | null
+          label: string
+          microchat_prompt?: string | null
+          options?: Json | null
+          placeholder?: string | null
+          step_number: number
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number
+          field_key?: string
+          field_type?: string
+          id?: string
+          is_core?: boolean | null
+          is_required?: boolean | null
+          label?: string
+          microchat_prompt?: string | null
+          options?: Json | null
+          placeholder?: string | null
+          step_number?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       assistant_prompts: {
         Row: {
           assistant_key: string
@@ -682,6 +733,7 @@ export type Database = {
           created_at: string | null
           diagnostic_report: string | null
           employees_count: number | null
+          extra_fields: Json | null
           finance_tracking_method: string | null
           finances_separated: boolean | null
           financial_literacy_rating: number | null
@@ -758,6 +810,7 @@ export type Database = {
           created_at?: string | null
           diagnostic_report?: string | null
           employees_count?: number | null
+          extra_fields?: Json | null
           finance_tracking_method?: string | null
           finances_separated?: boolean | null
           financial_literacy_rating?: number | null
@@ -834,6 +887,7 @@ export type Database = {
           created_at?: string | null
           diagnostic_report?: string | null
           employees_count?: number | null
+          extra_fields?: Json | null
           finance_tracking_method?: string | null
           finances_separated?: boolean | null
           financial_literacy_rating?: number | null
