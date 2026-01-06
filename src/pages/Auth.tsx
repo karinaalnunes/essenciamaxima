@@ -189,16 +189,18 @@ export default function Auth() {
       setLoading(true);
       setResetMethod(method);
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("email", resetEmail)
-        .single();
+      // Call secure edge function to request password reset
+      const { data: response, error } = await supabase.functions.invoke("request-password-reset", {
+        body: {
+          email: resetEmail,
+          method,
+        },
+      });
 
-      if (method === "whatsapp") {
-        const hasPhone = profile && 'phone' in profile && typeof profile.phone === 'string' && profile.phone;
-        
-        if (!hasPhone) {
+      if (error) throw error;
+
+      if (!response?.success) {
+        if (response?.error === "No phone registered for this account") {
           toast({
             title: "Telefone não cadastrado",
             description: "Use a recuperação por email.",
@@ -207,55 +209,15 @@ export default function Auth() {
           setResetMethod(null);
           return;
         }
+        throw new Error(response?.error || "Erro ao solicitar reset");
       }
 
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-
-      const { error: codeError } = await supabase.from("password_reset_codes").insert({
-        email: resetEmail,
-        code,
-        expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-      });
-
-      if (codeError) throw codeError;
-
       if (method === "email") {
-        const emailHtml = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h1 style="color: #f59e0b; margin-bottom: 24px;">Recuperação de Senha 🔐</h1>
-            <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 16px;">Olá,</p>
-            <p style="font-size: 16px; line-height: 1.6; color: #374151; margin-bottom: 24px;">
-              Você solicitou a recuperação de senha. Use o código abaixo:
-            </p>
-            <div style="background: #f3f4f6; padding: 24px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #3b82f6; margin: 24px 0;">
-              ${code}
-            </div>
-            <p style="color: #6b7280; font-size: 14px;">Código válido por 15 minutos.</p>
-          </div>
-        `;
-
-        await supabase.functions.invoke("send-email", {
-          body: {
-            email: resetEmail,
-            subject: "🔐 Código de Recuperação de Senha - Máxima iA",
-            html: emailHtml,
-            type: "password_reset",
-          },
-        });
-
         toast({
           title: "Email enviado!",
           description: "Verifique sua caixa de entrada.",
         });
-      } else if (profile && 'phone' in profile) {
-        await supabase.functions.invoke("send-whatsapp", {
-          body: {
-            phone: profile.phone,
-            message: `Seu código de recuperação de senha da Máxima iA: ${code}\n\nVálido por 15 minutos.`,
-            type: "password_reset",
-          },
-        });
-
+      } else {
         toast({
           title: "WhatsApp enviado!",
           description: "Verifique suas mensagens.",
@@ -278,16 +240,17 @@ export default function Auth() {
     try {
       setLoading(true);
 
-      const { data: validCode } = await supabase
-        .from("password_reset_codes")
-        .select("*")
-        .eq("email", resetEmail)
-        .eq("code", resetCode)
-        .gt("expires_at", new Date().toISOString())
-        .is("used_at", null)
-        .single();
+      // Call secure edge function to verify code
+      const { data: response, error } = await supabase.functions.invoke("verify-reset-code", {
+        body: {
+          email: resetEmail,
+          code: resetCode,
+        },
+      });
 
-      if (!validCode) {
+      if (error) throw error;
+
+      if (!response?.success || !response?.valid) {
         toast({
           title: "Código inválido ou expirado",
           variant: "destructive",
