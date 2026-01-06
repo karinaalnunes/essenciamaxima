@@ -77,37 +77,40 @@ export default function Capturar() {
         return;
       }
 
-      // Salvar lead no banco com dados enriquecidos
-      const { error: leadError } = await supabase.from("leads").insert({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        company: formData.company,
-        segment: formData.segment,
-        consent_lgpd: formData.consentLgpd,
-        utm_source: utmSource,
-        utm_medium: utmMedium,
-        utm_campaign: utmCampaign,
-        // Dados automáticos de dispositivo
-        browser: enrichedData.device?.browser,
-        os: enrichedData.device?.os,
-        device: enrichedData.device?.device,
-        language: enrichedData.device?.language,
-        screen_resolution: enrichedData.device?.screenResolution,
-        // Dados de localização (sem salvar IP)
-        city: enrichedData.location?.city,
-        state: enrichedData.location?.state,
-        country: enrichedData.location?.country,
-        timezone: enrichedData.location?.timezone,
-        // Dados de comportamento e marketing
-        referrer: enrichedData.marketing?.referrer,
-        time_on_page: getTimeOnPage(),
-        gclid: enrichedData.marketing?.gclid,
-        fbclid: enrichedData.marketing?.fbclid,
-        landing_page: enrichedData.marketing?.landingPage,
+      // Salvar lead via edge function (secure)
+      const { data: leadResponse, error: leadError } = await supabase.functions.invoke("capture-lead", {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          company: formData.company,
+          segment: formData.segment,
+          consent_lgpd: formData.consentLgpd,
+          utm_source: utmSource,
+          utm_medium: utmMedium,
+          utm_campaign: utmCampaign,
+          // Dados automáticos de dispositivo
+          browser: enrichedData.device?.browser,
+          os: enrichedData.device?.os,
+          device: enrichedData.device?.device,
+          language: enrichedData.device?.language,
+          screen_resolution: enrichedData.device?.screenResolution,
+          // Dados de localização (sem salvar IP)
+          city: enrichedData.location?.city,
+          state: enrichedData.location?.state,
+          country: enrichedData.location?.country,
+          timezone: enrichedData.location?.timezone,
+          // Dados de comportamento e marketing
+          referrer: enrichedData.marketing?.referrer,
+          time_on_page: getTimeOnPage(),
+          gclid: enrichedData.marketing?.gclid,
+          fbclid: enrichedData.marketing?.fbclid,
+          landing_page: enrichedData.marketing?.landingPage,
+        },
       });
 
       if (leadError) throw leadError;
+      if (!leadResponse?.success) throw new Error(leadResponse?.error || "Erro ao salvar lead");
 
       // Salvar dados no sessionStorage para pré-preencher o cadastro
       sessionStorage.setItem("leadData", JSON.stringify({
