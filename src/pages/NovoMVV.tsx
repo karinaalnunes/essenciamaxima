@@ -369,7 +369,10 @@ Pode compartilhar essas informações?`,
         throw new Error('User not authenticated');
       }
 
-      // Call consultative chat with streaming
+      // Call consultative chat with streaming and timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/consultative-chat`,
         {
@@ -383,8 +386,11 @@ Pode compartilhar essas informações?`,
             conversationHistory: messages,
             documentId: documentId,
           }),
+          signal: controller.signal,
         }
       );
+
+      clearTimeout(timeoutId);
 
       if (!response.ok || !response.body) {
         throw new Error('Failed to start stream');
@@ -491,11 +497,14 @@ Pode compartilhar essas informações?`,
         });
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Chat error:', error);
+      const isTimeout = error?.name === 'AbortError';
       toast({
-        title: "Erro na conversa",
-        description: "Não foi possível processar sua mensagem. Tente novamente.",
+        title: isTimeout ? "Tempo esgotado" : "Erro na conversa",
+        description: isTimeout 
+          ? "O servidor demorou muito para responder. Tente novamente." 
+          : "Não foi possível processar sua mensagem. Tente novamente.",
         variant: "destructive",
       });
     } finally {

@@ -177,7 +177,7 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
             onChange={(e) => setTextInput(e.target.value)}
             onKeyDown={handleKeyPress}
             disabled={disabled || isProcessing}
-            className="flex-1 min-h-[40px] max-h-[200px] resize-none overflow-y-auto"
+            className="flex-1 min-h-[100px] max-h-[300px] resize-none overflow-y-auto text-base"
             autoFocus
           />
           <Button
