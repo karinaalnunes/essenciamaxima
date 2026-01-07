@@ -305,6 +305,39 @@ export default function Admin() {
                   "Gerar Relatório"
                 )}
               </Button>
+              <Button 
+                variant="destructive"
+                onClick={async () => {
+                  if (!selectedPendingId) return;
+                  const confirmed = window.confirm('Tem certeza que deseja resetar este documento? Isso apagará missão, visão e valores para permitir regeneração.');
+                  if (!confirmed) return;
+                  
+                  const { error } = await supabase
+                    .from('mvv_documents')
+                    .update({
+                      mission: null,
+                      vision: null,
+                      mission_pocket: null,
+                      mission_punchline: null,
+                      vision_indicators: null,
+                      values: null,
+                      company_context: null
+                    })
+                    .eq('id', selectedPendingId);
+
+                  if (error) {
+                    toast.error("Erro ao resetar documento");
+                  } else {
+                    toast.success("Documento resetado", {
+                      description: "Agora você pode regenerar o relatório."
+                    });
+                    await loadData();
+                  }
+                }}
+                disabled={!selectedPendingId || generatingReport}
+              >
+                Resetar
+              </Button>
             </div>
           </Card>
         )}

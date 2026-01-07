@@ -8,47 +8,75 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const FALLBACK_PROMPT = `Com base na conversa completa do Essência Máxima abaixo, extraia e estruture o MVV completo da empresa.
+const FALLBACK_PROMPT = `Você é um consultor estratégico experiente. Analise a conversa do Essência Máxima abaixo e gere o MVV completo da empresa.
 
 CONVERSA COMPLETA:
 {{CONVERSATION_HISTORY}}
 
-IMPORTANTE: Analise TODA a conversa com atenção e extraia TODAS as informações relevantes mencionadas pelo cliente.
+═══════════════════════════════════════════════════════
+📖 HISTÓRIA DE ORIGEM (company_context)
+═══════════════════════════════════════════════════════
+Escreva um storytelling narrativo e envolvente em 3-4 parágrafos:
+- Tom humano e emocional (como se estivesse contando para um amigo)
+- Conecte: contexto de vida, intenção original, identidade do fundador, sentimentos
+- Inclua: obstáculos superados, celebrações, marcos emocionais
+- Termine com a transformação até o presente
 
-Retorne um JSON válido com EXATAMENTE esta estrutura (sem markdown, sem \`\`\`json):
+═══════════════════════════════════════════════════════
+🔭 VISÃO (vision)
+═══════════════════════════════════════════════════════
+- Parágrafo inspirador e aspiracional para 3-5 anos
+- Use VOZ ATIVA com verbos de conquista
+- Seja específico sobre o impacto desejado
+
+📊 INDICADORES DE SUCESSO (vision_indicators)
+- Array de 3-5 indicadores mensuráveis
+- Formato: "emoji + métrica + prazo + contexto inspirador"
+- Exemplo: "📈 Faturar R$ 10 milhões até 2027, consolidando nossa liderança regional"
+
+═══════════════════════════════════════════════════════
+❤️ MISSÃO
+═══════════════════════════════════════════════════════
+- mission: Versão completa e inspiradora (por que a empresa existe)
+- mission_pocket: Versão resumida em 1 frase curta
+- mission_punchline: Slogan impactante de até 5 palavras
+
+═══════════════════════════════════════════════════════
+💎 VALORES (3 a 7 valores)
+═══════════════════════════════════════════════════════
+Para cada valor, inclua APENAS:
+- name: Nome do valor (substantivo forte)
+- description: Significado essencial em 1-2 frases
+- mantra: Frase inspiradora que representa o valor
+
+⚠️ NÃO inclua comportamentos, exemplos de vivência ou rituais nos valores.
+
+═══════════════════════════════════════════════════════
+📋 FORMATO DE SAÍDA
+═══════════════════════════════════════════════════════
+Retorne APENAS um JSON válido com esta estrutura exata (sem markdown, sem \`\`\`json):
 
 {
-  "company_name": "Nome da empresa mencionado",
-  "segment": "Segmento/área de atuação",
-  "company_size": "Porte da empresa (micro/pequena/média/grande)",
-  "company_context": "STORYTELLING INSPIRADOR da empresa em 3-4 parágrafos: como tudo começou, história pessoal do fundador, obstáculos enfrentados, celebrações familiares, marcos emocionais e transformação até o presente.",
-  
-  "vision": "VISÃO ORGANIZACIONAL ÉPICA E INSPIRADORA (3-5 anos) - Use APENAS VOZ ATIVA com verbos de conquista.",
-  "vision_indicators": [
-    "🎯 [SEMPRE comece com emoji + métrica específica + contexto inspirador]"
-  ],
-  
-  "mission": "Missão completa (por que a empresa existe - versão inspiradora)",
-  "mission_pocket": "Versão resumida da missão (1 frase curta)",
-  "mission_punchline": "Punchline da missão (slogan impactante de até 5 palavras)",
-  
+  "company_name": "string",
+  "segment": "string",
+  "company_size": "string ou null",
+  "company_context": "string (storytelling em parágrafos)",
+  "vision": "string",
+  "vision_indicators": ["string com emoji + métrica"],
+  "mission": "string",
+  "mission_pocket": "string",
+  "mission_punchline": "string",
   "values": [
-    {
-      "name": "Nome do Valor",
-      "description": "Descrição do que esse valor significa",
-      "mantra": "Frase ou mantra inspirador deste valor"
-    }
+    {"name": "string", "description": "string", "mantra": "string"}
   ]
 }
 
-REGRAS CRÍTICAS:
-1. Retorne APENAS o JSON, sem texto adicional antes ou depois
-2. Não use markdown (\`\`\`json)
+REGRAS:
+1. Retorne APENAS o JSON, sem texto antes ou depois
+2. Não use markdown
 3. Use TODAS as informações da conversa
-4. Se alguma informação não foi mencionada, use null
-5. Mantenha o tom inspirador mas profissional
-6. Valores devem ter NO MÍNIMO 3 e NO MÁXIMO 7
-7. OBRIGATÓRIO: TODOS os indicadores da visão DEVEM começar com um emoji relevante`;
+4. Se algo não foi mencionado, use null
+5. Tom inspirador mas profissional`;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
