@@ -396,23 +396,25 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-8 flex justify-between items-center">
+      <div className="container mx-auto px-3 md:px-4 py-4 md:py-8 max-w-4xl">
+        {/* Header - Compact on mobile */}
+        <div className="mb-4 md:mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Cadeia de Valor Máxima 2.0
+            <h1 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">
+              Cadeia de Valor
             </h1>
-            <p className="text-slate-300">
+            <p className="text-xs md:text-base text-slate-300 hidden md:block">
               Mapeamento estratégico do macrofluxo empresarial
             </p>
           </div>
-          <Button variant="outline" onClick={() => navigate("/dashboard")}>
+          <Button variant="outline" onClick={() => navigate("/dashboard")} size="sm" className="text-xs md:text-sm">
             Voltar
           </Button>
         </div>
 
-        <Card className="bg-slate-800/50 border-slate-700 mb-4">
-          <CardContent className="p-6 max-h-[60vh] overflow-y-auto space-y-4">
+        {/* Chat area - More space on mobile */}
+        <Card className="bg-slate-800/50 border-slate-700 mb-3 md:mb-4">
+          <CardContent className="p-3 md:p-6 max-h-[55vh] md:max-h-[60vh] overflow-y-auto space-y-3 md:space-y-4">
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -421,20 +423,20 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
                 }`}
               >
                 <div
-                  className={`max-w-[80%] p-4 rounded-lg ${
+                  className={`max-w-[90%] md:max-w-[80%] p-3 md:p-4 rounded-lg ${
                     message.role === "user"
                       ? "bg-primary text-primary-foreground"
                       : "bg-slate-700 text-slate-100"
                   }`}
                 >
-                  <div className="whitespace-pre-wrap">{message.content}</div>
+                  <div className="whitespace-pre-wrap text-sm md:text-base">{message.content}</div>
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-slate-700 p-4 rounded-lg">
-                  <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                <div className="bg-slate-700 p-3 md:p-4 rounded-lg">
+                  <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin text-primary" />
                 </div>
               </div>
             )}
@@ -443,12 +445,12 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
         </Card>
 
         {readyToGenerate && (
-          <Card className="bg-green-900/20 border-green-500/30 mb-4">
-            <CardContent className="p-4 flex items-center justify-between">
-              <p className="text-green-300">
-                ✅ Mapeamento completo! Pronto para gerar relatório.
+          <Card className="bg-green-900/20 border-green-500/30 mb-3 md:mb-4">
+            <CardContent className="p-3 md:p-4 flex flex-col md:flex-row items-center justify-between gap-2 md:gap-0">
+              <p className="text-green-300 text-sm md:text-base">
+                ✅ Mapeamento completo!
               </p>
-              <Button onClick={handleGenerateReport} disabled={isLoading}>
+              <Button onClick={handleGenerateReport} disabled={isLoading} size="sm">
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Gerar Relatório
               </Button>
@@ -456,13 +458,14 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
           </Card>
         )}
 
+        {/* Input area - Compact on mobile */}
         <Card className="bg-slate-800/50 border-slate-700">
-          <CardContent className="p-4">
+          <CardContent className="p-3 md:p-4">
             <VoiceInput
               onTranscription={handleSendMessage}
               disabled={isLoading}
             />
-            <div className="flex gap-2 mt-4">
+            <div className="flex gap-2 mt-3 md:mt-4">
               <input
                 type="text"
                 value={inputMessage}
@@ -475,11 +478,12 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
                 }}
                 placeholder="Digite sua mensagem..."
                 disabled={isLoading}
-                className="flex-1 bg-slate-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="flex-1 bg-slate-700 text-white rounded-lg px-3 md:px-4 py-2 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-primary"
               />
               <Button
                 onClick={() => handleSendMessage(inputMessage)}
                 disabled={isLoading || !inputMessage.trim()}
+                size="sm"
               >
                 <Send className="w-4 h-4" />
               </Button>

@@ -127,40 +127,40 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
   }, [textInput]);
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto">
+    <div className="flex flex-col items-center gap-2 md:gap-4 w-full max-w-md mx-auto">
       <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as "voice" | "text")} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="voice" className="flex items-center gap-2">
-            <Mic className="h-4 w-4" />
+        <TabsList className="grid w-full grid-cols-2 h-9 md:h-10">
+          <TabsTrigger value="voice" className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
+            <Mic className="h-3.5 w-3.5 md:h-4 md:w-4" />
             Áudio
           </TabsTrigger>
-          <TabsTrigger value="text" className="flex items-center gap-2">
-            <Keyboard className="h-4 w-4" />
+          <TabsTrigger value="text" className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
+            <Keyboard className="h-3.5 w-3.5 md:h-4 md:w-4" />
             Texto
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="voice" className="flex flex-col items-center gap-3 mt-4">
+        <TabsContent value="voice" className="flex flex-col items-center gap-2 md:gap-3 mt-2 md:mt-4">
           <Button
             size="lg"
             onClick={isRecording ? stopRecording : startRecording}
             disabled={disabled || isProcessing}
-            className={`h-16 w-16 rounded-full transition-all ${
+            className={`h-12 w-12 md:h-16 md:w-16 rounded-full transition-all ${
               isRecording 
                 ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
                 : 'bg-gradient-cta hover:scale-110'
             }`}
           >
             {isProcessing ? (
-              <Loader2 className="h-6 w-6 animate-spin" />
+              <Loader2 className="h-5 w-5 md:h-6 md:w-6 animate-spin" />
             ) : isRecording ? (
-              <MicOff className="h-6 w-6" />
+              <MicOff className="h-5 w-5 md:h-6 md:w-6" />
             ) : (
-              <Mic className="h-6 w-6" />
+              <Mic className="h-5 w-5 md:h-6 md:w-6" />
             )}
           </Button>
           
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs md:text-sm text-muted-foreground">
             {isProcessing 
               ? 'Transcrevendo...' 
               : isRecording 
@@ -169,22 +169,22 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
           </p>
         </TabsContent>
 
-        <TabsContent value="text" className="flex gap-2 mt-4 items-end">
+        <TabsContent value="text" className="flex gap-2 mt-2 md:mt-4 items-end">
           <Textarea
             ref={textareaRef}
-            placeholder="Digite sua resposta... (Shift+Enter para nova linha)"
+            placeholder="Digite sua resposta..."
             value={textInput}
             onChange={(e) => setTextInput(e.target.value)}
             onKeyDown={handleKeyPress}
             disabled={disabled || isProcessing}
-            className="flex-1 min-h-[100px] max-h-[300px] resize-none overflow-y-auto text-base"
+            className="flex-1 min-h-[60px] md:min-h-[100px] max-h-[200px] md:max-h-[300px] resize-none overflow-y-auto text-sm md:text-base"
             autoFocus
           />
           <Button
             onClick={handleTextSubmit}
             disabled={disabled || isProcessing || !textInput.trim()}
             size="icon"
-            className="shrink-0"
+            className="shrink-0 h-9 w-9 md:h-10 md:w-10"
           >
             {isProcessing ? (
               <Loader2 className="h-4 w-4 animate-spin" />

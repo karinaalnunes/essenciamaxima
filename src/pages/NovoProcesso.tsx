@@ -339,35 +339,35 @@ export default function NovoProcesso() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto px-4 py-6 max-w-5xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+      <div className="container mx-auto px-3 md:px-4 py-3 md:py-6 max-w-5xl">
+        {/* Header - Compact on mobile */}
+        <div className="flex items-center justify-between mb-3 md:mb-6">
           <Button
             variant="ghost"
             onClick={() => navigate("/dashboard")}
-            className="text-slate-300 hover:text-white"
+            className="text-slate-300 hover:text-white px-2 md:px-3"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
+            <ArrowLeft className="mr-1 md:mr-2 h-4 w-4" />
+            <span className="hidden md:inline">Voltar</span>
           </Button>
-          <h1 className="text-2xl font-bold text-white">Processos Máxima 2.0</h1>
-          <div className="w-24" />
+          <h1 className="text-lg md:text-2xl font-bold text-white">Processos Máxima</h1>
+          <div className="w-16 md:w-24" />
         </div>
 
-        {/* Chat Area */}
+        {/* Chat Area - More space on mobile */}
         <ScrollArea
           ref={scrollRef}
           onScroll={handleScroll}
-          className="h-[calc(100vh-280px)] mb-6 rounded-lg border border-slate-700 bg-slate-900/50 p-6"
+          className="h-[calc(100vh-200px)] md:h-[calc(100vh-280px)] mb-3 md:mb-6 rounded-lg border border-slate-700 bg-slate-900/50 p-3 md:p-6"
         >
-          <div className="space-y-6">
+          <div className="space-y-3 md:space-y-6">
             {messages.map((message, index) => (
               <div
                 key={index}
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-4 ${
+                  className={`max-w-[90%] md:max-w-[80%] rounded-lg p-3 md:p-4 ${
                     message.role === "user"
                       ? "bg-purple-600 text-white"
                       : "bg-slate-800 text-slate-100"
@@ -379,16 +379,16 @@ export default function NovoProcesso() {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-slate-800 text-slate-100 rounded-lg p-4">
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                <div className="bg-slate-800 text-slate-100 rounded-lg p-3 md:p-4">
+                  <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
                 </div>
               </div>
             )}
           </div>
         </ScrollArea>
 
-        {/* Input Area */}
-        <div className="space-y-4">
+        {/* Input Area - Compact on mobile */}
+        <div className="space-y-3 md:space-y-4">
           <VoiceInput
             onTranscription={handleTranscription}
             disabled={isLoading || isGenerating}
@@ -403,11 +403,11 @@ export default function NovoProcesso() {
             >
               {isGenerating ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Gerando Relatório...
+                  <Loader2 className="mr-2 h-4 w-4 md:h-5 md:w-5 animate-spin" />
+                  Gerando...
                 </>
               ) : (
-                "📋 Ver Meu Relatório de Processos"
+                "📋 Ver Meu Relatório"
               )}
             </Button>
           )}
@@ -424,12 +424,11 @@ export default function NovoProcesso() {
       {/* Generation Overlay */}
       {isGenerating && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="bg-slate-900 p-8 rounded-lg border border-purple-500 max-w-md text-center space-y-4">
-            <Loader2 className="w-16 h-16 animate-spin mx-auto text-purple-400" />
-            <h3 className="text-xl font-bold text-white">Gerando Relatório Completo</h3>
-            <p className="text-slate-300">
-              Estou estruturando todos os processos mapeados em um documento profissional.
-              Aguarde...
+          <div className="bg-slate-900 p-6 md:p-8 rounded-lg border border-purple-500 max-w-md mx-4 text-center space-y-3 md:space-y-4">
+            <Loader2 className="w-12 h-12 md:w-16 md:h-16 animate-spin mx-auto text-purple-400" />
+            <h3 className="text-lg md:text-xl font-bold text-white">Gerando Relatório</h3>
+            <p className="text-sm md:text-base text-slate-300">
+              Estruturando processos mapeados...
             </p>
           </div>
         </div>
