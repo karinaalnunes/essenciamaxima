@@ -402,6 +402,7 @@ Pode compartilhar essas informações?`,
       let buffer = '';
       let assistantContent = '';
       let streamDone = false;
+      let lastDataReceived = Date.now();
 
       // Add placeholder assistant message
       const placeholderMsg: Message = {
@@ -411,8 +412,19 @@ Pode compartilhar essas informações?`,
       };
       setMessages(prev => [...prev, placeholderMsg]);
 
-      while (!streamDone) {
-        const { done, value } = await reader.read();
+      // Stream inactivity timeout (30 seconds)
+      const streamTimeoutId = setInterval(() => {
+        if (Date.now() - lastDataReceived > 30000) {
+          clearInterval(streamTimeoutId);
+          reader.cancel();
+          throw new Error('Stream timeout - nenhum dado recebido por 30s');
+        }
+      }, 5000);
+
+      try {
+        while (!streamDone) {
+          const { done, value } = await reader.read();
+          lastDataReceived = Date.now();
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
@@ -451,29 +463,32 @@ Pode compartilhar essas informações?`,
         }
       }
 
-      // Flush remaining buffer
-      if (buffer.trim()) {
-        for (let raw of buffer.split('\n')) {
-          if (!raw || raw.startsWith(':') || !raw.trim()) continue;
-          if (!raw.startsWith('data: ')) continue;
-          const jsonStr = raw.slice(6).trim();
-          if (jsonStr === '[DONE]') continue;
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-            if (content) {
-              assistantContent += content;
-              setMessages(prev => {
-                const newMessages = [...prev];
-                const lastMsg = newMessages[newMessages.length - 1];
-                if (lastMsg?.role === 'assistant') {
-                  lastMsg.content = assistantContent;
-                }
-                return newMessages;
-              });
-            }
-          } catch { /* ignore */ }
+        // Flush remaining buffer
+        if (buffer.trim()) {
+          for (let raw of buffer.split('\n')) {
+            if (!raw || raw.startsWith(':') || !raw.trim()) continue;
+            if (!raw.startsWith('data: ')) continue;
+            const jsonStr = raw.slice(6).trim();
+            if (jsonStr === '[DONE]') continue;
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+              if (content) {
+                assistantContent += content;
+                setMessages(prev => {
+                  const newMessages = [...prev];
+                  const lastMsg = newMessages[newMessages.length - 1];
+                  if (lastMsg?.role === 'assistant') {
+                    lastMsg.content = assistantContent;
+                  }
+                  return newMessages;
+                });
+              }
+            } catch { /* ignore */ }
+          }
         }
+      } finally {
+        clearInterval(streamTimeoutId);
       }
 
       // Save assistant message to database
@@ -506,6 +521,15 @@ Pode compartilhar essas informações?`,
           ? "O servidor demorou muito para responder. Tente novamente." 
           : "Não foi possível processar sua mensagem. Tente novamente.",
         variant: "destructive",
+      });
+      
+      // Remove placeholder message on error
+      setMessages(prev => {
+        const newMessages = [...prev];
+        if (newMessages.length > 0 && newMessages[newMessages.length - 1]?.role === 'assistant' && !newMessages[newMessages.length - 1]?.content) {
+          newMessages.pop();
+        }
+        return newMessages;
       });
     } finally {
       setIsLoading(false);

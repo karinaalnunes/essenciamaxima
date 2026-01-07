@@ -196,18 +196,44 @@ serve(async (req) => {
     const aiConfig = getAIConfig('mvv');
     const AI_API_KEY = Deno.env.get(aiConfig.apiKeyEnv);
     
-    const aiResponse = await fetch(aiConfig.endpoint, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${AI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: aiConfig.model,
-        messages: messages,
-        stream: true,
-      }),
-    });
+    // Add timeout for AI API call (50 seconds)
+    const aiController = new AbortController();
+    const aiTimeoutId = setTimeout(() => aiController.abort(), 50000);
+    
+    let aiResponse: Response;
+    try {
+      aiResponse = await fetch(aiConfig.endpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${AI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: aiConfig.model,
+          messages: messages,
+          stream: true,
+        }),
+        signal: aiController.signal,
+      });
+    } catch (fetchError: any) {
+      clearTimeout(aiTimeoutId);
+      if (fetchError.name === 'AbortError') {
+        console.error('[MVV] AI API timeout after 50s');
+        await supabase.from('ai_usage_logs').insert({
+          user_id: user.id,
+          module: 'mvv',
+          function_name: 'consultative-chat',
+          model: aiConfig.model,
+          latency_ms: Date.now() - startTime,
+          status: 'error',
+          error_message: 'AI API timeout after 50s'
+        });
+        throw new Error('AI API timeout');
+      }
+      throw fetchError;
+    }
+    
+    clearTimeout(aiTimeoutId);
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
