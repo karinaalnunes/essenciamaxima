@@ -369,6 +369,17 @@ Pode compartilhar essas informações?`,
         throw new Error('User not authenticated');
       }
 
+      // Fetch fresh conversation history from database to avoid stale state
+      const { data: freshHistory, error: historyError } = await supabase
+        .from('conversation_history')
+        .select('role, content')
+        .eq('document_id', documentId)
+        .order('created_at', { ascending: true });
+
+      if (historyError) {
+        console.error('Error fetching fresh history:', historyError);
+      }
+
       // Call consultative chat with streaming and timeout
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
@@ -383,7 +394,7 @@ Pode compartilhar essas informações?`,
           },
           body: JSON.stringify({
             message: text,
-            conversationHistory: messages,
+            conversationHistory: freshHistory || [],
             documentId: documentId,
           }),
           signal: controller.signal,

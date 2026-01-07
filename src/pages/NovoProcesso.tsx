@@ -150,17 +150,35 @@ export default function NovoProcesso() {
     const timeoutId = setTimeout(() => controller.abort(), 60000);
 
     try {
-      // Save user message
-      await supabase
-        .from("process_documents" as any)
-        .update({ conversation_history: updatedMessages })
-        .eq("id", documentId);
-
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error("Sessão expirada");
         return;
       }
+
+      // Fetch fresh conversation history from database to avoid stale state
+      const { data: freshDoc, error: docError } = await supabase
+        .from("process_documents")
+        .select("conversation_history")
+        .eq("id", documentId)
+        .single();
+
+      if (docError) {
+        console.error('Error fetching fresh history:', docError);
+      }
+
+      const freshHistory = Array.isArray(freshDoc?.conversation_history) 
+        ? freshDoc.conversation_history 
+        : [];
+
+      // Add current user message to fresh history
+      const historyWithUserMessage = [...freshHistory, { role: "user", content: transcription }];
+
+      // Save updated conversation
+      await supabase
+        .from("process_documents")
+        .update({ conversation_history: historyWithUserMessage })
+        .eq("id", documentId);
 
       // Call process-chat edge function with timeout
       const response = await fetch(
@@ -172,7 +190,7 @@ export default function NovoProcesso() {
             Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
-            messages: updatedMessages,
+            messages: historyWithUserMessage,
             functionContext: null,
             hasFunctionDescriptor: false
           }),
