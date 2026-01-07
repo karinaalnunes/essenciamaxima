@@ -112,8 +112,12 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // No mobile, Enter sempre cria nova linha (usuário usa botão para enviar)
-    if (isMobile) return;
+    // Detect touch device for more reliable mobile detection
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const shouldUseMobileBehavior = isMobile || isTouchDevice;
+    
+    // No mobile/touch, Enter sempre cria nova linha (usuário usa botão para enviar)
+    if (shouldUseMobileBehavior) return;
     
     // No desktop, Enter envia e Shift+Enter cria nova linha
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -130,8 +134,13 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
     }
   }, [textInput]);
 
+  // Detect touch device for more reliable mobile detection
+  const isTouchDevice = typeof window !== 'undefined' && 
+    ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  const shouldUseMobileBehavior = isMobile || isTouchDevice;
+
   return (
-    <div className="flex flex-col items-center gap-2 md:gap-4 w-full max-w-full md:max-w-md mx-auto px-2 md:px-0">
+    <div className="flex flex-col items-center gap-2 md:gap-4 w-full max-w-full md:max-w-md mx-auto px-2 md:px-0 overflow-hidden">
       <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as "voice" | "text")} className="w-full">
         <TabsList className="grid w-full grid-cols-2 h-9 md:h-10">
           <TabsTrigger value="voice" className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
@@ -173,8 +182,8 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
           </p>
         </TabsContent>
 
-        <TabsContent value="text" className="flex flex-col gap-2 mt-2 md:mt-4 w-full">
-          <div className="flex gap-2 items-end w-full">
+        <TabsContent value="text" className="flex flex-col gap-2 mt-2 md:mt-4 w-full overflow-hidden">
+          <div className="flex gap-2 items-end w-full overflow-hidden">
             <Textarea
               ref={textareaRef}
               placeholder="Digite sua resposta..."
@@ -182,14 +191,14 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
               onChange={(e) => setTextInput(e.target.value)}
               onKeyDown={handleKeyPress}
               disabled={disabled || isProcessing}
-              className="flex-1 min-w-0 min-h-[60px] md:min-h-[100px] max-h-[200px] md:max-h-[300px] resize-none overflow-y-auto text-sm md:text-base"
-              autoFocus
+              className="flex-1 min-w-0 min-h-[80px] md:min-h-[100px] max-h-[200px] md:max-h-[300px] resize-none overflow-y-auto text-base"
+              autoFocus={!shouldUseMobileBehavior}
             />
             <Button
               onClick={handleTextSubmit}
               disabled={disabled || isProcessing || !textInput.trim()}
               size="icon"
-              className="shrink-0 h-9 w-9 md:h-10 md:w-10"
+              className="shrink-0 h-10 w-10 md:h-10 md:w-10"
             >
               {isProcessing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -199,8 +208,8 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground text-center">
-            {isMobile 
-              ? 'Toque no botão para enviar' 
+            {shouldUseMobileBehavior 
+              ? 'Toque no botão azul para enviar' 
               : 'Enter para enviar • Shift+Enter para nova linha'}
           </p>
         </TabsContent>
