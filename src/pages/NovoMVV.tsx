@@ -654,8 +654,8 @@ Pode compartilhar essas informações?`,
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col p-2 md:p-4">
-      <div className="w-full max-w-4xl mx-auto flex flex-col h-[calc(100vh-1rem)] md:h-[calc(100vh-2rem)]">
+    <div className="min-h-[100dvh] bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col p-2 md:p-4 overflow-x-hidden">
+      <div className="w-full max-w-4xl mx-auto flex flex-col h-[calc(100dvh-1rem)] md:h-[calc(100dvh-2rem)]">
         {/* Header - Compact on mobile */}
         <div className="bg-slate-900/50 backdrop-blur-xl rounded-t-2xl border border-slate-800 border-b-0 p-3 md:p-6">
           <div className="flex items-center justify-between">

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, AlertCircle, Send } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { VoiceInput } from "@/components/VoiceInput";
 
@@ -19,7 +19,6 @@ export default function NovoValorCadeia() {
   const [anamnesisData, setAnamnesisData] = useState<any>(null);
   const [documentId, setDocumentId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [readyToGenerate, setReadyToGenerate] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -158,7 +157,6 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
     const userMessage: Message = { role: "user", content: message };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
-    setInputMessage("");
     setIsLoading(true);
 
     // Timeout controller
@@ -418,7 +416,7 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto px-3 md:px-4 py-4 md:py-8 max-w-4xl">
+      <div className="container mx-auto px-3 md:px-4 py-4 md:py-8 max-w-4xl overflow-x-hidden">
         {/* Header - Compact on mobile */}
         <div className="mb-4 md:mb-8 flex justify-between items-center">
           <div>
@@ -451,7 +449,7 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
                       : "bg-slate-700 text-slate-100"
                   }`}
                 >
-                  <div className="whitespace-pre-wrap text-sm md:text-base">{message.content}</div>
+                  <div className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-sm md:text-base">{message.content}</div>
                 </div>
               </div>
             ))}
@@ -480,36 +478,13 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
           </Card>
         )}
 
-        {/* Input area - Compact on mobile */}
+        {/* Input area - Using unified VoiceInput component */}
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="p-3 md:p-4">
             <VoiceInput
               onTranscription={handleSendMessage}
               disabled={isLoading}
             />
-            <div className="flex gap-2 mt-3 md:mt-4">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage(inputMessage);
-                  }
-                }}
-                placeholder="Digite sua mensagem..."
-                disabled={isLoading}
-                className="flex-1 bg-slate-700 text-white rounded-lg px-3 md:px-4 py-2 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <Button
-                onClick={() => handleSendMessage(inputMessage)}
-                disabled={isLoading || !inputMessage.trim()}
-                size="sm"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
-            </div>
           </CardContent>
         </Card>
       </div>

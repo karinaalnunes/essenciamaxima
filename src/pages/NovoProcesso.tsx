@@ -361,8 +361,8 @@ export default function NovoProcesso() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto px-3 md:px-4 py-3 md:py-6 max-w-5xl">
+    <div className="min-h-[100dvh] bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-x-hidden">
+      <div className="container mx-auto px-3 md:px-4 py-3 md:py-6 max-w-5xl overflow-x-hidden">
         {/* Header - Compact on mobile */}
         <div className="flex items-center justify-between mb-3 md:mb-6">
           <Button
@@ -390,7 +390,7 @@ export default function NovoProcesso() {
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[90%] md:max-w-[80%] rounded-lg p-3 md:p-4 ${
+                  className={`max-w-[90%] md:max-w-[80%] rounded-lg p-3 md:p-4 break-words [overflow-wrap:anywhere] ${
                     message.role === "user"
                       ? "bg-purple-600 text-white"
                       : "bg-slate-800 text-slate-100"

@@ -474,7 +474,7 @@ export default function NovoCultura() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex flex-col antialiased">
+    <div className="min-h-[100dvh] bg-gradient-hero flex flex-col antialiased overflow-x-hidden">
       {/* Header - Compact on mobile */}
       <header className="p-3 md:p-6 border-b border-slate-700/50 flex items-center justify-between">
         <div className="flex items-center gap-2 md:gap-4">
@@ -505,7 +505,7 @@ export default function NovoCultura() {
               }`}
             >
               <div
-                className={`max-w-[90%] md:max-w-[80%] rounded-2xl p-3 md:p-4 ${
+                className={`max-w-[90%] md:max-w-[80%] rounded-2xl p-3 md:p-4 break-words [overflow-wrap:anywhere] ${
                   message.role === "user"
                     ? "bg-slate-700/50 text-white"
                     : "bg-slate-800/50 text-slate-100"
