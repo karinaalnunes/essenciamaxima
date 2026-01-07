@@ -272,26 +272,31 @@ export default function NovoCultura() {
       const decoder = new TextDecoder();
       let buffer = "";
       let assistantMessage = "";
-      let lastDataReceived = Date.now();
 
       const assistantMsg: Message = { role: "assistant", content: "" };
       setMessages((prev) => [...prev, assistantMsg]);
 
-      // Stream inactivity timeout (30 seconds)
-      const streamTimeoutId = setInterval(() => {
-        if (Date.now() - lastDataReceived > 30000) {
-          clearInterval(streamTimeoutId);
-          reader.cancel();
-          throw new Error("Stream timeout");
-        }
-      }, 5000);
+      // Stream inactivity timeout (30 seconds) - safe (no throw outside the main try/catch)
+      let streamTimedOut = false;
+      let inactivityTimeoutId: ReturnType<typeof setTimeout> | undefined;
+      const resetInactivityTimeout = () => {
+        if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
+        inactivityTimeoutId = setTimeout(() => {
+          streamTimedOut = true;
+          try { reader.cancel(); } catch { /* ignore */ }
+        }, 30000);
+      };
+      resetInactivityTimeout();
 
       try {
         while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          lastDataReceived = Date.now();
+          if (streamTimedOut) throw new Error("Stream timeout");
 
+          const { done, value } = await reader.read();
+          if (streamTimedOut) throw new Error("Stream timeout");
+          if (done) break;
+
+          resetInactivityTimeout();
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split("\n");
           buffer = lines.pop() || "";
@@ -322,7 +327,7 @@ export default function NovoCultura() {
           }
         }
       } finally {
-        clearInterval(streamTimeoutId);
+        if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
       }
 
       if (assistantMessage.includes("[PRONTO_PARA_GERAR]")) {

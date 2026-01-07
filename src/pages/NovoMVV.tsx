@@ -402,7 +402,6 @@ Pode compartilhar essas informações?`,
       let buffer = '';
       let assistantContent = '';
       let streamDone = false;
-      let lastDataReceived = Date.now();
 
       // Add placeholder assistant message
       const placeholderMsg: Message = {
@@ -412,56 +411,62 @@ Pode compartilhar essas informações?`,
       };
       setMessages(prev => [...prev, placeholderMsg]);
 
-      // Stream inactivity timeout (30 seconds)
-      const streamTimeoutId = setInterval(() => {
-        if (Date.now() - lastDataReceived > 30000) {
-          clearInterval(streamTimeoutId);
-          reader.cancel();
-          throw new Error('Stream timeout - nenhum dado recebido por 30s');
-        }
-      }, 5000);
+      // Stream inactivity timeout (30 seconds) - safe (no throw outside the main try/catch)
+      let streamTimedOut = false;
+      let inactivityTimeoutId: ReturnType<typeof setTimeout> | undefined;
+      const resetInactivityTimeout = () => {
+        if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
+        inactivityTimeoutId = setTimeout(() => {
+          streamTimedOut = true;
+          try { reader.cancel(); } catch { /* ignore */ }
+        }, 30000);
+      };
+      resetInactivityTimeout();
 
       try {
         while (!streamDone) {
+          if (streamTimedOut) throw new Error('Stream timeout - nenhum dado recebido por 30s');
+
           const { done, value } = await reader.read();
-          lastDataReceived = Date.now();
-        if (done) break;
+          if (streamTimedOut) throw new Error('Stream timeout - nenhum dado recebido por 30s');
+          if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
+          resetInactivityTimeout();
+          buffer += decoder.decode(value, { stream: true });
 
-        // Process line by line
-        let newlineIndex: number;
-        while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-          let line = buffer.slice(0, newlineIndex);
-          buffer = buffer.slice(newlineIndex + 1);
+          // Process line by line
+          let newlineIndex: number;
+          while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+            let line = buffer.slice(0, newlineIndex);
+            buffer = buffer.slice(newlineIndex + 1);
 
-          if (line.endsWith('\r')) line = line.slice(0, -1);
-          if (line.startsWith(':') || line.trim() === '') continue;
-          if (!line.startsWith('data: ')) continue;
+            if (line.endsWith('\r')) line = line.slice(0, -1);
+            if (line.startsWith(':') || line.trim() === '') continue;
+            if (!line.startsWith('data: ')) continue;
 
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === '[DONE]') {
-            streamDone = true;
-            break;
-          }
-
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-            
-            if (content) {
-              assistantContent += content;
-              
-              // Use typing effect instead of direct state update
-              startTyping(assistantContent);
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === '[DONE]') {
+              streamDone = true;
+              break;
             }
-          } catch (e) {
-            // Incomplete JSON, put it back
-            buffer = line + '\n' + buffer;
-            break;
+
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+
+              if (content) {
+                assistantContent += content;
+
+                // Use typing effect instead of direct state update
+                startTyping(assistantContent);
+              }
+            } catch (e) {
+              // Incomplete JSON, put it back
+              buffer = line + '\n' + buffer;
+              break;
+            }
           }
         }
-      }
 
         // Flush remaining buffer
         if (buffer.trim()) {
@@ -484,11 +489,13 @@ Pode compartilhar essas informações?`,
                   return newMessages;
                 });
               }
-            } catch { /* ignore */ }
+            } catch {
+              /* ignore */
+            }
           }
         }
       } finally {
-        clearInterval(streamTimeoutId);
+        if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
       }
 
       // Save assistant message to database
