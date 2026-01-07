@@ -19,6 +19,7 @@ interface PendingMVV {
   company_name: string;
   created_at: string;
   user_email?: string;
+  has_report?: boolean;
 }
 
 export default function Admin() {
@@ -82,13 +83,12 @@ export default function Admin() {
       
       if (aiUsageRes.data) setAiUsage(aiUsageRes.data);
 
-      // Load pending MVVs (documents without mission/vision)
+      // Load ALL recent MVVs (for reset/regeneration)
       const { data: pending } = await supabase
         .from('mvv_documents')
-        .select('id, company_name, created_at, user_id')
-        .or('mission.is.null,vision.is.null')
+        .select('id, company_name, created_at, user_id, mission, vision')
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(50);
 
       if (pending) {
         // Get user emails for display
@@ -105,6 +105,7 @@ export default function Admin() {
           company_name: p.company_name,
           created_at: p.created_at,
           user_email: profileMap.get(p.user_id),
+          has_report: !!(p.mission && p.vision),
         })));
       }
     } catch (error) {
@@ -281,7 +282,14 @@ export default function Admin() {
                     {pendingMVVs.map(doc => (
                       <SelectItem key={doc.id} value={doc.id}>
                         <div className="flex flex-col">
-                          <span>{doc.company_name}</span>
+                          <span className="flex items-center gap-2">
+                            {doc.company_name}
+                            {doc.has_report ? (
+                              <span className="text-xs bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded">✓ Relatório</span>
+                            ) : (
+                              <span className="text-xs bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded">Pendente</span>
+                            )}
+                          </span>
                           <span className="text-xs text-muted-foreground">
                             {doc.user_email} • {new Date(doc.created_at).toLocaleDateString('pt-BR')}
                           </span>
