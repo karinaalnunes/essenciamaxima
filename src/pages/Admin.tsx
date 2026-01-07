@@ -5,13 +5,21 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { BarChart3, Users, DollarSign, TrendingUp, Activity, ArrowLeft, UserCog, FileText, Shield } from "lucide-react";
+import { BarChart3, Users, DollarSign, TrendingUp, Activity, ArrowLeft, UserCog, FileText, Shield, RefreshCw, Loader2 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { MentorshipManager } from "@/components/MentorshipManager";
 import { PromptManager } from "@/components/PromptManager";
 import { RolesManager } from "@/components/RolesManager";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))'];
+
+interface PendingMVV {
+  id: string;
+  company_name: string;
+  created_at: string;
+  user_email?: string;
+}
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -19,6 +27,9 @@ export default function Admin() {
   const [overview, setOverview] = useState<any>(null);
   const [aiUsage, setAiUsage] = useState<any>(null);
   const [days, setDays] = useState(30);
+  const [pendingMVVs, setPendingMVVs] = useState<PendingMVV[]>([]);
+  const [selectedPendingId, setSelectedPendingId] = useState<string>("");
+  const [generatingReport, setGeneratingReport] = useState(false);
 
   useEffect(() => {
     checkAdminAndLoadData();
@@ -70,11 +81,113 @@ export default function Admin() {
       });
       
       if (aiUsageRes.data) setAiUsage(aiUsageRes.data);
+
+      // Load pending MVVs (documents without mission/vision)
+      const { data: pending } = await supabase
+        .from('mvv_documents')
+        .select('id, company_name, created_at, user_id')
+        .or('mission.is.null,vision.is.null')
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (pending) {
+        // Get user emails for display
+        const userIds = [...new Set(pending.map(p => p.user_id))];
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, email')
+          .in('id', userIds);
+
+        const profileMap = new Map(profiles?.map(p => [p.id, p.email]) || []);
+        
+        setPendingMVVs(pending.map(p => ({
+          id: p.id,
+          company_name: p.company_name,
+          created_at: p.created_at,
+          user_email: profileMap.get(p.user_id),
+        })));
+      }
     } catch (error) {
       console.error('Error loading analytics:', error);
       toast.error("Erro ao carregar dados");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGeneratePendingReport = async () => {
+    if (!selectedPendingId) {
+      toast.error("Selecione um documento");
+      return;
+    }
+
+    setGeneratingReport(true);
+    try {
+      // Fetch conversation history
+      const { data: history, error: historyError } = await supabase
+        .from('conversation_history')
+        .select('role, content')
+        .eq('document_id', selectedPendingId)
+        .order('created_at', { ascending: true });
+
+      if (historyError) throw historyError;
+
+      if (!history || history.length < 5) {
+        toast.error("Conversa muito curta", { 
+          description: "Este documento não tem histórico suficiente para gerar relatório." 
+        });
+        return;
+      }
+
+      // Build conversation text
+      const conversationText = history
+        .map(msg => `${msg.role === 'user' ? 'Cliente' : 'Consultor'}: ${msg.content}`)
+        .join('\n\n');
+
+      // Call generate-mvv
+      const { data, error } = await supabase.functions.invoke('generate-mvv', {
+        body: { conversationHistory: conversationText }
+      });
+
+      if (error) throw error;
+
+      // Update the document
+      const { error: updateError } = await supabase
+        .from('mvv_documents')
+        .update({
+          company_name: data.company_name || 'Empresa',
+          segment: data.segment || 'A definir',
+          company_size: data.company_size,
+          company_context: data.company_context,
+          mission: data.mission,
+          mission_pocket: data.mission_pocket,
+          mission_punchline: data.mission_punchline,
+          vision: data.vision,
+          vision_indicators: data.vision_indicators,
+          values: data.values,
+        })
+        .eq('id', selectedPendingId);
+
+      if (updateError) throw updateError;
+
+      toast.success("Relatório gerado com sucesso!", {
+        description: "Redirecionando para o relatório..."
+      });
+
+      // Remove from pending list
+      setPendingMVVs(prev => prev.filter(p => p.id !== selectedPendingId));
+      setSelectedPendingId("");
+
+      // Navigate to report
+      setTimeout(() => navigate(`/relatorio/${selectedPendingId}`), 1000);
+
+    } catch (error) {
+      console.error('Error generating pending report:', error);
+      toast.error("Erro ao gerar relatório", {
+        description: "Verifique os logs para mais detalhes."
+      });
+    } finally {
+      setGeneratingReport(false);
     }
   };
 
@@ -125,6 +238,55 @@ export default function Admin() {
           </TabsList>
 
           <TabsContent value="analytics" className="space-y-8 mt-6">
+
+        {/* Pending MVV Reports */}
+        {pendingMVVs.length > 0 && (
+          <Card className="p-6 bg-card border-amber-500/30">
+            <div className="flex items-center gap-2 mb-4">
+              <RefreshCw className="w-5 h-5 text-amber-500" />
+              <h2 className="text-lg font-bold text-foreground">Relatórios MVV Pendentes</h2>
+              <span className="text-sm text-muted-foreground">({pendingMVVs.length})</span>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Documentos com conversa mas sem relatório gerado (faltou o marcador [PRONTO_PARA_GERAR])
+            </p>
+            <div className="flex gap-4 items-end">
+              <div className="flex-1">
+                <Select value={selectedPendingId} onValueChange={setSelectedPendingId}>
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Selecione um documento..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pendingMVVs.map(doc => (
+                      <SelectItem key={doc.id} value={doc.id}>
+                        <div className="flex flex-col">
+                          <span>{doc.company_name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {doc.user_email} • {new Date(doc.created_at).toLocaleDateString('pt-BR')}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button 
+                onClick={handleGeneratePendingReport}
+                disabled={!selectedPendingId || generatingReport}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                {generatingReport ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  "Gerar Relatório"
+                )}
+              </Button>
+            </div>
+          </Card>
+        )}
 
         {/* KPIs Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

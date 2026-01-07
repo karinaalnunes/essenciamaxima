@@ -3,12 +3,22 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, AlertTriangle } from "lucide-react";
 import { VoiceInput } from "@/components/VoiceInput";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageFormatter } from "@/components/MessageFormatter";
 import { FeedbackForm } from "@/components/FeedbackForm";
 import { useTypingEffect } from "@/hooks/useTypingEffect";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 
 interface Message {
@@ -35,11 +45,21 @@ export default function NovoMVV() {
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const [conversationStartTime, setConversationStartTime] = useState<number>(Date.now());
   const [conversationMetricId, setConversationMetricId] = useState<string | null>(null);
+  const [docHasReport, setDocHasReport] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout>();
   const { displayedText, startTyping, isTyping } = useTypingEffect(20);
+
+  // Condição para mostrar botão manual de fallback
+  const showManualGenerateButton = 
+    messages.length >= 20 && 
+    !readyToGenerate && 
+    !docHasReport &&
+    !isGenerating &&
+    !feedbackSubmitted;
 
   useEffect(() => {
     // Prevenir execuções múltiplas
@@ -103,6 +123,7 @@ export default function NovoMVV() {
         );
 
         if (completedMVV) {
+          setDocHasReport(true);
           // Já tem MVV completo → redirecionar para o relatório
           navigate(`/relatorio/${completedMVV.id}`);
           return;
@@ -761,6 +782,58 @@ Pode compartilhar essas informações?`,
             </Button>
           </div>
         )}
+
+        {/* Fallback Manual Generate Button */}
+        {showManualGenerateButton && (
+          <div className="px-3 md:px-4 pb-2 md:pb-4 bg-slate-900/30 border-x border-slate-800">
+            <Button 
+              onClick={() => setShowConfirmDialog(true)} 
+              variant="outline"
+              className="w-full border-amber-500/50 text-amber-400 hover:bg-amber-500/10"
+              size="lg"
+            >
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Gerar Relatório Manualmente
+            </Button>
+            <p className="text-xs text-slate-500 text-center mt-2">
+              Use apenas se a IA não ofereceu a opção de gerar automaticamente
+            </p>
+          </div>
+        )}
+
+        {/* Confirmation Dialog */}
+        <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <AlertDialogContent className="bg-slate-900 border-slate-700">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-white flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-400" />
+                Confirmar Geração do Relatório
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-300 space-y-3">
+                <p>Para um relatório completo, sua conversa deve ter definido:</p>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li><strong>Missão</strong> – por que a empresa existe</li>
+                  <li><strong>Visão</strong> – onde querem chegar em 3-5 anos</li>
+                  <li><strong>Valores</strong> – princípios que guiam a empresa</li>
+                </ul>
+                <p className="text-amber-400 text-sm">
+                  ⚠️ Se algum item estiver faltando, o relatório ficará incompleto.
+                </p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="border-slate-600 text-slate-300 hover:bg-slate-800">
+                Voltar e completar
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleGenerateMVV}
+                className="bg-gradient-cta hover:opacity-90"
+              >
+                Gerar relatório
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Voice Input - Compact on mobile */}
         <div className="bg-slate-900/50 backdrop-blur-xl rounded-b-2xl border border-slate-800 border-t-0 p-3 md:p-6">
