@@ -60,11 +60,18 @@ serve(async (req) => {
   try {
     const { conversationHistory } = await req.json();
 
-    // Load prompt from database (with fallback)
-    const promptTemplate = await loadActivePrompt('generate-mvv', FALLBACK_PROMPT);
-    
-    // Replace placeholder with actual conversation history
-    const prompt = promptTemplate.replace('{{CONVERSATION_HISTORY}}', conversationHistory);
+    if (!conversationHistory || conversationHistory.trim().length < 100) {
+      console.error('[generate-mvv] Conversation history too short or empty');
+      return new Response(
+        JSON.stringify({ error: 'Histórico de conversa insuficiente' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('[generate-mvv] Conversation length:', conversationHistory.length, 'chars');
+
+    // FORCE using FALLBACK_PROMPT - database prompt is broken (returns markdown instead of JSON)
+    const prompt = FALLBACK_PROMPT.replace('{{CONVERSATION_HISTORY}}', conversationHistory);
 
     const aiConfig = getAIConfig('mvv');
     const AI_API_KEY = Deno.env.get(aiConfig.apiKeyEnv);

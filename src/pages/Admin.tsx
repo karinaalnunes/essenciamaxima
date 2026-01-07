@@ -149,7 +149,25 @@ export default function Admin() {
         body: { conversationHistory: conversationText }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[Admin] Edge function error:', error);
+        throw error;
+      }
+
+      console.log('[Admin] MVV data received:', {
+        company_name: data?.company_name,
+        has_mission: !!data?.mission,
+        has_vision: !!data?.vision,
+        values_count: data?.values?.length
+      });
+
+      // Validate that essential fields were generated
+      if (!data?.mission || !data?.vision) {
+        toast.error("Relatório incompleto", {
+          description: `Missão: ${data?.mission ? '✓' : '✗'}, Visão: ${data?.vision ? '✓' : '✗'}. Tente novamente.`
+        });
+        return;
+      }
 
       // Update the document
       const { error: updateError } = await supabase
@@ -171,7 +189,7 @@ export default function Admin() {
       if (updateError) throw updateError;
 
       toast.success("Relatório gerado com sucesso!", {
-        description: "Redirecionando para o relatório..."
+        description: `${data.company_name} - Missão, Visão e ${data.values?.length || 0} valores definidos.`
       });
 
       // Remove from pending list
@@ -183,8 +201,11 @@ export default function Admin() {
 
     } catch (error) {
       console.error('Error generating pending report:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       toast.error("Erro ao gerar relatório", {
-        description: "Verifique os logs para mais detalhes."
+        description: errorMessage.includes('JSON') 
+          ? "A IA retornou formato inválido. Tente novamente." 
+          : errorMessage
       });
     } finally {
       setGeneratingReport(false);
