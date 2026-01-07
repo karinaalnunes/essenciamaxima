@@ -145,6 +145,10 @@ export default function NovoProcesso() {
     setMessages(updatedMessages);
     setIsLoading(true);
 
+    // Timeout controller
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+
     try {
       // Save user message
       await supabase
@@ -152,55 +156,89 @@ export default function NovoProcesso() {
         .update({ conversation_history: updatedMessages })
         .eq("id", documentId);
 
-      // Call process-chat edge function
-      const { data, error } = await supabase.functions.invoke("process-chat", {
-        body: {
-          messages: updatedMessages,
-          functionContext: null, // Will be enhanced in Phase 2 with Funções Máxima
-          hasFunctionDescriptor: false
-        }
-      });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Sessão expirada");
+        return;
+      }
 
-      if (error) throw error;
+      // Call process-chat edge function with timeout
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/process-chat`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            messages: updatedMessages,
+            functionContext: null,
+            hasFunctionDescriptor: false
+          }),
+          signal: controller.signal,
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok || !response.body) {
+        throw new Error("Failed to start stream");
+      }
 
       // Handle streaming response
-      const reader = data.body?.getReader();
+      const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let assistantMessage = "";
+      let lastDataReceived = Date.now();
 
       const tempMessage: Message = { role: "assistant", content: "" };
       setMessages([...updatedMessages, tempMessage]);
 
-      while (true) {
-        const { done, value } = await reader!.read();
-        if (done) break;
+      // Stream inactivity timeout (30 seconds)
+      const streamTimeoutId = setInterval(() => {
+        if (Date.now() - lastDataReceived > 30000) {
+          clearInterval(streamTimeoutId);
+          reader.cancel();
+          throw new Error("Stream timeout");
+        }
+      }, 5000);
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          lastDataReceived = Date.now();
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') continue;
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
 
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.choices[0]?.delta?.content || '';
-              assistantMessage += content;
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') continue;
 
-              setMessages(prev => {
-                const newMessages = [...prev];
-                newMessages[newMessages.length - 1] = {
-                  role: "assistant",
-                  content: assistantMessage
-                };
-                return newMessages;
-              });
-            } catch (e) {
-              // Skip unparseable lines
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices?.[0]?.delta?.content || '';
+                assistantMessage += content;
+
+                setMessages(prev => {
+                  const newMessages = [...prev];
+                  newMessages[newMessages.length - 1] = {
+                    role: "assistant",
+                    content: assistantMessage
+                  };
+                  return newMessages;
+                });
+              } catch (e) {
+                // Skip unparseable lines
+              }
             }
           }
         }
+      } finally {
+        clearInterval(streamTimeoutId);
       }
 
       // Save complete conversation
@@ -218,9 +256,19 @@ export default function NovoProcesso() {
 
     } catch (error: any) {
       console.error("Chat error:", error);
-      toast.error("Erro ao processar mensagem");
-      setMessages(updatedMessages); // Remove temporary assistant message
+      const isTimeout = error?.name === "AbortError";
+      toast.error(isTimeout ? "Tempo esgotado. Tente novamente." : "Erro ao processar mensagem");
+      
+      // Remove placeholder message on error
+      setMessages(prev => {
+        const newMessages = [...prev];
+        if (newMessages.length > 0 && newMessages[newMessages.length - 1]?.role === "assistant" && !newMessages[newMessages.length - 1]?.content) {
+          newMessages.pop();
+        }
+        return newMessages;
+      });
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   };

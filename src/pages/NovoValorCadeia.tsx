@@ -161,6 +161,10 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
     setInputMessage("");
     setIsLoading(true);
 
+    // Timeout controller
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+
     try {
       // Save user message
       await supabase
@@ -189,8 +193,11 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
             userId: session.user.id,
             documentId,
           }),
+          signal: controller.signal,
         }
       );
+
+      clearTimeout(timeoutId);
 
       if (response.status === 403) {
         const errorData = await response.json();
@@ -201,48 +208,60 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
         }
       }
 
-      if (!response.ok) {
+      if (!response.ok || !response.body) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No reader available");
-
+      const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let assistantMessage = "";
+      let lastDataReceived = Date.now();
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      // Add placeholder message
+      setMessages([...updatedMessages, { role: "assistant", content: "" }]);
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n");
+      // Stream inactivity timeout (30 seconds)
+      const streamTimeoutId = setInterval(() => {
+        if (Date.now() - lastDataReceived > 30000) {
+          clearInterval(streamTimeoutId);
+          reader.cancel();
+          throw new Error("Stream timeout");
+        }
+      }, 5000);
 
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6);
-            if (data === "[DONE]") continue;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          lastDataReceived = Date.now();
 
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.choices?.[0]?.delta?.content;
-              if (content) {
-                assistantMessage += content;
-                setMessages((prev) => {
-                  const newMessages = [...updatedMessages];
-                  const lastMsg = newMessages[newMessages.length - 1];
-                  if (lastMsg && lastMsg.role === "assistant") {
-                    lastMsg.content = assistantMessage;
+          const chunk = decoder.decode(value);
+          const lines = chunk.split("\n");
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") continue;
+
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices?.[0]?.delta?.content;
+                if (content) {
+                  assistantMessage += content;
+                  setMessages((prev) => {
+                    const newMessages = [...prev];
+                    newMessages[newMessages.length - 1] = { role: "assistant", content: assistantMessage };
                     return newMessages;
-                  }
-                  return [...newMessages, { role: "assistant", content: assistantMessage }];
-                });
+                  });
+                }
+              } catch (e) {
+                // Skip invalid JSON
               }
-            } catch (e) {
-              // Skip invalid JSON
             }
           }
         }
+      } finally {
+        clearInterval(streamTimeoutId);
       }
 
       // Save complete conversation
@@ -261,10 +280,21 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
       
       setReadyToGenerate(hasEnoughMessages && seemsComplete);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending message:", error);
-      toast.error("Erro ao enviar mensagem");
+      const isTimeout = error?.name === "AbortError";
+      toast.error(isTimeout ? "Tempo esgotado. Tente novamente." : "Erro ao enviar mensagem");
+      
+      // Remove placeholder message on error
+      setMessages(prev => {
+        const newMessages = [...prev];
+        if (newMessages.length > 0 && newMessages[newMessages.length - 1]?.role === "assistant" && !newMessages[newMessages.length - 1]?.content) {
+          newMessages.pop();
+        }
+        return newMessages;
+      });
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   };

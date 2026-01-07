@@ -60,21 +60,38 @@ Conduza a conversa de forma natural e consultiva, sempre uma pergunta por vez.`;
       throw new Error('LOVABLE_API_KEY não configurado');
     }
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages
-        ],
-        stream: true,
-      }),
-    });
+    // Add timeout for AI API call (50 seconds)
+    const aiController = new AbortController();
+    const aiTimeoutId = setTimeout(() => aiController.abort(), 50000);
+    
+    let response: Response;
+    try {
+      response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages
+          ],
+          stream: true,
+        }),
+        signal: aiController.signal,
+      });
+    } catch (fetchError: any) {
+      clearTimeout(aiTimeoutId);
+      if (fetchError.name === 'AbortError') {
+        console.error('Value chain chat timeout after 50s');
+        throw new Error('AI API timeout');
+      }
+      throw fetchError;
+    }
+    
+    clearTimeout(aiTimeoutId);
 
     if (!response.ok) {
       if (response.status === 429) {

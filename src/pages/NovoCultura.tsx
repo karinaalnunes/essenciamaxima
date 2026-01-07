@@ -218,82 +218,137 @@ export default function NovoCultura() {
     setIsSending(true);
     setUserScrolled(false);
 
+    // Timeout controller
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+
     try {
       const conversationHistory = messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       }));
 
-      const { data, error } = await supabase.functions.invoke("culture-chat", {
-        body: {
-          message: text,
-          conversationHistory,
-          documentId,
-          mvvData: {
-            company_name: mvvDocument.company_name,
-            segment: mvvDocument.segment,
-            vision: mvvDocument.vision,
-            mission: mvvDocument.mission,
-            values: mvvDocument.values,
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Sessão expirada",
+          description: "Faça login novamente.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/culture-chat`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
           },
-        },
-      });
+          body: JSON.stringify({
+            message: text,
+            conversationHistory,
+            documentId,
+            mvvData: {
+              company_name: mvvDocument.company_name,
+              segment: mvvDocument.segment,
+              vision: mvvDocument.vision,
+              mission: mvvDocument.mission,
+              values: mvvDocument.values,
+            },
+          }),
+          signal: controller.signal,
+        }
+      );
 
-      if (error) throw error;
+      clearTimeout(timeoutId);
 
-      const reader = data?.getReader();
+      if (!response.ok || !response.body) {
+        throw new Error("Failed to start stream");
+      }
+
+      const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
       let assistantMessage = "";
+      let lastDataReceived = Date.now();
 
       const assistantMsg: Message = { role: "assistant", content: "" };
       setMessages((prev) => [...prev, assistantMsg]);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      // Stream inactivity timeout (30 seconds)
+      const streamTimeoutId = setInterval(() => {
+        if (Date.now() - lastDataReceived > 30000) {
+          clearInterval(streamTimeoutId);
+          reader.cancel();
+          throw new Error("Stream timeout");
+        }
+      }, 5000);
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          lastDataReceived = Date.now();
 
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6);
-            if (data === "[DONE]") continue;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
 
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.content;
-              if (content) {
-                assistantMessage += content;
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  updated[updated.length - 1] = {
-                    role: "assistant",
-                    content: assistantMessage,
-                  };
-                  return updated;
-                });
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") continue;
+
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.content || parsed.choices?.[0]?.delta?.content;
+                if (content) {
+                  assistantMessage += content;
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    updated[updated.length - 1] = {
+                      role: "assistant",
+                      content: assistantMessage,
+                    };
+                    return updated;
+                  });
+                }
+              } catch (e) {
+                // Skip invalid JSON
               }
-            } catch (e) {
-              console.error("Erro ao fazer parse do SSE:", e);
             }
           }
         }
+      } finally {
+        clearInterval(streamTimeoutId);
       }
 
       if (assistantMessage.includes("[PRONTO_PARA_GERAR]")) {
         setReadyToGenerate(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao enviar mensagem:", error);
+      const isTimeout = error?.name === "AbortError";
       toast({
-        title: "Erro",
-        description: "Erro ao enviar mensagem. Tente novamente.",
+        title: isTimeout ? "Tempo esgotado" : "Erro",
+        description: isTimeout
+          ? "O servidor demorou muito. Tente novamente."
+          : "Erro ao enviar mensagem. Tente novamente.",
         variant: "destructive",
       });
+      
+      // Remove placeholder message on error
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        if (newMessages.length > 0 && newMessages[newMessages.length - 1]?.role === "assistant" && !newMessages[newMessages.length - 1]?.content) {
+          newMessages.pop();
+        }
+        return newMessages;
+      });
     } finally {
+      clearTimeout(timeoutId);
       setIsSending(false);
     }
   };
