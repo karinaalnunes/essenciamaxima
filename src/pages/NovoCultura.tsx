@@ -223,11 +223,6 @@ export default function NovoCultura() {
     const timeoutId = setTimeout(() => controller.abort(), 60000);
 
     try {
-      const conversationHistory = messages.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      }));
-
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast({
@@ -236,6 +231,17 @@ export default function NovoCultura() {
           variant: "destructive",
         });
         return;
+      }
+
+      // Fetch fresh conversation history from database to avoid stale state
+      const { data: freshHistory, error: historyError } = await supabase
+        .from('culture_conversation_history')
+        .select('role, content')
+        .eq('culture_document_id', documentId)
+        .order('created_at', { ascending: true });
+
+      if (historyError) {
+        console.error('Error fetching fresh history:', historyError);
       }
 
       const response = await fetch(
@@ -248,7 +254,7 @@ export default function NovoCultura() {
           },
           body: JSON.stringify({
             message: text,
-            conversationHistory,
+            conversationHistory: freshHistory || [],
             documentId,
             mvvData: {
               company_name: mvvDocument.company_name,

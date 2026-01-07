@@ -166,19 +166,36 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
     const timeoutId = setTimeout(() => controller.abort(), 60000);
 
     try {
-      // Save user message
-      await supabase
-        .from("value_chain_documents" as any)
-        .update({ conversation_history: updatedMessages })
-        .eq("id", documentId);
-
-      // Call value-chain-chat edge function
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error("Sessão expirada");
         navigate("/auth");
         return;
       }
+
+      // Fetch fresh conversation history from database to avoid stale state
+      const { data: freshDoc, error: docError } = await supabase
+        .from("value_chain_documents")
+        .select("conversation_history")
+        .eq("id", documentId)
+        .single();
+
+      if (docError) {
+        console.error('Error fetching fresh history:', docError);
+      }
+
+      const freshHistory = Array.isArray(freshDoc?.conversation_history) 
+        ? freshDoc.conversation_history 
+        : [];
+
+      // Add current user message to fresh history
+      const historyWithUserMessage = [...freshHistory, { role: "user", content: message }];
+
+      // Save updated conversation
+      await supabase
+        .from("value_chain_documents")
+        .update({ conversation_history: historyWithUserMessage })
+        .eq("id", documentId);
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/value-chain-chat`,
@@ -189,7 +206,7 @@ Eu vou conduzir você passo a passo, com perguntas simples, uma de cada vez. Nã
             Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
-            messages: updatedMessages,
+            messages: historyWithUserMessage,
             userId: session.user.id,
             documentId,
           }),
