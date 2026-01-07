@@ -457,7 +457,18 @@ Pode compartilhar essas informações?`,
               if (content) {
                 assistantContent += content;
 
-                // Use typing effect instead of direct state update
+                // Keep state in sync so the message doesn't "disappear" if typing finishes
+                // before the stream ends (or if the stream is interrupted).
+                setMessages((prev) => {
+                  const newMessages = [...prev];
+                  const lastMsg = newMessages[newMessages.length - 1];
+                  if (lastMsg?.role === "assistant") {
+                    lastMsg.content = assistantContent;
+                  }
+                  return newMessages;
+                });
+
+                // Typing effect is only for display while streaming
                 startTyping(assistantContent);
               }
             } catch (e) {
