@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.58.0";
 import { loadActivePrompt } from "../_shared/prompt-loader.ts";
 
 const FALLBACK_PROMPT = `Você é um consultor estratégico da Máxima IA. Analise a anamnese organizacional e gere um relatório diagnóstico estruturado.`;

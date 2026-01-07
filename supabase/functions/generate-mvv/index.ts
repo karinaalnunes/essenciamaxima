@@ -93,32 +93,87 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    let generatedText = data.choices[0].message.content.trim();
+    const rawText = (data?.choices?.[0]?.message?.content ?? '').toString().trim();
 
-    // Clean up markdown and extra text if present
-    generatedText = generatedText
-      .replace(/```json\n?/g, '')
-      .replace(/```\n?/g, '')
-      .replace(/^[\s\S]*?(\{)/m, '{')  // Remove everything before the first {
-      .replace(/(\})[\s\S]*$/m, '}')   // Remove everything after the last }
-      .trim();
+    const extractJson = (input: string) => {
+      let t = input.trim();
+      // Remove fenced blocks if present
+      t = t.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
-    console.log('Generated MVV (cleaned):', generatedText.substring(0, 200) + '...');
+      const firstBrace = t.indexOf('{');
+      const lastBrace = t.lastIndexOf('}');
+      if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+        throw new Error('No JSON object found in model output');
+      }
 
-    // Validate it's actually JSON before parsing
-    if (!generatedText.startsWith('{') || !generatedText.endsWith('}')) {
-      console.error('[MVV] AI did not return valid JSON. Raw response:', generatedText);
-      throw new Error('AI returned invalid format - not JSON');
+      t = t.slice(firstBrace, lastBrace + 1).trim();
+      return JSON.parse(t);
+    };
+
+    let mvvData: any;
+
+    try {
+      mvvData = extractJson(rawText);
+    } catch (parseError) {
+      console.warn('[generate-mvv] First pass JSON parse failed. Retrying with repair prompt.', parseError);
+      console.warn('[generate-mvv] Raw model output (first 300 chars):', rawText.slice(0, 300));
+
+      const repairPrompt = `Transforme o texto abaixo em um JSON VÁLIDO (apenas JSON, sem markdown, sem comentários, sem texto antes/depois).
+
+Estrutura obrigatória:
+{
+  "company_name": string|null,
+  "segment": string|null,
+  "company_size": string|null,
+  "company_context": string|null,
+  "vision": string|null,
+  "vision_indicators": string[]|null,
+  "mission": string|null,
+  "mission_pocket": string|null,
+  "mission_punchline": string|null,
+  "values": [{"name": string, "description": string|null, "mantra": string|null}]|null
+}
+
+Texto para converter:
+"""
+${rawText}
+"""`;
+
+      const retryResp = await fetch(aiConfig.endpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${AI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: aiConfig.model,
+          messages: [{ role: 'user', content: repairPrompt }],
+        }),
+      });
+
+      if (!retryResp.ok) {
+        const retryText = await retryResp.text();
+        console.error('[generate-mvv] Retry AI API Error:', retryResp.status, retryText);
+        throw new Error('AI API error (retry)');
+      }
+
+      const retryData = await retryResp.json();
+      const retryText = (retryData?.choices?.[0]?.message?.content ?? '').toString().trim();
+      mvvData = extractJson(retryText);
     }
 
-    const mvvData = JSON.parse(generatedText);
+    console.log('Generated MVV (parsed):', {
+      company_name: mvvData?.company_name,
+      segment: mvvData?.segment,
+      values_count: Array.isArray(mvvData?.values) ? mvvData.values.length : null,
+    });
 
     // Log usage (note: no user_id available in this function)
     console.log('[MVV] Usage:', {
       module: 'mvv',
       function: 'generate-mvv',
       tokens_input: estimateTokens(prompt),
-      tokens_output: estimateTokens(generatedText),
+      tokens_output: estimateTokens(rawText),
       latency: Date.now() - startTime
     });
 
