@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Mic, MicOff, Loader2, Keyboard, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "./ui/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface VoiceInputProps {
   onTranscription: (text: string) => void;
@@ -20,8 +21,7 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
   const chunksRef = useRef<Blob[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { toast } = useToast();
-  
-  console.log('VoiceInput v2.0 - Modo:', inputMode);
+  const isMobile = useIsMobile();
 
   const startRecording = async () => {
     try {
@@ -112,6 +112,10 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // No mobile, Enter sempre cria nova linha (usuário usa botão para enviar)
+    if (isMobile) return;
+    
+    // No desktop, Enter envia e Shift+Enter cria nova linha
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleTextSubmit();
@@ -127,7 +131,7 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
   }, [textInput]);
 
   return (
-    <div className="flex flex-col items-center gap-2 md:gap-4 w-full max-w-md mx-auto">
+    <div className="flex flex-col items-center gap-2 md:gap-4 w-full max-w-full md:max-w-md mx-auto px-2 md:px-0">
       <Tabs value={inputMode} onValueChange={(v) => setInputMode(v as "voice" | "text")} className="w-full">
         <TabsList className="grid w-full grid-cols-2 h-9 md:h-10">
           <TabsTrigger value="voice" className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
@@ -169,29 +173,36 @@ export const VoiceInput = ({ onTranscription, disabled }: VoiceInputProps) => {
           </p>
         </TabsContent>
 
-        <TabsContent value="text" className="flex gap-2 mt-2 md:mt-4 items-end">
-          <Textarea
-            ref={textareaRef}
-            placeholder="Digite sua resposta..."
-            value={textInput}
-            onChange={(e) => setTextInput(e.target.value)}
-            onKeyDown={handleKeyPress}
-            disabled={disabled || isProcessing}
-            className="flex-1 min-h-[60px] md:min-h-[100px] max-h-[200px] md:max-h-[300px] resize-none overflow-y-auto text-sm md:text-base"
-            autoFocus
-          />
-          <Button
-            onClick={handleTextSubmit}
-            disabled={disabled || isProcessing || !textInput.trim()}
-            size="icon"
-            className="shrink-0 h-9 w-9 md:h-10 md:w-10"
-          >
-            {isProcessing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
+        <TabsContent value="text" className="flex flex-col gap-2 mt-2 md:mt-4 w-full">
+          <div className="flex gap-2 items-end w-full">
+            <Textarea
+              ref={textareaRef}
+              placeholder="Digite sua resposta..."
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              onKeyDown={handleKeyPress}
+              disabled={disabled || isProcessing}
+              className="flex-1 min-w-0 min-h-[60px] md:min-h-[100px] max-h-[200px] md:max-h-[300px] resize-none overflow-y-auto text-sm md:text-base"
+              autoFocus
+            />
+            <Button
+              onClick={handleTextSubmit}
+              disabled={disabled || isProcessing || !textInput.trim()}
+              size="icon"
+              className="shrink-0 h-9 w-9 md:h-10 md:w-10"
+            >
+              {isProcessing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground text-center">
+            {isMobile 
+              ? 'Toque no botão para enviar' 
+              : 'Enter para enviar • Shift+Enter para nova linha'}
+          </p>
         </TabsContent>
       </Tabs>
     </div>
