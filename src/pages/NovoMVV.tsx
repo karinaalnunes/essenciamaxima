@@ -625,35 +625,35 @@ Pode compartilhar essas informações?`,
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col p-4">
-      <div className="w-full max-w-4xl mx-auto flex flex-col h-[calc(100vh-2rem)]">
-        {/* Header */}
-        <div className="bg-slate-900/50 backdrop-blur-xl rounded-t-2xl border border-slate-800 border-b-0 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col p-2 md:p-4">
+      <div className="w-full max-w-4xl mx-auto flex flex-col h-[calc(100vh-1rem)] md:h-[calc(100vh-2rem)]">
+        {/* Header - Compact on mobile */}
+        <div className="bg-slate-900/50 backdrop-blur-xl rounded-t-2xl border border-slate-800 border-b-0 p-3 md:p-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate('/dashboard')}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-white h-8 w-8 md:h-10 md:w-10"
               >
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-white">Consultoria MVV</h1>
-                <p className="text-slate-400 text-sm">Vamos criar sua Missão, Visão e Valores</p>
+                <h1 className="text-lg md:text-2xl font-bold text-white">Consultoria MVV</h1>
+                <p className="text-slate-400 text-xs md:text-sm hidden md:block">Vamos criar sua Missão, Visão e Valores</p>
               </div>
             </div>
-            <img src={logo} alt="Máxima iA" className="h-20 md:h-24 w-auto" />
+            <img src={logo} alt="Máxima iA" className="h-10 md:h-20 w-auto" />
           </div>
         </div>
 
-        {/* Chat Messages */}
+        {/* Chat Messages - More space on mobile */}
         <ScrollArea 
           ref={scrollRef}
-          className="flex-1 bg-slate-900/30 border-x border-slate-800 p-6"
+          className="flex-1 bg-slate-900/30 border-x border-slate-800 p-3 md:p-6"
         >
-          <div className="space-y-6 max-w-3xl mx-auto">
+          <div className="space-y-3 md:space-y-6 max-w-3xl mx-auto">
             {messages.map((msg, index) => {
               const isLastAssistant = 
                 index === messages.length - 1 && 
@@ -665,7 +665,7 @@ Pode compartilhar essas informações?`,
                   key={index}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={msg.role === 'user' ? 'max-w-[85%]' : 'max-w-[85%]'}>
+                  <div className={msg.role === 'user' ? 'max-w-[90%] md:max-w-[85%]' : 'max-w-[90%] md:max-w-[85%]'}>
                     <MessageFormatter 
                       content={isLastAssistant ? displayedText : msg.content} 
                       role={msg.role} 
@@ -683,7 +683,7 @@ Pode compartilhar essas informações?`,
             
             {messageSending && (
               <div className="flex justify-end">
-                <div className="max-w-[85%] rounded-2xl p-4 bg-gradient-cta/80 text-white animate-pulse">
+                <div className="max-w-[85%] rounded-2xl p-3 md:p-4 bg-gradient-cta/80 text-white animate-pulse">
                   <p className="text-sm">Enviando...</p>
                 </div>
               </div>
@@ -691,12 +691,12 @@ Pode compartilhar essas informações?`,
             
             {isLoading && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] bg-slate-800/50 border border-slate-700 rounded-2xl p-4 animate-fade-in">
-                  <div className="flex items-center gap-3">
-                    <Loader2 className="h-5 w-5 animate-spin text-blue-400" />
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium text-slate-200">Analisando sua resposta...</p>
-                      <p className="text-xs text-slate-400">Isso pode levar alguns segundos</p>
+                <div className="max-w-[85%] bg-slate-800/50 border border-slate-700 rounded-2xl p-3 md:p-4 animate-fade-in">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin text-blue-400" />
+                    <div className="space-y-0.5 md:space-y-1">
+                      <p className="text-xs md:text-sm font-medium text-slate-200">Analisando...</p>
+                      <p className="text-xs text-slate-400 hidden md:block">Isso pode levar alguns segundos</p>
                     </div>
                   </div>
                 </div>
@@ -709,7 +709,7 @@ Pode compartilhar essas informações?`,
 
         {/* Feedback Form */}
         {showFeedback && !feedbackSubmitted && (
-          <div className="px-4 pb-4 bg-slate-900/30 border-x border-slate-800">
+          <div className="px-3 md:px-4 pb-2 md:pb-4 bg-slate-900/30 border-x border-slate-800">
             <FeedbackForm
               documentId={documentId!}
               onSubmit={() => {
@@ -722,7 +722,7 @@ Pode compartilhar essas informações?`,
 
         {/* Generate MVV Button */}
         {feedbackSubmitted && !isGenerating && (
-          <div className="px-4 pb-4 bg-slate-900/30 border-x border-slate-800">
+          <div className="px-3 md:px-4 pb-2 md:pb-4 bg-slate-900/30 border-x border-slate-800">
             <Button 
               onClick={handleGenerateMVV} 
               className="w-full"
@@ -733,17 +733,17 @@ Pode compartilhar essas informações?`,
           </div>
         )}
 
-        {/* Voice Input */}
-        <div className="bg-slate-900/50 backdrop-blur-xl rounded-b-2xl border border-slate-800 border-t-0 p-6">
+        {/* Voice Input - Compact on mobile */}
+        <div className="bg-slate-900/50 backdrop-blur-xl rounded-b-2xl border border-slate-800 border-t-0 p-3 md:p-6">
           <VoiceInput
             onTranscription={handleTranscription}
             disabled={isLoading || isGenerating || messageSending}
           />
           
           {isGenerating && (
-            <div className="mt-4 flex items-center justify-center gap-3 text-blue-400">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              <span className="text-sm font-medium">Gerando seu MVV completo...</span>
+            <div className="mt-2 md:mt-4 flex items-center justify-center gap-2 md:gap-3 text-blue-400">
+              <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
+              <span className="text-xs md:text-sm font-medium">Gerando seu MVV...</span>
             </div>
           )}
         </div>

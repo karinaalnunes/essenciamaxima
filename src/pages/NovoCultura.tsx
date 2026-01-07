@@ -464,26 +464,28 @@ export default function NovoCultura() {
 
   return (
     <div className="min-h-screen bg-gradient-hero flex flex-col antialiased">
-      <header className="p-6 border-b border-slate-700/50 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      {/* Header - Compact on mobile */}
+      <header className="p-3 md:p-6 border-b border-slate-700/50 flex items-center justify-between">
+        <div className="flex items-center gap-2 md:gap-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate("/dashboard")}
-            className="text-slate-300 hover:text-white"
+            className="text-slate-300 hover:text-white px-2 md:px-3"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Dashboard
+            <ArrowLeft className="w-4 h-4 mr-1 md:mr-2" />
+            <span className="hidden md:inline">Dashboard</span>
           </Button>
-          <img src={logo} alt="Máxima iA" className="h-12 w-auto" />
+          <img src={logo} alt="Máxima iA" className="h-8 md:h-12 w-auto" />
         </div>
-        <h1 className="text-xl font-bold text-white hidden md:block">
-          💜 Cultura Máxima - Código de Cultura Completo
+        <h1 className="text-sm md:text-xl font-bold text-white hidden sm:block">
+          💜 Cultura Máxima
         </h1>
       </header>
 
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-6">
-        <div className="max-w-3xl mx-auto space-y-6 pb-32">
+      {/* Chat area - More space on mobile */}
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-3 md:p-6">
+        <div className="max-w-3xl mx-auto space-y-3 md:space-y-6 pb-32">
           {messages.map((message, index) => (
             <div
               key={index}
@@ -492,7 +494,7 @@ export default function NovoCultura() {
               }`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl p-4 ${
+                className={`max-w-[90%] md:max-w-[80%] rounded-2xl p-3 md:p-4 ${
                   message.role === "user"
                     ? "bg-slate-700/50 text-white"
                     : "bg-slate-800/50 text-slate-100"
@@ -505,25 +507,25 @@ export default function NovoCultura() {
 
           {isSending && (
             <div className="flex justify-start">
-              <div className="bg-slate-800/50 rounded-2xl p-4">
-                <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+              <div className="bg-slate-800/50 rounded-2xl p-3 md:p-4">
+                <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin text-slate-400" />
               </div>
             </div>
           )}
 
           {showFeedback && readyToGenerate && documentId && (
-            <div className="mt-8 p-6 bg-slate-800/70 rounded-xl border border-green-500/30">
+            <div className="mt-4 md:mt-8 p-4 md:p-6 bg-slate-800/70 rounded-xl border border-green-500/30">
               <FeedbackForm documentId={documentId} onSubmit={() => {}} />
               <Button
                 onClick={handleGenerateCulture}
-                className="w-full mt-4"
+                className="w-full mt-3 md:mt-4"
                 size="lg"
                 disabled={isGenerating}
               >
                 {isGenerating ? (
                   <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Gerando Relatório...
+                    <Loader2 className="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" />
+                    Gerando...
                   </>
                 ) : (
                   "Ver Meu Código de Cultura 🎯"
@@ -536,8 +538,9 @@ export default function NovoCultura() {
         </div>
       </ScrollArea>
 
+      {/* Input area - Compact on mobile */}
       {!readyToGenerate && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900 to-transparent p-6">
+        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900 to-transparent p-3 md:p-6">
           <div className="max-w-3xl mx-auto">
             <VoiceInput
               onTranscription={handleTranscription}
@@ -549,13 +552,12 @@ export default function NovoCultura() {
 
       {isGenerating && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-slate-800 p-8 rounded-xl shadow-2xl text-center space-y-4 max-w-md">
-            <Loader2 className="w-16 h-16 animate-spin text-purple-400 mx-auto" />
-            <h3 className="text-xl font-bold text-white">
+          <div className="bg-slate-800 p-6 md:p-8 rounded-xl shadow-2xl text-center space-y-3 md:space-y-4 max-w-md mx-4">
+            <Loader2 className="w-12 h-12 md:w-16 md:h-16 animate-spin text-purple-400 mx-auto" />
+            <h3 className="text-lg md:text-xl font-bold text-white">
               Gerando seu Código de Cultura...
             </h3>
-            <p className="text-slate-300">
-              Estamos estruturando todos os pilares da sua cultura organizacional.
+            <p className="text-sm md:text-base text-slate-300">
               Isso pode levar alguns segundos.
             </p>
           </div>
