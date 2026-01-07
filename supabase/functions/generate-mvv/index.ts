@@ -95,10 +95,21 @@ serve(async (req) => {
     const data = await response.json();
     let generatedText = data.choices[0].message.content.trim();
 
-    // Clean up markdown if present
-    generatedText = generatedText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    // Clean up markdown and extra text if present
+    generatedText = generatedText
+      .replace(/```json\n?/g, '')
+      .replace(/```\n?/g, '')
+      .replace(/^[\s\S]*?(\{)/m, '{')  // Remove everything before the first {
+      .replace(/(\})[\s\S]*$/m, '}')   // Remove everything after the last }
+      .trim();
 
-    console.log('Generated MVV:', generatedText);
+    console.log('Generated MVV (cleaned):', generatedText.substring(0, 200) + '...');
+
+    // Validate it's actually JSON before parsing
+    if (!generatedText.startsWith('{') || !generatedText.endsWith('}')) {
+      console.error('[MVV] AI did not return valid JSON. Raw response:', generatedText);
+      throw new Error('AI returned invalid format - not JSON');
+    }
 
     const mvvData = JSON.parse(generatedText);
 
