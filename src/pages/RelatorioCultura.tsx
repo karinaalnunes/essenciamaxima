@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, Download, AlertCircle } from "lucide-react";
 import { useConfetti } from "@/hooks/useConfetti";
-import logo from "@/assets/logo-maxima-ia-original.png";
+import logo from "@/assets/logo-maxima-ia-negativo.png";
+import logoLight from "@/assets/logo-maxima-ia-light.png";
 
 interface Value {
   name: string;
@@ -230,19 +231,218 @@ export default function RelatorioCultura() {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Print Styles - Padronizado com MVV */}
       <style>{`
         @media print {
-          body * { visibility: hidden; }
-          #printable-area, #printable-area * { visibility: visible; }
-          #printable-area { position: absolute; left: 0; top: 0; width: 100%; }
-          .no-print { display: none !important; }
-          .print-break { page-break-before: always; }
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+          
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          
+          html, body {
+            width: 210mm;
+            background: white !important;
+          }
+          
+          .no-print {
+            display: none !important;
+          }
+          
+          .print-container {
+            padding: 0 !important;
+          }
+          
+          /* === CAPA === */
+          .print-cover {
+            min-height: 297mm;
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
+            page-break-after: always;
+            padding: 40mm 25mm;
+            box-sizing: border-box;
+          }
+          
+          .print-cover img {
+            width: 80mm !important;
+            height: auto !important;
+            margin-bottom: 20mm;
+            background: white;
+            padding: 12pt 20pt;
+            border-radius: 12pt;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+          }
+          
+          .print-cover h1 {
+            font-size: 32pt !important;
+            color: white !important;
+            text-align: center;
+            margin-bottom: 8mm;
+            font-weight: 800;
+          }
+          
+          .print-cover .cover-meta {
+            color: rgba(255,255,255,0.8) !important;
+            font-size: 14pt;
+            text-align: center;
+          }
+          
+          .print-cover .cover-divider {
+            width: 60mm;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+            margin: 15mm 0;
+          }
+          
+          .print-cover .cover-title {
+            font-size: 18pt;
+            color: #60a5fa !important;
+            text-transform: uppercase;
+            letter-spacing: 4pt;
+            font-weight: 600;
+          }
+          
+          /* === SEÇÕES === */
+          .print-section {
+            page-break-before: always;
+            padding: 15mm 20mm;
+            background: white !important;
+          }
+          
+          .print-section h2 {
+            font-size: 18pt;
+            font-weight: 700;
+            color: #1e3a8a !important;
+            border-bottom: 3px solid #3b82f6;
+            padding-bottom: 8pt;
+            margin-bottom: 12pt;
+          }
+          
+          .print-section h3 {
+            font-size: 14pt;
+            font-weight: 600;
+            color: #1e40af !important;
+            margin-top: 12pt;
+            margin-bottom: 6pt;
+          }
+          
+          .print-section p,
+          .print-section li,
+          .print-section td {
+            font-size: 10pt;
+            line-height: 1.6;
+            color: #374151 !important;
+          }
+          
+          .print-section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8pt 0;
+          }
+          
+          .print-section th,
+          .print-section td {
+            border: 1px solid #d1d5db;
+            padding: 6pt;
+          }
+          
+          .print-section th {
+            background: #f3f4f6 !important;
+            font-weight: 600;
+            color: #1e3a8a !important;
+          }
+          
+          #printable-area {
+            padding: 0 !important;
+          }
+          
+          #printable-area > section {
+            page-break-inside: avoid;
+            margin: 0 !important;
+            border-radius: 0 !important;
+          }
+          
+          .print-break {
+            page-break-before: always;
+          }
+          
+          /* === FOOTER === */
+          .print-footer {
+            page-break-before: always;
+            min-height: 297mm;
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
+            padding: 40mm 25mm;
+            box-sizing: border-box;
+            text-align: center;
+          }
+          
+          .print-footer h2 {
+            font-size: 28pt;
+            color: white !important;
+            margin-bottom: 16pt;
+          }
+          
+          .print-footer p {
+            font-size: 14pt;
+            color: rgba(255,255,255,0.8) !important;
+            line-height: 1.8;
+            max-width: 140mm;
+          }
+          
+          .print-footer .footer-brand {
+            margin-top: 30mm;
+            padding-top: 20mm;
+            border-top: 1px solid rgba(255,255,255,0.2);
+          }
+          
+          .print-footer .footer-brand p {
+            font-size: 12pt;
+            color: rgba(255,255,255,0.6) !important;
+          }
+        }
+        
+        /* Screen styles */
+        @media screen {
+          .print-cover,
+          .print-footer {
+            display: none;
+          }
         }
       `}</style>
-
-      <div className="min-h-screen bg-gradient-hero">
-        <header className="p-6 border-b border-slate-700/50 flex items-center justify-between no-print">
+      
+      {/* ========== VERSÃO PARA IMPRESSÃO - CAPA ========== */}
+      <div className="print-cover">
+        <img src={logoLight} alt="Máxima iA" />
+        <div className="cover-title">Código de Cultura</div>
+        <div className="cover-divider"></div>
+        <h1>{doc.mvv_documents.company_name}</h1>
+        <div className="cover-meta">
+          {doc.mvv_documents.segment}
+          {doc.mvv_documents.company_size && ` • ${doc.mvv_documents.company_size}`}
+          <br /><br />
+          {new Date(doc.created_at).toLocaleDateString('pt-BR', { 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric' 
+          })}
+        </div>
+      </div>
+      
+      {/* ========== VERSÃO PARA TELA ========== */}
+      <div className="no-print">
+        <header className="p-6 border-b border-slate-700/50 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -1161,6 +1361,6 @@ export default function RelatorioCultura() {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -162,6 +162,10 @@ export default function RelatorioMVV() {
             width: 80mm !important;
             height: auto !important;
             margin-bottom: 20mm;
+            background: white;
+            padding: 12pt 20pt;
+            border-radius: 12pt;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
           }
           
           .print-cover h1 {
