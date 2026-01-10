@@ -1,11 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Calendar, User, Mail, Phone, GripVertical } from "lucide-react";
+import { Building2, Calendar, User, Mail, Phone, GripVertical, Clock } from "lucide-react";
 import { CompanyCRM, ACCESS_TYPES, PILLAR_STATUS_CONFIG, GOVERNANCE_STATUS_CONFIG, getEssenciaStatus } from "./types";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { forwardRef } from "react";
-
+import { formatDateBR, formatRelativeBR } from "@/lib/datetime";
 interface CRMCompanyCardProps {
   company: CompanyCRM;
   onClick: () => void;
@@ -32,7 +32,7 @@ export const CRMCompanyCard = forwardRef<HTMLDivElement, CRMCompanyCardProps>(
       mvv.company_name.toLowerCase() !== 'a definir' &&
       mvv.company_name.toLowerCase() !== 'empresa';
 
-    // Get person identifier with fallbacks
+    // Get person identifier with fallbacks - now using mvv_document.user_id if profile not loaded
     const getPersonIdentifier = () => {
       if (profile?.name && profile.name.trim()) {
         return { text: profile.name, icon: User };
@@ -43,7 +43,12 @@ export const CRMCompanyCard = forwardRef<HTMLDivElement, CRMCompanyCardProps>(
       if (profile?.phone && profile.phone.trim()) {
         return { text: profile.phone, icon: Phone };
       }
-      return { text: 'Lead sem contato', icon: User };
+      // Fallback: show partial user ID for debugging
+      if (mvv?.user_id) {
+        const shortId = mvv.user_id.slice(-6);
+        return { text: `Carregando... (${shortId})`, icon: User };
+      }
+      return { text: 'Dados não carregados', icon: User };
     };
 
     const personInfo = getPersonIdentifier();
@@ -145,6 +150,18 @@ export const CRMCompanyCard = forwardRef<HTMLDivElement, CRMCompanyCardProps>(
                 </span>
               </>
             )}
+          </div>
+
+          {/* Dates - Created & Updated */}
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1 border-t border-border/50">
+            <div className="flex items-center gap-1" title={`Cadastro: ${formatDateBR(company.created_at)}`}>
+              <Calendar className="h-3 w-3" />
+              <span>{formatDateBR(company.created_at)}</span>
+            </div>
+            <div className="flex items-center gap-1" title={`Última atualização: ${formatDateBR(company.updated_at)}`}>
+              <Clock className="h-3 w-3" />
+              <span>{formatRelativeBR(company.updated_at)}</span>
+            </div>
           </div>
 
           {/* Pillar Status */}
