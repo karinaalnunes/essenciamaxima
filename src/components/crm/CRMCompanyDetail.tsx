@@ -17,7 +17,7 @@ import {
 import { 
   CompanyCRM, PIPELINE_STAGES, ACCESS_TYPES, NEXT_ACTIONS, 
   PILLAR_STATUS_CONFIG, GOVERNANCE_STATUS_CONFIG, getEssenciaStatus,
-  PillarStatus, GovernanceStatus, PipelineStage
+  PillarStatus, GovernanceStatus, PipelineStage, AccessType
 } from "./types";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -390,7 +390,7 @@ export function CRMCompanyDetail({ company, open, onOpenChange, onSave }: CRMCom
                     <Label>Tipo de Acesso</Label>
                     <Select 
                       value={formData.access_type} 
-                      onValueChange={(v) => setFormData(prev => ({ ...prev, access_type: v }))}
+                      onValueChange={(v) => setFormData(prev => ({ ...prev, access_type: v as AccessType }))}
                     >
                       <SelectTrigger>
                         <SelectValue />
