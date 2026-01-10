@@ -74,7 +74,7 @@ export const CRMCompanyCard = forwardRef<HTMLDivElement, CRMCompanyCardProps>(
       >
         <CardContent className="p-2.5 space-y-1.5">
           {/* Row 1: Drag + Name + Progress */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 min-w-0">
             {dragHandleProps && (
               <div 
                 className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none flex-shrink-0"
@@ -86,7 +86,7 @@ export const CRMCompanyCard = forwardRef<HTMLDivElement, CRMCompanyCardProps>(
               </div>
             )}
             <PrimaryIcon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-            <span className="font-medium text-sm truncate flex-1">{primaryName}</span>
+            <span className="font-medium text-sm truncate flex-1 min-w-0" title={primaryName}>{primaryName}</span>
             <span 
               className="text-[10px] font-mono tracking-tight flex-shrink-0" 
               title={`Progresso: ${progress.label} (${progress.level}/4 pilares)`}
@@ -97,20 +97,20 @@ export const CRMCompanyCard = forwardRef<HTMLDivElement, CRMCompanyCardProps>(
 
           {/* Row 2: Secondary name (person) if applicable */}
           {secondaryName && (
-            <div className="flex items-center gap-1.5 pl-5">
+            <div className="flex items-center gap-1.5 pl-5 min-w-0">
               <User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-              <span className="text-xs text-muted-foreground truncate">{secondaryName}</span>
+              <span className="text-xs text-muted-foreground truncate min-w-0 flex-1" title={secondaryName}>{secondaryName}</span>
             </div>
           )}
 
           {/* Row 3: Segment + Location */}
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground pl-5">
-            <span className="truncate">{mvv?.segment || 'Segmento'}</span>
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground pl-5 min-w-0 whitespace-nowrap overflow-hidden">
+            <span className="truncate min-w-0 flex-1" title={mvv?.segment || 'Segmento'}>{mvv?.segment || 'Segmento'}</span>
             {location && (
               <>
-                <span>•</span>
+                <span className="flex-shrink-0">•</span>
                 <MapPin className="h-3 w-3 flex-shrink-0" />
-                <span className="truncate">{location}</span>
+                <span className="truncate max-w-[80px]" title={location}>{location}</span>
               </>
             )}
           </div>
