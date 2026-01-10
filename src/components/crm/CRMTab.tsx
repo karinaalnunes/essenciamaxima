@@ -64,11 +64,28 @@ export function CRMTab() {
 
       if (anamnesisError) throw anamnesisError;
 
+      // Debug logging - temporary
+      console.log('[CRM Debug] Fetched data:', {
+        crmCount: crmData?.length || 0,
+        mvvCount: mvvData?.length || 0,
+        profileCount: profileData?.length || 0,
+        anamnesisCount: anamnesisData?.length || 0,
+      });
+
       // Combine data
       const companiesWithDetails: CompanyCRM[] = crmData.map(crm => {
         const mvv = mvvData?.find(m => m.id === crm.mvv_document_id);
         const profile = mvv ? profileData?.find(p => p.id === mvv.user_id) : undefined;
         const anamnesis = anamnesisData?.find(a => a.mvv_document_id === crm.mvv_document_id);
+
+        // Debug: log if data is missing
+        if (!mvv || !profile) {
+          console.log('[CRM Debug] Missing data for CRM:', crm.id, { 
+            hasMvv: !!mvv, 
+            hasProfile: !!profile,
+            mvvDocId: crm.mvv_document_id 
+          });
+        }
 
         return {
           ...crm,
