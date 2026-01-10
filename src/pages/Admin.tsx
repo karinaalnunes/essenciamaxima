@@ -241,10 +241,14 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="analytics" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 max-w-[600px]">
+          <TabsList className="grid w-full grid-cols-5 max-w-[750px]">
             <TabsTrigger value="analytics">
               <BarChart3 className="w-4 h-4 mr-2" />
               Analytics
+            </TabsTrigger>
+            <TabsTrigger value="crm">
+              <Briefcase className="w-4 h-4 mr-2" />
+              CRM
             </TabsTrigger>
             <TabsTrigger value="roles">
               <Shield className="w-4 h-4 mr-2" />
@@ -522,6 +526,10 @@ export default function Admin() {
             </div>
           </Card>
         </div>
+          </TabsContent>
+
+          <TabsContent value="crm" className="mt-6">
+            <CRMTab />
           </TabsContent>
 
           <TabsContent value="roles" className="mt-6">
