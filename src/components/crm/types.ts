@@ -150,3 +150,47 @@ export function getEssenciaStatus(mvv: MVVDocumentSummary | undefined): { status
   }
   return { status: 'not_started', emoji: '🔴', label: 'Não iniciado' };
 }
+
+export interface ProgressIndicator {
+  level: 0 | 1 | 2 | 3 | 4;
+  label: string;
+  color: string;
+  dots: string;
+}
+
+export function calculateOverallProgress(company: CompanyCRM): ProgressIndicator {
+  let completedPillars = 0;
+  
+  // Check Essência
+  const mvv = company.mvv_document;
+  if (mvv?.mission && mvv?.vision) {
+    completedPillars++;
+  }
+  
+  // Check Estrutura
+  if (company.pillar_structure_status === 'completed') {
+    completedPillars++;
+  }
+  
+  // Check Governança
+  if (company.pillar_governance_status === 'contracted') {
+    completedPillars++;
+  }
+  
+  // Check Conselho (using string status)
+  if (company.pillar_council_status === 'active' || company.pillar_council_status === 'completed') {
+    completedPillars++;
+  }
+  
+  const level = completedPillars as 0 | 1 | 2 | 3 | 4;
+  
+  const configs: Record<number, Omit<ProgressIndicator, 'level'>> = {
+    0: { label: 'Início', color: 'bg-red-500', dots: '○○○○' },
+    1: { label: 'Iniciando', color: 'bg-orange-500', dots: '●○○○' },
+    2: { label: 'Progresso', color: 'bg-yellow-500', dots: '●●○○' },
+    3: { label: 'Avançado', color: 'bg-green-400', dots: '●●●○' },
+    4: { label: 'Completo', color: 'bg-green-600', dots: '●●●●' },
+  };
+  
+  return { level, ...configs[level] };
+}
