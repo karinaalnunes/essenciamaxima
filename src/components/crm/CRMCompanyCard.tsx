@@ -19,6 +19,16 @@ export function CRMCompanyCard({ company, onClick, isDragging }: CRMCompanyCardP
   const structureStatus = PILLAR_STATUS_CONFIG[company.pillar_structure_status];
   const governanceStatus = GOVERNANCE_STATUS_CONFIG[company.pillar_governance_status];
 
+  // Check if company name is valid
+  const hasValidCompanyName = mvv?.company_name && 
+    mvv.company_name !== 'Em construção' && 
+    mvv.company_name.trim() !== '';
+
+  // Determine primary and secondary display names
+  const primaryName = hasValidCompanyName ? mvv?.company_name : (profile?.name || 'Usuário sem nome');
+  const secondaryName = hasValidCompanyName ? profile?.name : null;
+  const PrimaryIcon = hasValidCompanyName ? Building2 : User;
+
   return (
     <Card 
       className={`cursor-pointer transition-all hover:shadow-md hover:border-primary/50 ${isDragging ? 'opacity-50 rotate-2 scale-105' : ''}`}
@@ -29,19 +39,34 @@ export function CRMCompanyCard({ company, onClick, isDragging }: CRMCompanyCardP
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <PrimaryIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <h4 className="font-semibold text-sm truncate">
-                {mvv?.company_name || 'Empresa sem nome'}
+                {primaryName}
               </h4>
             </div>
-            {profile && (
+            {secondaryName && (
               <div className="flex items-center gap-1.5 mt-0.5">
                 <User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                 <span className="text-xs text-muted-foreground truncate">
-                  {profile.name}
+                  {secondaryName}
                 </span>
               </div>
             )}
+            {/* MVV Status Badge */}
+            <div className="flex items-center gap-1.5 mt-1">
+              <Badge 
+                variant={essenciaStatus.status === 'completed' ? 'default' : 'secondary'}
+                className={`text-[10px] ${
+                  essenciaStatus.status === 'completed' 
+                    ? 'bg-green-500/20 text-green-700 border-green-500/30' 
+                    : essenciaStatus.status === 'in_progress'
+                    ? 'bg-yellow-500/20 text-yellow-700 border-yellow-500/30'
+                    : 'bg-muted text-muted-foreground'
+                }`}
+              >
+                {essenciaStatus.emoji} {essenciaStatus.label}
+              </Badge>
+            </div>
           </div>
           <Badge variant="outline" className="text-[10px] flex-shrink-0">
             {accessType?.icon} {accessType?.label}
