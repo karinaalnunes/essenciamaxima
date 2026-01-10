@@ -149,6 +149,83 @@ export type Database = {
         }
         Relationships: []
       }
+      company_crm: {
+        Row: {
+          access_type: string
+          admin_notes: string | null
+          archived_at: string | null
+          city: string | null
+          contacted_at: string | null
+          coupon_used: string | null
+          created_at: string
+          evolution_hypothesis: Json | null
+          free_strategic_reason: string | null
+          id: string
+          mvv_document_id: string
+          next_action: string | null
+          next_action_date: string | null
+          partner_origin: string | null
+          pillar_council_status: string | null
+          pillar_governance_status: string | null
+          pillar_structure_status: string | null
+          pipeline_stage: string
+          state: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_type?: string
+          admin_notes?: string | null
+          archived_at?: string | null
+          city?: string | null
+          contacted_at?: string | null
+          coupon_used?: string | null
+          created_at?: string
+          evolution_hypothesis?: Json | null
+          free_strategic_reason?: string | null
+          id?: string
+          mvv_document_id: string
+          next_action?: string | null
+          next_action_date?: string | null
+          partner_origin?: string | null
+          pillar_council_status?: string | null
+          pillar_governance_status?: string | null
+          pillar_structure_status?: string | null
+          pipeline_stage?: string
+          state?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_type?: string
+          admin_notes?: string | null
+          archived_at?: string | null
+          city?: string | null
+          contacted_at?: string | null
+          coupon_used?: string | null
+          created_at?: string
+          evolution_hypothesis?: Json | null
+          free_strategic_reason?: string | null
+          id?: string
+          mvv_document_id?: string
+          next_action?: string | null
+          next_action_date?: string | null
+          partner_origin?: string | null
+          pillar_council_status?: string | null
+          pillar_governance_status?: string | null
+          pillar_structure_status?: string | null
+          pipeline_stage?: string
+          state?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_crm_mvv_document_id_fkey"
+            columns: ["mvv_document_id"]
+            isOneToOne: true
+            referencedRelation: "mvv_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversation_history: {
         Row: {
           content: string
@@ -222,6 +299,47 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      crm_activity_log: {
+        Row: {
+          action_type: string
+          admin_id: string
+          created_at: string
+          crm_id: string
+          id: string
+          new_value: string | null
+          notes: string | null
+          old_value: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_id: string
+          created_at?: string
+          crm_id: string
+          id?: string
+          new_value?: string | null
+          notes?: string | null
+          old_value?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string
+          created_at?: string
+          crm_id?: string
+          id?: string
+          new_value?: string | null
+          notes?: string | null
+          old_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_activity_log_crm_id_fkey"
+            columns: ["crm_id"]
+            isOneToOne: false
+            referencedRelation: "company_crm"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       culture_conversation_history: {
         Row: {
