@@ -5,11 +5,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { BarChart3, Users, DollarSign, TrendingUp, Activity, ArrowLeft, UserCog, FileText, Shield, RefreshCw, Loader2 } from "lucide-react";
+import { BarChart3, Users, DollarSign, TrendingUp, Activity, ArrowLeft, UserCog, FileText, Shield, RefreshCw, Loader2, Briefcase } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { MentorshipManager } from "@/components/MentorshipManager";
 import { PromptManager } from "@/components/PromptManager";
 import { RolesManager } from "@/components/RolesManager";
+import { CRMTab } from "@/components/crm/CRMTab";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))'];
