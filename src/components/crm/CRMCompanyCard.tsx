@@ -69,10 +69,10 @@ export const CRMCompanyCard = forwardRef<HTMLDivElement, CRMCompanyCardProps>(
     return (
       <Card 
         ref={ref}
-        className={`cursor-pointer transition-all hover:shadow-md hover:border-primary/50 ${isDragging ? 'opacity-50 rotate-2 scale-105 shadow-lg' : ''}`}
+        className={`cursor-pointer transition-all hover:shadow-md hover:border-primary/50 w-full overflow-hidden ${isDragging ? 'opacity-50 rotate-2 scale-105 shadow-lg' : ''}`}
         onClick={handleClick}
       >
-        <CardContent className="p-2.5 space-y-1.5">
+        <CardContent className="p-2.5 space-y-1.5 overflow-hidden">
           {/* Row 1: Drag + Name + Progress */}
           <div className="flex items-center gap-1.5 min-w-0">
             {dragHandleProps && (
