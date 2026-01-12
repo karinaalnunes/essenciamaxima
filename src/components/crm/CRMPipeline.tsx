@@ -41,7 +41,7 @@ function DraggableCard({ company, onCompanyClick }: DraggableCardProps) {
     <div 
       ref={setNodeRef} 
       style={style} 
-      className={`mb-2 ${isDragging ? 'opacity-0' : ''}`}
+      className={`mb-2 w-full max-w-full ${isDragging ? 'opacity-0' : ''}`}
     >
       <CRMCompanyCard 
         company={company} 
