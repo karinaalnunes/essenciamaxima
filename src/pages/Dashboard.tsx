@@ -127,7 +127,11 @@ export default function Dashboard() {
 
         // Verificar compra do Cultura Máxima se MVV completo
         if (isComplete) {
-          // Verificar se comprou Cultura Máxima
+          // TEMPORÁRIO: Cultura Máxima liberado para testes
+          // Para reverter, descomente o bloco abaixo e remova setHasCulturaPurchase(true)
+          setHasCulturaPurchase(true);
+          
+          /* CÓDIGO ORIGINAL - COMENTADO TEMPORARIAMENTE
           const { data: purchases } = await supabase
             .from("purchases")
             .select("*")
@@ -138,9 +142,10 @@ export default function Dashboard() {
 
           const hasPurchase = purchases && purchases.length > 0;
           setHasCulturaPurchase(hasPurchase);
+          */
 
-          // Se comprou, verificar anamnese
-          if (hasPurchase) {
+          // Verificar anamnese (agora sempre executa, pois hasCulturaPurchase = true)
+          {
             const { data: anamnesis } = await supabase
               .from("organizational_anamnesis")
               .select("*")
