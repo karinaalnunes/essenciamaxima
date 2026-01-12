@@ -35,6 +35,23 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface AnamnesisQuestion {
   id: string;
@@ -75,6 +92,240 @@ const fieldTypeConfig = {
   rating: { label: "Avaliação 1-10", icon: Hash },
 };
 
+// Sortable Question Item Component
+interface SortableQuestionItemProps {
+  question: AnamnesisQuestion;
+  isExpanded: boolean;
+  onToggleExpand: (open: boolean) => void;
+  onUpdateQuestion: (id: string, updates: Partial<AnamnesisQuestion>) => void;
+  onUpdateOption: (questionId: string, optionIndex: number, field: 'value' | 'label', newValue: string) => void;
+  onAddOption: (questionId: string) => void;
+  onRemoveOption: (questionId: string, optionIndex: number) => void;
+  onDeleteQuestion: (id: string) => void;
+}
+
+function SortableQuestionItem({
+  question,
+  isExpanded,
+  onToggleExpand,
+  onUpdateQuestion,
+  onUpdateOption,
+  onAddOption,
+  onRemoveOption,
+  onDeleteQuestion,
+}: SortableQuestionItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: question.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+    opacity: isDragging ? 0.8 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <Collapsible
+        open={isExpanded}
+        onOpenChange={onToggleExpand}
+      >
+        <div className={`border rounded-lg ${!question.active ? 'opacity-50 bg-muted/30' : ''} ${isDragging ? 'shadow-lg bg-background' : ''}`}>
+          <CollapsibleTrigger asChild>
+            <div className="flex items-center gap-3 p-4 cursor-pointer hover:bg-muted/50">
+              <div
+                {...attributes}
+                {...listeners}
+                className="cursor-grab active:cursor-grabbing touch-none"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <GripVertical className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium truncate">{question.label}</span>
+                  {question.is_required && (
+                    <Badge variant="destructive" className="text-xs">Obrigatório</Badge>
+                  )}
+                  {question.is_core && (
+                    <Badge variant="secondary" className="text-xs">Essencial</Badge>
+                  )}
+                  {!question.active && (
+                    <Badge variant="outline" className="text-xs">Inativo</Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  {(() => {
+                    const Icon = fieldTypeConfig[question.field_type].icon;
+                    return (
+                      <>
+                        <Icon className="w-3 h-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          {fieldTypeConfig[question.field_type].label}
+                        </span>
+                      </>
+                    );
+                  })()}
+                  <span className="text-xs text-muted-foreground">•</span>
+                  <code className="text-xs text-muted-foreground">{question.field_key}</code>
+                </div>
+              </div>
+            </div>
+          </CollapsibleTrigger>
+
+          <CollapsibleContent>
+            <div className="px-4 pb-4 pt-2 border-t space-y-4">
+              {/* Label */}
+              <div className="space-y-2">
+                <Label>Texto da pergunta</Label>
+                <Input
+                  value={question.label}
+                  onChange={(e) => onUpdateQuestion(question.id, { label: e.target.value })}
+                />
+              </div>
+
+              {/* Placeholder */}
+              {question.field_type !== 'boolean' && (
+                <div className="space-y-2">
+                  <Label>Placeholder</Label>
+                  <Input
+                    value={question.placeholder || ''}
+                    onChange={(e) => onUpdateQuestion(question.id, { placeholder: e.target.value })}
+                    placeholder="Texto de exemplo..."
+                  />
+                </div>
+              )}
+
+              {/* Options for select/boolean */}
+              {(question.field_type === 'select' || question.field_type === 'boolean') && question.options && (
+                <div className="space-y-2">
+                  <Label>Opções</Label>
+                  <div className="space-y-2">
+                    {question.options.map((option, optIndex) => (
+                      <div key={optIndex} className="flex gap-2">
+                        <Input
+                          value={option.value}
+                          onChange={(e) => onUpdateOption(question.id, optIndex, 'value', e.target.value)}
+                          placeholder="Valor"
+                          className="w-1/3"
+                        />
+                        <Input
+                          value={option.label}
+                          onChange={(e) => onUpdateOption(question.id, optIndex, 'label', e.target.value)}
+                          placeholder="Label"
+                          className="flex-1"
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onRemoveOption(question.id, optIndex)}
+                          className="shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onAddOption(question.id)}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Adicionar Opção
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* MicroChat prompt */}
+              {question.field_type === 'microchat' && (
+                <div className="space-y-2">
+                  <Label>Prompt do MicroChat</Label>
+                  <Textarea
+                    value={question.microchat_prompt || ''}
+                    onChange={(e) => onUpdateQuestion(question.id, { microchat_prompt: e.target.value })}
+                    placeholder="Instruções para o assistente de IA..."
+                    rows={3}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Define como a IA fará perguntas de follow-up neste campo.
+                  </p>
+                </div>
+              )}
+
+              {/* Field type (only for non-core questions) */}
+              {!question.is_core && (
+                <div className="space-y-2">
+                  <Label>Tipo de campo</Label>
+                  <Select
+                    value={question.field_type}
+                    onValueChange={(value) => onUpdateQuestion(question.id, { 
+                      field_type: value as AnamnesisQuestion['field_type'],
+                      options: value === 'select' ? [{ value: '', label: '' }] : null
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(fieldTypeConfig).map(([key, config]) => (
+                        <SelectItem key={key} value={key}>
+                          <div className="flex items-center gap-2">
+                            <config.icon className="w-4 h-4" />
+                            {config.label}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Toggles */}
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={question.is_required}
+                    onCheckedChange={(checked) => onUpdateQuestion(question.id, { is_required: checked })}
+                  />
+                  <Label className="cursor-pointer">Obrigatório</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={question.active}
+                    onCheckedChange={(checked) => onUpdateQuestion(question.id, { active: checked })}
+                  />
+                  <Label className="cursor-pointer">Ativo</Label>
+                </div>
+              </div>
+
+              {/* Delete button for non-core */}
+              {!question.is_core && (
+                <div className="pt-2 border-t">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onDeleteQuestion(question.id)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Excluir Pergunta
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CollapsibleContent>
+        </div>
+      </Collapsible>
+    </div>
+  );
+}
+
 export function AnamnesisQuestionsEditor({ onClose }: Props) {
   const [questions, setQuestions] = useState<AnamnesisQuestion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,6 +333,17 @@ export function AnamnesisQuestionsEditor({ onClose }: Props) {
   const [activeStep, setActiveStep] = useState("1");
   const [expandedQuestion, setExpandedQuestion] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     loadQuestions();
@@ -207,6 +469,35 @@ export function AnamnesisQuestionsEditor({ onClose }: Props) {
     }
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (!over || active.id === over.id) return;
+
+    const stepNumber = parseInt(activeStep);
+    const stepQuestions = getStepQuestions(stepNumber);
+    
+    const oldIndex = stepQuestions.findIndex(q => q.id === active.id);
+    const newIndex = stepQuestions.findIndex(q => q.id === over.id);
+    
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reorderedStepQuestions = arrayMove(stepQuestions, oldIndex, newIndex);
+    
+    // Update display_order for all questions in this step
+    setQuestions(prev => {
+      const otherQuestions = prev.filter(q => q.step_number !== stepNumber);
+      const updatedStepQuestions = reorderedStepQuestions.map((q, index) => ({
+        ...q,
+        display_order: index + 1
+      }));
+      return [...otherQuestions, ...updatedStepQuestions];
+    });
+    
+    setHasChanges(true);
+    toast.info("Ordem atualizada - clique em 'Salvar' para confirmar");
+  };
+
   const saveAllChanges = async () => {
     setSaving(true);
     try {
@@ -292,219 +583,61 @@ export function AnamnesisQuestionsEditor({ onClose }: Props) {
           ))}
         </TabsList>
 
-        {STEPS.map((step) => (
-          <TabsContent key={step.id} value={String(step.id)} className="mt-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>{step.title}</CardTitle>
-                  <CardDescription>{step.description}</CardDescription>
-                </div>
-                <Button onClick={addQuestion} size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Adicionar Pergunta
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {getStepQuestions(step.id).map((question, index) => (
-                  <Collapsible
-                    key={question.id}
-                    open={expandedQuestion === question.id}
-                    onOpenChange={(open) => setExpandedQuestion(open ? question.id : null)}
-                  >
-                    <div className={`border rounded-lg ${!question.active ? 'opacity-50 bg-muted/30' : ''}`}>
-                      <CollapsibleTrigger asChild>
-                        <div className="flex items-center gap-3 p-4 cursor-pointer hover:bg-muted/50">
-                          <GripVertical className="w-4 h-4 text-muted-foreground" />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium truncate">{question.label}</span>
-                              {question.is_required && (
-                                <Badge variant="destructive" className="text-xs">Obrigatório</Badge>
-                              )}
-                              {question.is_core && (
-                                <Badge variant="secondary" className="text-xs">Essencial</Badge>
-                              )}
-                              {!question.active && (
-                                <Badge variant="outline" className="text-xs">Inativo</Badge>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 mt-1">
-                              {(() => {
-                                const Icon = fieldTypeConfig[question.field_type].icon;
-                                return (
-                                  <>
-                                    <Icon className="w-3 h-3 text-muted-foreground" />
-                                    <span className="text-xs text-muted-foreground">
-                                      {fieldTypeConfig[question.field_type].label}
-                                    </span>
-                                  </>
-                                );
-                              })()}
-                              <span className="text-xs text-muted-foreground">•</span>
-                              <code className="text-xs text-muted-foreground">{question.field_key}</code>
-                            </div>
-                          </div>
-                        </div>
-                      </CollapsibleTrigger>
-
-                      <CollapsibleContent>
-                        <div className="px-4 pb-4 pt-2 border-t space-y-4">
-                          {/* Label */}
-                          <div className="space-y-2">
-                            <Label>Texto da pergunta</Label>
-                            <Input
-                              value={question.label}
-                              onChange={(e) => updateQuestion(question.id, { label: e.target.value })}
-                            />
-                          </div>
-
-                          {/* Placeholder */}
-                          {question.field_type !== 'boolean' && (
-                            <div className="space-y-2">
-                              <Label>Placeholder</Label>
-                              <Input
-                                value={question.placeholder || ''}
-                                onChange={(e) => updateQuestion(question.id, { placeholder: e.target.value })}
-                                placeholder="Texto de exemplo..."
-                              />
-                            </div>
-                          )}
-
-                          {/* Options for select/boolean */}
-                          {(question.field_type === 'select' || question.field_type === 'boolean') && question.options && (
-                            <div className="space-y-2">
-                              <Label>Opções</Label>
-                              <div className="space-y-2">
-                                {question.options.map((option, optIndex) => (
-                                  <div key={optIndex} className="flex gap-2">
-                                    <Input
-                                      value={option.value}
-                                      onChange={(e) => updateOption(question.id, optIndex, 'value', e.target.value)}
-                                      placeholder="Valor"
-                                      className="w-1/3"
-                                    />
-                                    <Input
-                                      value={option.label}
-                                      onChange={(e) => updateOption(question.id, optIndex, 'label', e.target.value)}
-                                      placeholder="Label"
-                                      className="flex-1"
-                                    />
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={() => removeOption(question.id, optIndex)}
-                                      className="shrink-0"
-                                    >
-                                      <Trash2 className="w-4 h-4 text-destructive" />
-                                    </Button>
-                                  </div>
-                                ))}
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => addOption(question.id)}
-                                >
-                                  <Plus className="w-4 h-4 mr-2" />
-                                  Adicionar Opção
-                                </Button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* MicroChat prompt */}
-                          {question.field_type === 'microchat' && (
-                            <div className="space-y-2">
-                              <Label>Prompt do MicroChat</Label>
-                              <Textarea
-                                value={question.microchat_prompt || ''}
-                                onChange={(e) => updateQuestion(question.id, { microchat_prompt: e.target.value })}
-                                placeholder="Instruções para o assistente de IA..."
-                                rows={3}
-                              />
-                              <p className="text-xs text-muted-foreground">
-                                Define como a IA fará perguntas de follow-up neste campo.
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Field type (only for non-core questions) */}
-                          {!question.is_core && (
-                            <div className="space-y-2">
-                              <Label>Tipo de campo</Label>
-                              <Select
-                                value={question.field_type}
-                                onValueChange={(value) => updateQuestion(question.id, { 
-                                  field_type: value as AnamnesisQuestion['field_type'],
-                                  options: value === 'select' ? [{ value: '', label: '' }] : null
-                                })}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {Object.entries(fieldTypeConfig).map(([key, config]) => (
-                                    <SelectItem key={key} value={key}>
-                                      <div className="flex items-center gap-2">
-                                        <config.icon className="w-4 h-4" />
-                                        {config.label}
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )}
-
-                          {/* Toggles */}
-                          <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2">
-                              <Switch
-                                checked={question.is_required}
-                                onCheckedChange={(checked) => updateQuestion(question.id, { is_required: checked })}
-                              />
-                              <Label className="cursor-pointer">Obrigatório</Label>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Switch
-                                checked={question.active}
-                                onCheckedChange={(checked) => updateQuestion(question.id, { active: checked })}
-                              />
-                              <Label className="cursor-pointer">Ativo</Label>
-                            </div>
-                          </div>
-
-                          {/* Delete button for non-core */}
-                          {!question.is_core && (
-                            <div className="pt-2 border-t">
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => deleteQuestion(question.id)}
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Excluir Pergunta
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </CollapsibleContent>
-                    </div>
-                  </Collapsible>
-                ))}
-
-                {getStepQuestions(step.id).length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>Nenhuma pergunta nesta etapa.</p>
-                    <Button onClick={addQuestion} variant="link" className="mt-2">
-                      Adicionar primeira pergunta
-                    </Button>
+        {STEPS.map((step) => {
+          const stepQuestions = getStepQuestions(step.id);
+          
+          return (
+            <TabsContent key={step.id} value={String(step.id)} className="mt-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>{step.title}</CardTitle>
+                    <CardDescription>{step.description}</CardDescription>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
+                  <Button onClick={addQuestion} size="sm">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Adicionar Pergunta
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {stepQuestions.length > 0 ? (
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <SortableContext
+                        items={stepQuestions.map(q => q.id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        {stepQuestions.map((question) => (
+                          <SortableQuestionItem
+                            key={question.id}
+                            question={question}
+                            isExpanded={expandedQuestion === question.id}
+                            onToggleExpand={(open) => setExpandedQuestion(open ? question.id : null)}
+                            onUpdateQuestion={updateQuestion}
+                            onUpdateOption={updateOption}
+                            onAddOption={addOption}
+                            onRemoveOption={removeOption}
+                            onDeleteQuestion={deleteQuestion}
+                          />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>Nenhuma pergunta nesta etapa.</p>
+                      <Button onClick={addQuestion} variant="link" className="mt-2">
+                        Adicionar primeira pergunta
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          );
+        })}
       </Tabs>
     </div>
   );
