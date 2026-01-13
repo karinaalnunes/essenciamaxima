@@ -487,7 +487,7 @@ export default function NovoCultura() {
             <ArrowLeft className="w-4 h-4 mr-1 md:mr-2" />
             <span className="hidden md:inline">Dashboard</span>
           </Button>
-          <img src={logo} alt="Máxima iA" className="h-8 md:h-12 w-auto" />
+          <img src={logo} alt="Máxima iA" width="150" height="75" />
         </div>
         <h1 className="text-sm md:text-xl font-bold text-white hidden sm:block">
           💜 Cultura Máxima

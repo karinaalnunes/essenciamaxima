@@ -21,6 +21,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 
+const LOGO_WIDTH = 150;
+const LOGO_HEIGHT = 75;
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -694,7 +697,7 @@ Pode compartilhar essas informações?`,
                 <p className="text-slate-400 text-xs md:text-sm hidden md:block">Vamos criar sua Missão, Visão e Valores</p>
               </div>
             </div>
-            <img src={logo} alt="Máxima iA" className="h-10 md:h-20 w-auto" />
+            <img src={logo} alt="Máxima iA" width="150" height="75" />
           </div>
         </div>
 

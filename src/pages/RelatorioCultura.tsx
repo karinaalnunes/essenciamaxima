@@ -453,7 +453,7 @@ export default function RelatorioCultura() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Dashboard
             </Button>
-            <img src={logo} alt="Máxima iA" className="h-12 w-auto" />
+            <img src={logo} alt="Máxima iA" width="150" height="75" />
           </div>
           <div className="flex items-center gap-3">
             {(doc?.report_version_inspirational || doc?.report_version_technical) && (
@@ -497,7 +497,7 @@ export default function RelatorioCultura() {
         <div id="printable-area" className="max-w-4xl mx-auto p-8 space-y-12">
           {/* Capa */}
           <div className="text-center space-y-6 py-12">
-            <img src={logo} alt="Máxima iA" className="h-24 mx-auto" />
+            <img src={logo} alt="Máxima iA" width="150" height="75" className="mx-auto" />
             <h1 className="text-5xl font-bold text-white">
               Código de Cultura Máxima
             </h1>
