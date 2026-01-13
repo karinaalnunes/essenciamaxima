@@ -3,7 +3,18 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { ArrowLeft, Loader2, RotateCcw } from "lucide-react";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 import { VoiceInput } from "@/components/VoiceInput";
 import { MessageFormatter } from "@/components/MessageFormatter";
@@ -26,6 +37,7 @@ export default function NovoCultura() {
   const [loading, setLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [readyToGenerate, setReadyToGenerate] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [userScrolled, setUserScrolled] = useState(false);
@@ -138,17 +150,23 @@ export default function NovoCultura() {
       .eq("culture_document_id", cultureDocId)
       .order("created_at", { ascending: true });
 
-    if (history && history.length > 0) {
-      const loadedMessages: Message[] = history.map((msg) => ({
-        role: msg.role as "user" | "assistant",
-        content: msg.content,
-      }));
-      setMessages(loadedMessages);
+    // If a doc exists but has no history (e.g. after reset), start fresh using the prompt-based opening
+    if (!history || history.length === 0) {
+      setReadyToGenerate(false);
+      setShowFeedback(false);
+      await initializeNewConversation(cultureDocId);
+      return;
+    }
 
-      const lastMessage = history[history.length - 1];
-      if (lastMessage?.content?.includes("[PRONTO_PARA_GERAR]")) {
-        setReadyToGenerate(true);
-      }
+    const loadedMessages: Message[] = history.map((msg) => ({
+      role: msg.role as "user" | "assistant",
+      content: msg.content,
+    }));
+    setMessages(loadedMessages);
+
+    const lastMessage = history[history.length - 1];
+    if (lastMessage?.content?.includes("[PRONTO_PARA_GERAR]")) {
+      setReadyToGenerate(true);
     }
   };
 
@@ -179,6 +197,9 @@ export default function NovoCultura() {
 
   const initializeNewConversation = async (docId: string) => {
     // Request initial message from AI using the prompt from database
+    setReadyToGenerate(false);
+    setShowFeedback(false);
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -195,13 +216,15 @@ export default function NovoCultura() {
             message: "Olá, estou pronto para começar.",
             conversationHistory: [],
             documentId: docId,
-            mvvData: mvvDocument ? {
-              company_name: mvvDocument.company_name,
-              segment: mvvDocument.segment,
-              vision: mvvDocument.vision,
-              mission: mvvDocument.mission,
-              values: mvvDocument.values,
-            } : null,
+            mvvData: mvvDocument
+              ? {
+                  company_name: mvvDocument.company_name,
+                  segment: mvvDocument.segment,
+                  vision: mvvDocument.vision,
+                  mission: mvvDocument.mission,
+                  values: mvvDocument.values,
+                }
+              : null,
           }),
         }
       );
@@ -212,40 +235,48 @@ export default function NovoCultura() {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let buffer = "";
+      let textBuffer = "";
       let assistantMessage = "";
 
-      const assistantMsg: Message = { role: "assistant", content: "" };
-      setMessages([assistantMsg]);
+      setMessages([{ role: "assistant", content: "" }]);
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
+        textBuffer += decoder.decode(value, { stream: true });
 
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6);
-            if (data === "[DONE]") continue;
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
 
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.content || parsed.choices?.[0]?.delta?.content;
-              if (content) {
-                assistantMessage += content;
-                setMessages([{ role: "assistant", content: assistantMessage }]);
-              }
-            } catch (e) {
-              // Skip invalid JSON
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.content || parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              assistantMessage += content;
+              setMessages([{ role: "assistant", content: assistantMessage }]);
             }
+          } catch {
+            // Incomplete JSON split across chunks: put it back and wait for more data
+            textBuffer = line + "\n" + textBuffer;
+            break;
           }
         }
       }
 
-      // Save to history
+      if (!assistantMessage.trim()) {
+        throw new Error("Empty initial assistant message");
+      }
+
       await supabase.from("culture_conversation_history").insert({
         culture_document_id: docId,
         role: "assistant",
@@ -253,12 +284,15 @@ export default function NovoCultura() {
       });
     } catch (error) {
       console.error("Error getting initial message:", error);
-      // Fallback message if AI fails
+
       const fallbackMessage: Message = {
         role: "assistant",
-        content: "Olá! Sou o Código de Cultura Máxima, consultor especializado em transformar seu MVV em cultura viva. Vamos começar?",
+        content:
+          "Olá! Sou o Código de Cultura Máxima, consultor especializado em transformar seu MVV em cultura viva. Vamos começar?",
       };
+
       setMessages([fallbackMessage]);
+
       await supabase.from("culture_conversation_history").insert({
         culture_document_id: docId,
         role: "assistant",
@@ -267,7 +301,69 @@ export default function NovoCultura() {
     }
   };
 
+  const handleResetConversation = async () => {
+    if (!documentId) return;
+    if (isResetting) return;
+
+    setIsResetting(true);
+    setReadyToGenerate(false);
+    setShowFeedback(false);
+
+    try {
+      const { error: deleteError } = await supabase
+        .from("culture_conversation_history")
+        .delete()
+        .eq("culture_document_id", documentId);
+
+      if (deleteError) throw deleteError;
+
+      // Clear any generated report fields so the session is really "fresh"
+      await supabase
+        .from("culture_documents")
+        .update({
+          reputation_goal: null,
+          competitive_advantage: null,
+          swot_strengths: null,
+          swot_improvements: null,
+          guiding_principles: null,
+          growth_practices: null,
+          wellbeing_support: null,
+          psychological_safety_practices: null,
+          cultural_rituals: null,
+          stakeholder_guidelines: null,
+          culture_indicators: null,
+          action_plan_30: null,
+          action_plan_60: null,
+          action_plan_90: null,
+          action_plan_120: null,
+          cultural_essence: null,
+          cultural_strengths: null,
+          cultural_challenges: null,
+          strategic_focus: null,
+          closing_message: null,
+        })
+        .eq("id", documentId);
+
+      await initializeNewConversation(documentId);
+
+      toast({
+        title: "Conversa reiniciada",
+        description: "O robô foi reiniciado e já puxou o prompt atualizado.",
+      });
+    } catch (error) {
+      console.error("Erro ao reiniciar conversa:", error);
+      toast({
+        title: "Erro",
+        description: "Não consegui reiniciar agora. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   const handleTranscription = async (text: string) => {
+
     if (!userId || !documentId || !mvvDocument) return;
     if (isSending) return;
 
@@ -547,9 +643,40 @@ export default function NovoCultura() {
           </Button>
           <img src={logo} alt="Máxima iA" width="150" height="75" />
         </div>
-        <h1 className="text-sm md:text-xl font-bold text-white hidden sm:block">
-          💜 Cultura Máxima
-        </h1>
+
+        <div className="flex items-center gap-2">
+          <h1 className="text-sm md:text-xl font-bold text-white hidden sm:block">
+            💜 Cultura Máxima
+          </h1>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={isResetting || loading}
+                className="text-slate-300 hover:text-white"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reiniciar
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Reiniciar o robô?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Isso apaga o histórico desta conversa e inicia novamente usando o prompt ativo da área de Prompts.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isResetting}>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleResetConversation} disabled={isResetting}>
+                  {isResetting ? "Reiniciando..." : "Reiniciar"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </header>
 
       {/* Chat area - More space on mobile */}
