@@ -40,7 +40,7 @@ export const Hero = () => {
     <div className="min-h-screen bg-gradient-hero antialiased starfield-bg">
       {/* Header */}
       <header className="flex justify-between items-center max-w-6xl mx-auto px-8 pt-8">
-        <img src={logo} alt="Máxima iA" className="h-16 md:h-20 lg:h-24 w-auto" width= ˜40˜ height= ˜40˜/>
+        <img src={logo} alt="Máxima iA" width="40" height="40" />
         {isAuthenticated ? (
           <Link to="/dashboard">
             <Button variant="outline" size="sm">
