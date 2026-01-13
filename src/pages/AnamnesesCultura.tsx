@@ -98,6 +98,7 @@ export default function AnamnesesCultura() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Buscar anamnese existente
       const { data, error } = await supabase
         .from("organizational_anamnesis")
         .select("*")
@@ -112,6 +113,27 @@ export default function AnamnesesCultura() {
         // Merge data including extra_fields
         const extraFields = (data.extra_fields as Record<string, any>) || {};
         setFormData({ ...data, ...extraFields });
+      } else {
+        // Se não existe anamnese, buscar dados do MVV para pré-preencher
+        const { data: mvvDoc } = await supabase
+          .from("mvv_documents")
+          .select("id, company_name, segment, company_size, company_context")
+          .eq("user_id", user.id)
+          .not("mission", "is", null) // MVV completado
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (mvvDoc) {
+          setFormData(prev => ({
+            ...prev,
+            company_name: mvvDoc.company_name || "",
+            segment: mvvDoc.segment !== "A definir" ? mvvDoc.segment : "",
+            company_size: mvvDoc.company_size || "",
+            founding_motivation: mvvDoc.company_context || "",
+            mvv_document_id: mvvDoc.id,
+          }));
+        }
       }
     } catch (error) {
       console.error("Error loading draft:", error);
