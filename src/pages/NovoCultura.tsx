@@ -178,35 +178,93 @@ export default function NovoCultura() {
   };
 
   const initializeNewConversation = async (docId: string) => {
-    const initialMessages: Message[] = [
-      {
-        role: "assistant",
-        content: "Olá! 👋 Sou o Robô 8, consultor de Cultura Organizacional da Máxima IA.\n\nVou te guiar na criação do **Código de Cultura Máxima** da sua empresa, expandindo o trabalho que você já fez com o MVV.\n\nVamos estruturar juntos os 7 pilares da cultura organizacional: Identidade, Princípios, Desenvolvimento de Pessoas, Rituais, Relacionamento, Indicadores e Plano de Ação.\n\nPronto para começar? 🚀",
-      },
-    ];
+    // Request initial message from AI using the prompt from database
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-    setMessages(initialMessages);
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/culture-chat`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            message: "Olá, estou pronto para começar.",
+            conversationHistory: [],
+            documentId: docId,
+            mvvData: mvvDocument ? {
+              company_name: mvvDocument.company_name,
+              segment: mvvDocument.segment,
+              vision: mvvDocument.vision,
+              mission: mvvDocument.mission,
+              values: mvvDocument.values,
+            } : null,
+          }),
+        }
+      );
 
-    setTimeout(async () => {
-      const msg2: Message = {
+      if (!response.ok || !response.body) {
+        throw new Error("Failed to get initial message");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let assistantMessage = "";
+
+      const assistantMsg: Message = { role: "assistant", content: "" };
+      setMessages([assistantMsg]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.content || parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                assistantMessage += content;
+                setMessages([{ role: "assistant", content: assistantMessage }]);
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
+
+      // Save to history
+      await supabase.from("culture_conversation_history").insert({
+        culture_document_id: docId,
         role: "assistant",
-        content: "**Etapa 1/7: Identidade e Diferenciação** 🎯\n\nVamos começar pela identidade da sua empresa.\n\n**Quando alguém falar da sua empresa daqui a alguns anos, pelo que você gostaria de ser reconhecido?**",
+        content: assistantMessage,
+      });
+    } catch (error) {
+      console.error("Error getting initial message:", error);
+      // Fallback message if AI fails
+      const fallbackMessage: Message = {
+        role: "assistant",
+        content: "Olá! Sou o Código de Cultura Máxima, consultor especializado em transformar seu MVV em cultura viva. Vamos começar?",
       };
-      
-      setMessages((prev) => [...prev, msg2]);
-
+      setMessages([fallbackMessage]);
       await supabase.from("culture_conversation_history").insert({
         culture_document_id: docId,
         role: "assistant",
-        content: initialMessages[0].content,
+        content: fallbackMessage.content,
       });
-
-      await supabase.from("culture_conversation_history").insert({
-        culture_document_id: docId,
-        role: "assistant",
-        content: msg2.content,
-      });
-    }, 2000);
+    }
   };
 
   const handleTranscription = async (text: string) => {
