@@ -333,7 +333,7 @@ export default function Auth() {
     <div className="min-h-screen bg-gradient-hero p-8 flex items-center justify-center antialiased">
       <div className="w-full max-w-md space-y-8">
         <Link to="/" className="block">
-          <img src={logo} alt="Máxima iA" className="h-20 md:h-24 w-auto mx-auto" />
+          <img src={logo} alt="Máxima iA" width="150" height="75" className="mx-auto" />
         </Link>
 
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-8 backdrop-blur-sm">

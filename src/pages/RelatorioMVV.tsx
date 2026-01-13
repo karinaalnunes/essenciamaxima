@@ -527,7 +527,7 @@ export default function RelatorioMVV() {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Voltar ao Dashboard
             </Button>
-            <img src={logo} alt="Máxima iA" className="h-16 md:h-20 w-auto" />
+            <img src={logo} alt="Máxima iA" width="150" height="75" />
           </div>
 
           {/* Alerta se incompleto */}
@@ -566,7 +566,7 @@ export default function RelatorioMVV() {
           {/* Capa - Tela */}
           <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700 p-10 mb-8 animate-fade-in">
             <div className="flex justify-center mb-6">
-              <img src={logo} alt="Máxima iA" className="h-20" />
+              <img src={logo} alt="Máxima iA" width="150" height="75" />
             </div>
             
             <h2 className="text-4xl font-black text-center text-white mb-8 tracking-tight">

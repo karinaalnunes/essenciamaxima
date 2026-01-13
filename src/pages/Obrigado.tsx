@@ -22,7 +22,7 @@ export default function Obrigado() {
   return (
     <div className="min-h-screen bg-gradient-hero p-8 flex items-center justify-center antialiased">
       <div className="max-w-2xl mx-auto text-center space-y-8">
-        <img src={logo} alt="Máxima iA" className="h-16 md:h-20 w-auto mx-auto" />
+        <img src={logo} alt="Máxima iA" width="150" height="75" className="mx-auto" />
 
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-12 backdrop-blur-sm space-y-6">
           <CheckCircle2 className="w-20 h-20 text-primary mx-auto" />

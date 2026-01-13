@@ -154,7 +154,7 @@ export default function CheckoutCultura() {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Voltar
         </Button>
-        <img src={logo} alt="Máxima iA" className="h-16 md:h-20 w-auto" />
+        <img src={logo} alt="Máxima iA" width="150" height="75" />
       </header>
 
       <main className="max-w-4xl mx-auto">

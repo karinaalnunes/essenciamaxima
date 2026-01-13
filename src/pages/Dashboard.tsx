@@ -262,7 +262,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-hero p-8 antialiased">
       <header className="max-w-6xl mx-auto flex justify-between items-center mb-12">
         <div className="flex items-center gap-4">
-          <img src={logo} alt="Máxima iA" width="200" height="100" />
+          <img src={logo} alt="Máxima iA" width="150" height="75" />
 
           {user && (
             <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-800/70 rounded-full border border-slate-600/50">

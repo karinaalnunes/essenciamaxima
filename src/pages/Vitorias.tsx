@@ -201,7 +201,7 @@ export default function Vitorias() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img src={logo} alt="Logo" className="h-8" />
+              <img src={logo} alt="Máxima iA" width="150" height="75" />
               <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 🏆 Suas Vitórias
               </h1>

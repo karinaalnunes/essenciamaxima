@@ -147,7 +147,7 @@ export default function Capturar() {
     <div className="min-h-screen bg-gradient-hero p-8 antialiased">
       <header className="max-w-2xl mx-auto mb-8">
         <Link to="/">
-          <img src={logo} alt="Máxima iA" className="h-16 md:h-20 w-auto" />
+          <img src={logo} alt="Máxima iA" width="150" height="75" />
         </Link>
       </header>
 
