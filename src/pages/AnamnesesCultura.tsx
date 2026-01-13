@@ -117,7 +117,7 @@ export default function AnamnesesCultura() {
         // Se não existe anamnese, buscar dados do MVV para pré-preencher
         const { data: mvvDoc } = await supabase
           .from("mvv_documents")
-          .select("id, company_name, segment, company_size, company_context")
+          .select("id, company_name, segment, company_size, company_context, vision")
           .eq("user_id", user.id)
           .not("mission", "is", null) // MVV completado
           .order("created_at", { ascending: false })
@@ -131,6 +131,7 @@ export default function AnamnesesCultura() {
             segment: mvvDoc.segment !== "A definir" ? mvvDoc.segment : "",
             company_size: mvvDoc.company_size || "",
             founding_motivation: mvvDoc.company_context || "",
+            vision_3_5_years: mvvDoc.vision || "",
             mvv_document_id: mvvDoc.id,
           }));
         }
