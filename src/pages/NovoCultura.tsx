@@ -113,12 +113,15 @@ export default function NovoCultura() {
 
   // Função de scroll para o INÍCIO da última mensagem do assistente
   const scrollToLastAssistant = () => {
+    // Delay maior para garantir que o DOM foi atualizado com o ref
     setTimeout(() => {
-      lastAssistantRef.current?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' // Mostra o INÍCIO da mensagem
-      });
-    }, 100);
+      if (lastAssistantRef.current) {
+        lastAssistantRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start'
+        });
+      }
+    }, 150);
   };
 
   useEffect(() => {
@@ -713,9 +716,10 @@ export default function NovoCultura() {
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-3 md:p-6">
         <div className="max-w-3xl mx-auto space-y-3 md:space-y-6 pb-48 md:pb-56">
           {messages.map((message, index) => {
-            const isLastAssistant = 
-              message.role === 'assistant' && 
-              index === messages.length - 1;
+            // Encontrar o índice da última mensagem do assistente
+            const lastAssistantIndex = messages.reduce((lastIdx, msg, i) => 
+              msg.role === 'assistant' ? i : lastIdx, -1);
+            const isLastAssistant = message.role === 'assistant' && index === lastAssistantIndex;
             
             return (
               <div
@@ -726,10 +730,10 @@ export default function NovoCultura() {
                 }`}
               >
                 <div
-                  className={`max-w-[90%] md:max-w-[80%] rounded-2xl p-3 md:p-4 break-words [overflow-wrap:anywhere] ${
+                  className={`max-w-[90%] md:max-w-[80%] rounded-2xl p-3 md:p-4 ${
                     message.role === "user"
-                      ? "bg-slate-700/50 text-white"
-                      : "bg-slate-800/50 text-slate-100"
+                      ? "bg-slate-700/50 text-white whitespace-pre-wrap"
+                      : "bg-slate-800/50 text-slate-100 break-words"
                   }`}
                 >
                   <MessageFormatter content={message.content} role={message.role} />
