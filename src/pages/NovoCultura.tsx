@@ -47,6 +47,7 @@ export default function NovoCultura() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastAssistantRef = useRef<HTMLDivElement>(null);
   const isFirstStreamChunk = useRef<boolean>(true);
+  const isStreamingAssistant = useRef<boolean>(false);
 
   useEffect(() => {
     const initializeDocument = async () => {
@@ -126,12 +127,16 @@ export default function NovoCultura() {
 
   useEffect(() => {
     if (userScrolled) return;
-    
+
+    // Enquanto o assistente está "streamando" a resposta, não força scroll pro final
+    // (senão a tela fica "jogando para o final" a cada chunk).
+    if (isStreamingAssistant.current) return;
+
     // Delay para garantir que o DOM foi atualizado
     const timeoutId = setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
-    
+
     return () => clearTimeout(timeoutId);
   }, [messages, userScrolled]);
 
@@ -261,39 +266,51 @@ export default function NovoCultura() {
       let textBuffer = "";
       let assistantMessage = "";
 
+      isStreamingAssistant.current = true;
+      isFirstStreamChunk.current = true;
+
       setMessages([{ role: "assistant", content: "" }]);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        textBuffer += decoder.decode(value, { stream: true });
+          textBuffer += decoder.decode(value, { stream: true });
 
-        let newlineIndex: number;
-        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
-          let line = textBuffer.slice(0, newlineIndex);
-          textBuffer = textBuffer.slice(newlineIndex + 1);
+          let newlineIndex: number;
+          while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+            let line = textBuffer.slice(0, newlineIndex);
+            textBuffer = textBuffer.slice(newlineIndex + 1);
 
-          if (line.endsWith("\r")) line = line.slice(0, -1);
-          if (line.startsWith(":") || line.trim() === "") continue;
-          if (!line.startsWith("data: ")) continue;
+            if (line.endsWith("\r")) line = line.slice(0, -1);
+            if (line.startsWith(":") || line.trim() === "") continue;
+            if (!line.startsWith("data: ")) continue;
 
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === "[DONE]") continue;
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === "[DONE]") continue;
 
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.content || parsed.choices?.[0]?.delta?.content;
-            if (content) {
-              assistantMessage += content;
-              setMessages([{ role: "assistant", content: assistantMessage }]);
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const content = parsed.content || parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                assistantMessage += content;
+                setMessages([{ role: "assistant", content: assistantMessage }]);
+
+                if (isFirstStreamChunk.current && !userScrolled) {
+                  isFirstStreamChunk.current = false;
+                  scrollToLastAssistant();
+                }
+              }
+            } catch {
+              // Incomplete JSON split across chunks: put it back and wait for more data
+              textBuffer = line + "\n" + textBuffer;
+              break;
             }
-          } catch {
-            // Incomplete JSON split across chunks: put it back and wait for more data
-            textBuffer = line + "\n" + textBuffer;
-            break;
           }
         }
+      } finally {
+        isStreamingAssistant.current = false;
       }
 
       if (!assistantMessage.trim()) {
@@ -459,6 +476,8 @@ export default function NovoCultura() {
       let buffer = "";
       let assistantMessage = "";
 
+      isStreamingAssistant.current = true;
+
       const assistantMsg: Message = { role: "assistant", content: "" };
       setMessages((prev) => [...prev, assistantMsg]);
       isFirstStreamChunk.current = true; // Reset para nova mensagem
@@ -521,6 +540,7 @@ export default function NovoCultura() {
         }
       } finally {
         if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
+        isStreamingAssistant.current = false;
       }
 
       if (assistantMessage.includes("[PRONTO_PARA_GERAR]")) {
