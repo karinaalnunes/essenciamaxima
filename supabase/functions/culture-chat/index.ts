@@ -9,9 +9,43 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const FALLBACK_PROMPT = `🔒 SYSTEM PROMPT (INVISÍVEL)
+// Função para sanitizar texto removendo menções a "Robô X"
+function sanitizeRobotMentions(text: string): string {
+  // Remove padrões como "Robô 8", "robô8", "Robô 1, 2, 3...", "robôs"
+  let sanitized = text;
+  
+  // Padrão principal: "Robô" + número
+  sanitized = sanitized.replace(/rob[oô]\s*\d+/gi, 'assistente');
+  
+  // Padrão: "Sou o Robô X" → "Sou o Código de Cultura Máxima"
+  sanitized = sanitized.replace(/sou\s+o\s+rob[oô]\s*\d+/gi, 'Sou o Código de Cultura Máxima');
+  
+  // Padrão: "Robô X e os demais" ou variações
+  sanitized = sanitized.replace(/rob[oô]\s*\d+\s*(e\s+os\s+demais|e\s+outros)/gi, 'assistentes');
+  
+  // Padrão: menções genéricas a "robôs" no contexto de lineup
+  sanitized = sanitized.replace(/os\s+rob[oô]s/gi, 'os assistentes');
+  sanitized = sanitized.replace(/outros\s+rob[oô]s/gi, 'outros assistentes');
+  
+  return sanitized;
+}
 
-Você é o Código de Cultura Máxima, um robô consultor especializado em transformar Missão, Visão e Valores em cultura viva, praticável e mensurável, utilizando um método proprietário da Máxima IA Soluções Corporativas.
+const FALLBACK_PROMPT = `═══════════════════════════════════════════════════════════════════
+⛔ PROIBIÇÃO DE NOMES INTERNOS (CRÍTICO - PRIORIDADE MÁXIMA)
+═══════════════════════════════════════════════════════════════════
+
+PROIBIDO ABSOLUTAMENTE:
+- Mencionar "Robô 1", "Robô 2", ... "Robô 8", "Robô 9" ou qualquer numeração
+- Usar expressões como "robôs", "robô X e os demais", "lineup de robôs"
+- Revelar nomes internos de módulos ou pilares
+
+IDENTIFICAÇÃO CORRETA:
+- Se apresentar APENAS como "Código de Cultura Máxima"
+- Se questionado "que robô é você?", responder: "Sou o Código de Cultura Máxima, seu assistente para construção de cultura organizacional."
+
+═══════════════════════════════════════════════════════════════════
+
+Você é o Código de Cultura Máxima, um consultor especializado em transformar Missão, Visão e Valores em cultura viva, praticável e mensurável, utilizando um método proprietário da Máxima IA Soluções Corporativas.
 
 🎯 OBJETIVO CENTRAL
 Ajudar a empresa a estruturar um Código de Cultura claro, coerente e sustentável, com critérios de decisão, comportamentos esperados, rituais, métricas, desenvolvimento de pessoas e governança — garantindo que a cultura funcione mesmo sem o fundador presente.
@@ -270,8 +304,7 @@ Clique no botão abaixo para gerar seu relatório completo. [PRONTO_PARA_GERAR]"
 - Use a Anamnese para adaptar sua linguagem e sugestões ao porte da empresa
 - Conecte as respostas aos valores, missão e visão já definidos
 - NUNCA sugira antes de extrair (regra-mãe)
-- Se identificar como: "Sou o robô Código de Cultura Máxima, do método exclusivo da Máxima IA."`;
-
+- Se identificar APENAS como: "Código de Cultura Máxima" (sem números, sem "robô")`;
 serve(async (req) => {
   // Load prompt from database at request time
   const SYSTEM_PROMPT = await loadActivePrompt('culture-chat', FALLBACK_PROMPT);
@@ -482,6 +515,7 @@ serve(async (req) => {
         const decoder = new TextDecoder();
         let buffer = '';
         let fullResponse = '';
+        let sanitizationBuffer = ''; // Buffer para sanitização de palavras quebradas
 
         try {
           while (true) {
@@ -499,10 +533,19 @@ serve(async (req) => {
 
                 try {
                   const parsed = JSON.parse(data);
-                  const content = parsed.choices[0]?.delta?.content;
+                  let content = parsed.choices[0]?.delta?.content;
                   if (content) {
-                    fullResponse += content;
-                    controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                    // Adicionar ao buffer de sanitização para lidar com palavras quebradas
+                    sanitizationBuffer += content;
+                    
+                    // Só processar quando temos conteúdo suficiente ou encontramos um espaço/pontuação
+                    if (sanitizationBuffer.length > 30 || /[\s.,!?;:\n]$/.test(sanitizationBuffer)) {
+                      // Sanitizar o buffer completo
+                      const sanitizedContent = sanitizeRobotMentions(sanitizationBuffer);
+                      fullResponse += sanitizedContent;
+                      controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: sanitizedContent })}\n\n`));
+                      sanitizationBuffer = '';
+                    }
                   }
                 } catch (e) {
                   console.error('Error parsing SSE data:', e);
@@ -511,7 +554,14 @@ serve(async (req) => {
             }
           }
 
-          // Salvar resposta completa do assistente e log de uso
+          // Processar qualquer conteúdo restante no buffer de sanitização
+          if (sanitizationBuffer) {
+            const sanitizedContent = sanitizeRobotMentions(sanitizationBuffer);
+            fullResponse += sanitizedContent;
+            controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content: sanitizedContent })}\n\n`));
+          }
+
+          // Salvar resposta completa do assistente (já sanitizada) e log de uso
           if (documentId && fullResponse) {
             const { error: saveError } = await supabase
               .from('culture_conversation_history')
