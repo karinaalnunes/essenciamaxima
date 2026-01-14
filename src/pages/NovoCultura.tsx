@@ -45,6 +45,8 @@ export default function NovoCultura() {
   const [conversationMetricId, setConversationMetricId] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastAssistantRef = useRef<HTMLDivElement>(null);
+  const isFirstStreamChunk = useRef<boolean>(true);
 
   useEffect(() => {
     const initializeDocument = async () => {
@@ -102,11 +104,21 @@ export default function NovoCultura() {
     initializeDocument();
   }, [navigate, toast]);
 
-  // Função de scroll reutilizável
+  // Função de scroll para o final (após mensagem do usuário)
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior });
     }, 50);
+  };
+
+  // Função de scroll para o INÍCIO da última mensagem do assistente
+  const scrollToLastAssistant = () => {
+    setTimeout(() => {
+      lastAssistantRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' // Mostra o INÍCIO da mensagem
+      });
+    }, 100);
   };
 
   useEffect(() => {
@@ -446,6 +458,7 @@ export default function NovoCultura() {
 
       const assistantMsg: Message = { role: "assistant", content: "" };
       setMessages((prev) => [...prev, assistantMsg]);
+      isFirstStreamChunk.current = true; // Reset para nova mensagem
 
       // Stream inactivity timeout (30 seconds) - safe (no throw outside the main try/catch)
       let streamTimedOut = false;
@@ -491,9 +504,10 @@ export default function NovoCultura() {
                     return updated;
                   });
                   
-                  // Scroll durante streaming se usuário não rolou manualmente
-                  if (!userScrolled) {
-                    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                  // Na primeira parte da resposta, scroll para o INÍCIO da mensagem
+                  if (isFirstStreamChunk.current && !userScrolled) {
+                    isFirstStreamChunk.current = false;
+                    scrollToLastAssistant();
                   }
                 }
               } catch (e) {
@@ -698,24 +712,31 @@ export default function NovoCultura() {
       {/* Chat area - More space on mobile */}
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-3 md:p-6">
         <div className="max-w-3xl mx-auto space-y-3 md:space-y-6 pb-32">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                message.role === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
+          {messages.map((message, index) => {
+            const isLastAssistant = 
+              message.role === 'assistant' && 
+              index === messages.length - 1;
+            
+            return (
               <div
-                className={`max-w-[90%] md:max-w-[80%] rounded-2xl p-3 md:p-4 break-words [overflow-wrap:anywhere] ${
-                  message.role === "user"
-                    ? "bg-slate-700/50 text-white"
-                    : "bg-slate-800/50 text-slate-100"
+                key={index}
+                ref={isLastAssistant ? lastAssistantRef : null}
+                className={`flex ${
+                  message.role === "user" ? "justify-end" : "justify-start"
                 }`}
               >
-                <MessageFormatter content={message.content} role={message.role} />
+                <div
+                  className={`max-w-[90%] md:max-w-[80%] rounded-2xl p-3 md:p-4 break-words [overflow-wrap:anywhere] ${
+                    message.role === "user"
+                      ? "bg-slate-700/50 text-white"
+                      : "bg-slate-800/50 text-slate-100"
+                  }`}
+                >
+                  <MessageFormatter content={message.content} role={message.role} />
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {isSending && (
             <div className="flex justify-start">
