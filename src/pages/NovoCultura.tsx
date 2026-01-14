@@ -102,14 +102,22 @@ export default function NovoCultura() {
     initializeDocument();
   }, [navigate, toast]);
 
-  useEffect(() => {
-    const scrollArea = scrollAreaRef.current;
-    if (!scrollArea || userScrolled) return;
+  // Função de scroll reutilizável
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 50);
+  };
 
-    const viewport = scrollArea.querySelector('[data-radix-scroll-area-viewport]');
-    if (viewport) {
-      viewport.scrollTop = viewport.scrollHeight;
-    }
+  useEffect(() => {
+    if (userScrolled) return;
+    
+    // Delay para garantir que o DOM foi atualizado
+    const timeoutId = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+    
+    return () => clearTimeout(timeoutId);
   }, [messages, userScrolled]);
 
   useEffect(() => {
@@ -371,6 +379,9 @@ export default function NovoCultura() {
     setMessages((prev) => [...prev, userMessage]);
     setIsSending(true);
     setUserScrolled(false);
+    
+    // Scroll imediato após enviar mensagem
+    scrollToBottom();
 
     // Timeout controller
     const controller = new AbortController();
@@ -479,6 +490,11 @@ export default function NovoCultura() {
                     };
                     return updated;
                   });
+                  
+                  // Scroll durante streaming se usuário não rolou manualmente
+                  if (!userScrolled) {
+                    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                  }
                 }
               } catch (e) {
                 // Skip invalid JSON
