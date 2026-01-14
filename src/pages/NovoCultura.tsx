@@ -711,7 +711,7 @@ export default function NovoCultura() {
 
       {/* Chat area - More space on mobile */}
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-3 md:p-6">
-        <div className="max-w-3xl mx-auto space-y-3 md:space-y-6 pb-32">
+        <div className="max-w-3xl mx-auto space-y-3 md:space-y-6 pb-48 md:pb-56">
           {messages.map((message, index) => {
             const isLastAssistant = 
               message.role === 'assistant' && 
@@ -773,7 +773,7 @@ export default function NovoCultura() {
 
       {/* Input area - Compact on mobile */}
       {!readyToGenerate && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900 to-transparent p-3 md:p-6">
+        <div className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-sm border-t border-slate-800 p-3 md:p-4">
           <div className="max-w-3xl mx-auto">
             <VoiceInput
               onTranscription={handleTranscription}
