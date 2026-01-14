@@ -117,7 +117,7 @@ export const MessageFormatter = memo(({ content, role }: MessageFormatterProps) 
         : 'bg-muted text-foreground'
       }
     `}>
-      <div className="text-sm leading-relaxed space-y-1 break-words [overflow-wrap:anywhere]">
+      <div className="text-sm leading-relaxed space-y-1 whitespace-pre-wrap break-words">
         {formatText(content)}
       </div>
     </div>
