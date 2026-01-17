@@ -118,11 +118,12 @@ export const MessageFormatter = memo(({ content, role }: MessageFormatterProps) 
       }
     `}>
       <div
-        className={
-          `text-sm leading-relaxed space-y-1 whitespace-pre-wrap ${
-            role === 'assistant' ? 'break-words' : 'break-normal'
-          }`
-        }
+        className="text-sm leading-relaxed space-y-1"
+        style={{
+          whiteSpace: 'pre-wrap',
+          wordBreak: role === 'assistant' ? 'break-word' : 'normal',
+          overflowWrap: role === 'assistant' ? 'anywhere' : 'normal'
+        }}
       >
         {formatText(content)}
       </div>
