@@ -752,8 +752,8 @@ export default function NovoCultura() {
                 <div
                   className={`max-w-[90%] md:max-w-[80%] rounded-2xl p-3 md:p-4 ${
                     message.role === "user"
-                      ? "bg-slate-700/50 text-white whitespace-pre-wrap"
-                      : "bg-slate-800/50 text-slate-100 break-words"
+                      ? "bg-slate-700/50 text-white"
+                      : "bg-slate-800/50 text-slate-100"
                   }`}
                 >
                   <MessageFormatter content={message.content} role={message.role} />
