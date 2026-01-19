@@ -678,8 +678,12 @@ export default function RelatorioCultura() {
 
           <div className="print-break" />
 
-          {/* Símbolos e Linguagem Interna */}
+{/* Símbolos e Linguagem Interna */}
           {doc.symbols_language && (
+            doc.symbols_language.expressions?.length > 0 ||
+            doc.symbols_language.founding_stories?.length > 0 ||
+            doc.symbols_language.cultural_objects?.length > 0
+          ) && (
             <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
               <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 🗣️ Símbolos e Linguagem Interna
@@ -730,8 +734,13 @@ export default function RelatorioCultura() {
 
           <div className="print-break" />
 
-          {/* Medição e Governança */}
+{/* Medição e Governança */}
           {doc.governance && (
+            doc.governance.guardian ||
+            (doc.governance.committee && doc.governance.committee.length > 0) ||
+            doc.governance.annual_review ||
+            doc.governance.consequences
+          ) && (
             <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
               <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 🏛️ Medição e Governança da Cultura
@@ -883,8 +892,13 @@ export default function RelatorioCultura() {
 
           <div className="print-break" />
 
-          {/* Kit de Ativação */}
+{/* Kit de Ativação */}
           {doc.activation_kit && (
+            doc.activation_kit.presentation_script ||
+            doc.activation_kit.one_on_one_script ||
+            (doc.activation_kit.pocket_cards && doc.activation_kit.pocket_cards.length > 0) ||
+            (doc.activation_kit.faqs && doc.activation_kit.faqs.length > 0)
+          ) && (
             <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
               <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 🎁 Kit de Ativação Cultural
