@@ -245,6 +245,10 @@ export default function RelatorioCultura() {
             margin: 0;
           }
           
+          @page:first {
+            margin: 0;
+          }
+          
           * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
@@ -253,6 +257,7 @@ export default function RelatorioCultura() {
           html, body {
             width: 210mm;
             background: white !important;
+            counter-reset: page-counter;
           }
           
           .no-print {
@@ -311,6 +316,45 @@ export default function RelatorioCultura() {
             font-weight: 600;
           }
           
+          /* === ÍNDICE === */
+          .print-index {
+            page-break-before: always;
+            page-break-after: always;
+            padding: 25mm;
+            min-height: 297mm;
+            box-sizing: border-box;
+            background: white !important;
+          }
+          
+          .print-index h2 {
+            font-size: 24pt;
+            font-weight: 700;
+            color: #1e3a8a !important;
+            margin-bottom: 16pt;
+            padding-bottom: 8pt;
+            border-bottom: 3px solid #3b82f6;
+          }
+          
+          .print-index-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+          }
+          
+          .print-index-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 8pt 0;
+            border-bottom: 1px dotted #d1d5db;
+            font-size: 12pt;
+            color: #374151 !important;
+          }
+          
+          .print-index-item .section-icon {
+            margin-right: 8pt;
+          }
+          
           /* === SEÇÕES DE CONTEÚDO === */
           .print-section {
             page-break-before: always;
@@ -318,6 +362,19 @@ export default function RelatorioCultura() {
             min-height: 297mm;
             box-sizing: border-box;
             background: white !important;
+            position: relative;
+          }
+          
+          /* Numeração de páginas */
+          .print-section::after,
+          .print-index::after {
+            counter-increment: page-counter;
+            content: counter(page-counter);
+            position: absolute;
+            bottom: 10mm;
+            right: 25mm;
+            font-size: 10pt;
+            color: #9ca3af !important;
           }
           
           .print-section-header {
@@ -492,7 +549,8 @@ export default function RelatorioCultura() {
         @media screen {
           .print-cover,
           .print-section,
-          .print-footer {
+          .print-footer,
+          .print-index {
             display: none;
           }
         }
@@ -515,7 +573,57 @@ export default function RelatorioCultura() {
             month: 'long', 
             year: 'numeric' 
           })}
-        </div>
+      </div>
+
+      {/* Índice */}
+      <div className="print-index">
+        <h2>📑 Índice</h2>
+        <ul className="print-index-list">
+          <li className="print-index-item"><span><span className="section-icon">📋</span> Fundação: MVV</span></li>
+          {doc.cultural_positioning && (
+            <li className="print-index-item"><span><span className="section-icon">🎯</span> Posicionamento Cultural</span></li>
+          )}
+          {doc.value_behaviors && doc.value_behaviors.length > 0 && (
+            <li className="print-index-item"><span><span className="section-icon">💎</span> Valores em Ação</span></li>
+          )}
+          {(doc.reputation_goal || doc.competitive_advantage || (doc.swot_strengths && doc.swot_strengths.length > 0) || (doc.swot_improvements && doc.swot_improvements.length > 0)) && (
+            <li className="print-index-item"><span><span className="section-icon">🎯</span> Identidade e Diferenciação</span></li>
+          )}
+          {doc.guiding_principles && doc.guiding_principles.length > 0 && (
+            <li className="print-index-item"><span><span className="section-icon">⚖️</span> Princípios Norteadores</span></li>
+          )}
+          {(doc.growth_practices || doc.wellbeing_support || doc.psychological_safety_practices) && (
+            <li className="print-index-item"><span><span className="section-icon">🌱</span> Desenvolvimento Integral de Pessoas</span></li>
+          )}
+          {doc.cultural_rituals && doc.cultural_rituals.length > 0 && (
+            <li className="print-index-item"><span><span className="section-icon">🎭</span> Rituais e Práticas Culturais</span></li>
+          )}
+          {doc.stakeholder_guidelines && Object.keys(doc.stakeholder_guidelines).length > 0 && (
+            <li className="print-index-item"><span><span className="section-icon">🤝</span> Diretrizes de Relacionamento</span></li>
+          )}
+          {doc.governance && (doc.governance.guardian || doc.governance.committee?.length || doc.governance.annual_review) && (
+            <li className="print-index-item"><span><span className="section-icon">🏛️</span> Medição e Governança da Cultura</span></li>
+          )}
+          {doc.stress_dilemmas && doc.stress_dilemmas.length > 0 && (
+            <li className="print-index-item"><span><span className="section-icon">⚡</span> Dilemas de Estresse</span></li>
+          )}
+          {doc.kill_criteria && doc.kill_criteria.length > 0 && (
+            <li className="print-index-item"><span><span className="section-icon">🚫</span> Decisões Limite (Kill Criteria)</span></li>
+          )}
+          {doc.rituals_calendar && doc.rituals_calendar.length > 0 && (
+            <li className="print-index-item"><span><span className="section-icon">📅</span> Calendário de Rituais</span></li>
+          )}
+          {doc.culture_indicators && doc.culture_indicators.length > 0 && (
+            <li className="print-index-item"><span><span className="section-icon">📊</span> Indicadores de Cultura</span></li>
+          )}
+          {(doc.action_plan_30?.length || doc.action_plan_60?.length || doc.action_plan_90?.length || doc.action_plan_120?.length) && (
+            <li className="print-index-item"><span><span className="section-icon">📅</span> Plano de Ação SMART (5W2H)</span></li>
+          )}
+          {(doc.report_version_inspirational || doc.cultural_essence || (doc.cultural_strengths && doc.cultural_strengths.length > 0)) && (
+            <li className="print-index-item"><span><span className="section-icon">💡</span> Resumo Consultivo Final</span></li>
+          )}
+        </ul>
+      </div>
       </div>
 
       {/* MVV - Fundação */}
@@ -618,40 +726,42 @@ export default function RelatorioCultura() {
       )}
 
       {/* Identidade e Diferenciação */}
-      <div className="print-section">
-        <div className="print-section-header">
-          <span className="icon">🎯</span>
-          <h2>Identidade e Diferenciação</h2>
+      {(doc.reputation_goal || doc.competitive_advantage || (doc.swot_strengths && doc.swot_strengths.length > 0) || (doc.swot_improvements && doc.swot_improvements.length > 0)) && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">🎯</span>
+            <h2>Identidade e Diferenciação</h2>
+          </div>
+          {doc.reputation_goal && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>Reputação Desejada</h3>
+              <p>{doc.reputation_goal}</p>
+            </div>
+          )}
+          {doc.competitive_advantage && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>Vantagem Competitiva</h3>
+              <p>{doc.competitive_advantage}</p>
+            </div>
+          )}
+          {doc.swot_strengths && doc.swot_strengths.length > 0 && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>💪 Pontos Fortes</h3>
+              <ul style={{ paddingLeft: '16pt' }}>
+                {doc.swot_strengths.map((s, i) => <li key={i}>{s}</li>)}
+              </ul>
+            </div>
+          )}
+          {doc.swot_improvements && doc.swot_improvements.length > 0 && (
+            <div>
+              <h3>🔧 Melhorias Necessárias</h3>
+              <ul style={{ paddingLeft: '16pt' }}>
+                {doc.swot_improvements.map((s, i) => <li key={i}>{s}</li>)}
+              </ul>
+            </div>
+          )}
         </div>
-        {doc.reputation_goal && (
-          <div style={{ marginBottom: '16pt' }}>
-            <h3>Reputação Desejada</h3>
-            <p>{doc.reputation_goal}</p>
-          </div>
-        )}
-        {doc.competitive_advantage && (
-          <div style={{ marginBottom: '16pt' }}>
-            <h3>Vantagem Competitiva</h3>
-            <p>{doc.competitive_advantage}</p>
-          </div>
-        )}
-        {doc.swot_strengths && doc.swot_strengths.length > 0 && (
-          <div style={{ marginBottom: '16pt' }}>
-            <h3>💪 Pontos Fortes</h3>
-            <ul style={{ paddingLeft: '16pt' }}>
-              {doc.swot_strengths.map((s, i) => <li key={i}>{s}</li>)}
-            </ul>
-          </div>
-        )}
-        {doc.swot_improvements && doc.swot_improvements.length > 0 && (
-          <div>
-            <h3>🔧 Melhorias Necessárias</h3>
-            <ul style={{ paddingLeft: '16pt' }}>
-              {doc.swot_improvements.map((s, i) => <li key={i}>{s}</li>)}
-            </ul>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Princípios Norteadores */}
       {doc.guiding_principles && doc.guiding_principles.length > 0 && (
@@ -892,42 +1002,44 @@ export default function RelatorioCultura() {
       )}
 
       {/* Resumo Consultivo Final */}
-      <div className="print-section">
-        <div className="print-section-header">
-          <span className="icon">💡</span>
-          <h2>Resumo Consultivo Final</h2>
+      {(doc.report_version_inspirational || doc.cultural_essence || (doc.cultural_strengths && doc.cultural_strengths.length > 0) || doc.strategic_focus || doc.closing_message) && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">💡</span>
+            <h2>Resumo Consultivo Final</h2>
+          </div>
+          {doc.report_version_inspirational && (
+            <div style={{ marginBottom: '16pt' }}>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{doc.report_version_inspirational}</p>
+            </div>
+          )}
+          {doc.cultural_essence && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>Essência Cultural</h3>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{doc.cultural_essence}</p>
+            </div>
+          )}
+          {doc.cultural_strengths && doc.cultural_strengths.length > 0 && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>Pontos Fortes da Cultura</h3>
+              <ul style={{ paddingLeft: '16pt' }}>
+                {doc.cultural_strengths.map((s, i) => <li key={i}>{s}</li>)}
+              </ul>
+            </div>
+          )}
+          {doc.strategic_focus && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>Foco Estratégico</h3>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{doc.strategic_focus}</p>
+            </div>
+          )}
+          {doc.closing_message && (
+            <div style={{ padding: '16pt', background: '#f0f9ff', borderRadius: '6pt', fontStyle: 'italic' }}>
+              <p>{doc.closing_message}</p>
+            </div>
+          )}
         </div>
-        {doc.report_version_inspirational && (
-          <div style={{ marginBottom: '16pt' }}>
-            <p style={{ whiteSpace: 'pre-wrap' }}>{doc.report_version_inspirational}</p>
-          </div>
-        )}
-        {doc.cultural_essence && (
-          <div style={{ marginBottom: '16pt' }}>
-            <h3>Essência Cultural</h3>
-            <p style={{ whiteSpace: 'pre-wrap' }}>{doc.cultural_essence}</p>
-          </div>
-        )}
-        {doc.cultural_strengths && doc.cultural_strengths.length > 0 && (
-          <div style={{ marginBottom: '16pt' }}>
-            <h3>Pontos Fortes da Cultura</h3>
-            <ul style={{ paddingLeft: '16pt' }}>
-              {doc.cultural_strengths.map((s, i) => <li key={i}>{s}</li>)}
-            </ul>
-          </div>
-        )}
-        {doc.strategic_focus && (
-          <div style={{ marginBottom: '16pt' }}>
-            <h3>Foco Estratégico</h3>
-            <p style={{ whiteSpace: 'pre-wrap' }}>{doc.strategic_focus}</p>
-          </div>
-        )}
-        {doc.closing_message && (
-          <div style={{ padding: '16pt', background: '#f0f9ff', borderRadius: '6pt', fontStyle: 'italic' }}>
-            <p>{doc.closing_message}</p>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Footer de impressão */}
       <div className="print-footer">
