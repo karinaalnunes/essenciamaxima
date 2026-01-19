@@ -259,6 +259,11 @@ export default function RelatorioCultura() {
             background: white !important;
             counter-reset: page-counter;
           }
+
+          /* Evita páginas vazias com fundo escuro (container da tela) */
+          body > div {
+            background: white !important;
+          }
           
           .no-print {
             display: none !important;
@@ -318,13 +323,15 @@ export default function RelatorioCultura() {
           
           /* === ÍNDICE === */
           .print-index {
-            page-break-before: always;
-            page-break-after: always;
-            padding: 25mm;
+            /* A capa já força quebra de página; evitamos dupla quebra */
+            page-break-before: auto;
+            padding: 20mm 25mm;
             min-height: 297mm;
             box-sizing: border-box;
             background: white !important;
+            position: relative;
           }
+
           
           .print-index h2 {
             font-size: 24pt;
@@ -568,11 +575,12 @@ export default function RelatorioCultura() {
           {doc.mvv_documents.segment}
           {doc.mvv_documents.company_size && ` • ${doc.mvv_documents.company_size}`}
           <br /><br />
-          {new Date(doc.created_at).toLocaleDateString('pt-BR', { 
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric' 
+          {new Date(doc.created_at).toLocaleDateString('pt-BR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
           })}
+        </div>
       </div>
 
       {/* Índice */}
@@ -624,9 +632,6 @@ export default function RelatorioCultura() {
           )}
         </ul>
       </div>
-      </div>
-
-      {/* MVV - Fundação */}
       <div className="print-section">
         <div className="print-section-header">
           <span className="icon">📋</span>
