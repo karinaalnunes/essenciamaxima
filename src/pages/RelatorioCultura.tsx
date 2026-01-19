@@ -429,7 +429,7 @@ export default function RelatorioCultura() {
       
       {/* ========== VERSÃO PARA IMPRESSÃO - CAPA ========== */}
       <div className="print-cover">
-        <img src={logoLight} alt="Máxima iA" />
+        <img src={logo} alt="Máxima iA" />
         <div className="cover-title">Código de Cultura</div>
         <div className="cover-divider"></div>
         <h1>{doc.mvv_documents.company_name}</h1>
