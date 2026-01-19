@@ -159,34 +159,39 @@ export default function RelatorioCultura() {
         return;
       }
 
-      const { data, error } = await supabase
+      // First, fetch the culture document
+      const { data: cultureData, error: cultureError } = await supabase
         .from("culture_documents")
-        .select(`
-          *,
-          mvv_documents!inner (
-            company_name,
-            segment,
-            company_size,
-            company_context,
-            vision,
-            vision_indicators,
-            mission,
-            mission_pocket,
-            mission_punchline,
-            values
-          )
-        `)
+        .select("*")
         .eq("id", id)
         .eq("user_id", session.user.id)
-        .single();
+        .maybeSingle();
 
-      if (error || !data) {
-        console.error("Erro ao carregar documento:", error);
-        navigate("/dashboard");
+      if (cultureError || !cultureData) {
+        console.error("Erro ao carregar documento de cultura:", cultureError);
+        setDoc(null);
+        setLoading(false);
         return;
       }
 
-      setDoc(data as unknown as CultureDocument);
+      // Then, fetch the MVV document separately
+      const { data: mvvData, error: mvvError } = await supabase
+        .from("mvv_documents")
+        .select("company_name, segment, company_size, company_context, vision, vision_indicators, mission, mission_pocket, mission_punchline, values")
+        .eq("id", cultureData.mvv_document_id)
+        .maybeSingle();
+
+      if (mvvError) {
+        console.error("Erro ao carregar MVV:", mvvError);
+      }
+
+      // Combine both results
+      const combinedDoc = {
+        ...cultureData,
+        mvv_documents: mvvData || null
+      };
+
+      setDoc(combinedDoc as unknown as CultureDocument);
       setLoading(false);
     };
 

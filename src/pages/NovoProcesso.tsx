@@ -437,7 +437,8 @@ export default function NovoProcesso() {
 
           {showFeedback && !readyToGenerate && documentId && (
             <FeedbackForm 
-              documentId={documentId} 
+              documentId={documentId}
+              feedbackTable="process_feedback"
               onSubmit={() => setShowFeedback(false)} 
             />
           )}

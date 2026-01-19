@@ -765,6 +765,7 @@ Pode compartilhar essas informações?`,
           <div className="px-3 md:px-4 pb-2 md:pb-4 bg-slate-900/30 border-x border-slate-800">
             <FeedbackForm
               documentId={documentId!}
+              feedbackTable="mvv_feedback"
               onSubmit={() => {
                 setFeedbackSubmitted(true);
                 setShowFeedback(false);

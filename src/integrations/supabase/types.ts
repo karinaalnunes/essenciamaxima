@@ -480,7 +480,50 @@ export type Database = {
           value_behaviors?: Json | null
           wellbeing_support?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "culture_documents_mvv_document_id_fkey"
+            columns: ["mvv_document_id"]
+            isOneToOne: false
+            referencedRelation: "mvv_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      culture_feedback: {
+        Row: {
+          comments: string | null
+          created_at: string | null
+          document_id: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string | null
+          document_id: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string | null
+          document_id?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "culture_feedback_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "culture_documents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_logs: {
         Row: {
@@ -1142,6 +1185,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      process_feedback: {
+        Row: {
+          comments: string | null
+          created_at: string | null
+          document_id: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string | null
+          document_id: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string | null
+          document_id?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "process_feedback_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "process_documents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       professional_connections: {
         Row: {

@@ -6,12 +6,15 @@ import { Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+type FeedbackTable = "mvv_feedback" | "culture_feedback" | "process_feedback";
+
 interface FeedbackFormProps {
   documentId: string;
+  feedbackTable: FeedbackTable;
   onSubmit: () => void;
 }
 
-export function FeedbackForm({ documentId, onSubmit }: FeedbackFormProps) {
+export function FeedbackForm({ documentId, feedbackTable, onSubmit }: FeedbackFormProps) {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comments, setComments] = useState("");
@@ -31,7 +34,7 @@ export function FeedbackForm({ documentId, onSubmit }: FeedbackFormProps) {
     
     const { data: { user } } = await supabase.auth.getUser();
     
-    const { error } = await supabase.from("mvv_feedback").insert({
+    const { error } = await supabase.from(feedbackTable).insert({
       document_id: documentId,
       user_id: user?.id,
       rating,

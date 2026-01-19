@@ -772,7 +772,7 @@ export default function NovoCultura() {
 
           {showFeedback && readyToGenerate && documentId && (
             <div className="mt-4 md:mt-8 p-4 md:p-6 bg-slate-800/70 rounded-xl border border-green-500/30">
-              <FeedbackForm documentId={documentId} onSubmit={() => {}} />
+              <FeedbackForm documentId={documentId} feedbackTable="culture_feedback" onSubmit={() => {}} />
               <Button
                 onClick={handleGenerateCulture}
                 className="w-full mt-3 md:mt-4"
