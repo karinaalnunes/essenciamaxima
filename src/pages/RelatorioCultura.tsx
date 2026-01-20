@@ -3,8 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Download, AlertCircle } from "lucide-react";
+import { ArrowLeft, Download, AlertCircle, Loader2 } from "lucide-react";
 import { useConfetti } from "@/hooks/useConfetti";
+import { usePagedPrint } from "@/hooks/usePagedPrint";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 import logoLight from "@/assets/logo-maxima-ia-light.png";
 
@@ -147,9 +148,11 @@ export default function RelatorioCultura() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { fireConfetti } = useConfetti();
+  const { handlePrint } = usePagedPrint();
   const [doc, setDoc] = useState<CultureDocument | null>(null);
   const [loading, setLoading] = useState(true);
   const [showTechnical, setShowTechnical] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   useEffect(() => {
     const checkAuthAndLoad = async () => {
@@ -231,345 +234,34 @@ export default function RelatorioCultura() {
     );
   }
 
-  const handlePrint = () => {
-    window.print();
+  const handleExportPDF = async () => {
+    setIsPrinting(true);
+    try {
+      await handlePrint('print-content');
+    } finally {
+      setIsPrinting(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Print Styles - Corrigido para numeração de páginas físicas */}
+      {/* CSS minimalista - Paged.js cuida da paginação */}
       <style>{`
-        @media print {
-          /* Reset completo para impressão */
-          *, *::before, *::after {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            color-adjust: exact !important;
-            box-sizing: border-box;
-          }
-          
-          /* Configuração da página A4 */
-          @page {
-            size: 210mm 297mm;
-            margin: 15mm 15mm 20mm 15mm;
-          }
-          
-          /* Primeira página (capa) sem margens */
-          @page :first {
-            margin: 0;
-          }
-          
-          /* Reset do body e html */
-          html {
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-          
-          body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-          
-          /* Container principal */
-          body > div:first-child {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-          
-          /* Esconder elementos de tela */
-          .no-print {
-            display: none !important;
-          }
-          
-          /* ========== CAPA ========== */
-          .print-cover {
-            position: relative;
-            width: 210mm;
-            height: 297mm;
-            margin: 0;
-            padding: 0;
-            display: flex !important;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
-            page-break-after: always;
-            break-after: page;
-            overflow: hidden;
-          }
-          
-          .print-cover img {
-            width: 80mm !important;
-            height: auto !important;
-            margin-bottom: 20mm;
-          }
-          
-          .print-cover h1 {
-            font-size: 32pt !important;
-            color: white !important;
-            text-align: center;
-            margin-bottom: 8mm;
-            font-weight: 800;
-          }
-          
-          .print-cover .cover-meta {
-            color: rgba(255,255,255,0.8) !important;
-            font-size: 14pt;
-            text-align: center;
-          }
-          
-          .print-cover .cover-divider {
-            width: 60mm;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-            margin: 15mm 0;
-          }
-          
-          .print-cover .cover-title {
-            font-size: 18pt;
-            color: #60a5fa !important;
-            text-transform: uppercase;
-            letter-spacing: 4pt;
-            font-weight: 600;
-          }
-          
-          /* ========== ÍNDICE ========== */
-          .print-index {
-            padding: 0 5mm;
-            page-break-after: always;
-            break-after: page;
-            page-break-inside: avoid;
-            break-inside: avoid;
-            background: white !important;
-          }
-          
-          .print-index h2 {
-            font-size: 20pt;
-            font-weight: 700;
-            color: #1e3a8a !important;
-            margin-bottom: 10pt;
-            padding-bottom: 6pt;
-            border-bottom: 3px solid #3b82f6;
-          }
-          
-          .print-index-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-          }
-          
-          .print-index-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding: 4pt 0;
-            border-bottom: 1px dotted #d1d5db;
-            font-size: 10pt;
-            color: #374151 !important;
-          }
-          
-          .print-index-item .section-icon {
-            margin-right: 6pt;
-          }
-          
-          /* ========== SEÇÕES DE CONTEÚDO ========== */
-          .print-section {
-            padding: 0 5mm;
-            page-break-before: always;
-            break-before: page;
-            background: white !important;
-          }
-          
-          .print-section-header {
-            display: flex;
-            align-items: center;
-            gap: 10pt;
-            margin-bottom: 14pt;
-            padding-bottom: 10pt;
-            border-bottom: 3px solid #3b82f6;
-          }
-          
-          .print-section-header .icon {
-            font-size: 24pt;
-          }
-          
-          .print-section-header h2 {
-            font-size: 20pt;
-            font-weight: 700;
-            color: #1e3a8a !important;
-            margin: 0;
-          }
-          
-          .print-section h2 {
-            font-size: 16pt;
-            font-weight: 700;
-            color: #1e3a8a !important;
-            border-bottom: 3px solid #3b82f6;
-            padding-bottom: 6pt;
-            margin-bottom: 10pt;
-          }
-          
-          .print-section h3 {
-            font-size: 12pt;
-            font-weight: 600;
-            color: #1e40af !important;
-            margin-top: 10pt;
-            margin-bottom: 5pt;
-          }
-          
-          .print-section h4 {
-            font-size: 10pt;
-            font-weight: 600;
-            color: #374151 !important;
-            margin-top: 6pt;
-            margin-bottom: 3pt;
-          }
-          
-          .print-section p,
-          .print-section li,
-          .print-section td {
-            font-size: 9pt;
-            line-height: 1.5;
-            color: #374151 !important;
-          }
-          
-          .print-section table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 6pt 0;
-          }
-          
-          .print-section th,
-          .print-section td {
-            border: 1px solid #d1d5db;
-            padding: 5pt;
-            font-size: 8pt;
-          }
-          
-          .print-section th {
-            background: #f3f4f6 !important;
-            font-weight: 600;
-            color: #1e3a8a !important;
-          }
-          
-          /* ========== VALORES ========== */
-          .print-value {
-            page-break-inside: avoid;
-            break-inside: avoid;
-            margin-bottom: 10pt;
-            padding: 10pt;
-            background: #fafafa !important;
-            border: 1px solid #e5e7eb;
-            border-radius: 4pt;
-          }
-          
-          .print-value h3 {
-            font-size: 11pt;
-            color: #1e3a8a !important;
-            margin-top: 0 !important;
-            margin-bottom: 5pt;
-          }
-          
-          .print-value-description {
-            font-size: 9pt;
-            color: #4b5563 !important;
-            margin-bottom: 10pt;
-          }
-          
-          .print-value-mantra {
-            font-size: 10pt;
-            font-style: italic;
-            color: #3b82f6 !important;
-            padding: 8pt;
-            background: white !important;
-            border-left: 3px solid #3b82f6;
-            margin: 0;
-          }
-          
-          .print-vision-text {
-            font-size: 12pt;
-            line-height: 1.7;
-            color: #1f2937 !important;
-            font-style: italic;
-            padding: 14pt;
-            background: #f0f9ff !important;
-            border-left: 4px solid #3b82f6;
-            margin-bottom: 16pt;
-          }
-          
-          /* ========== FOOTER ========== */
-          .print-footer {
-            position: relative;
-            width: 210mm;
-            height: 297mm;
-            margin: 0;
-            padding: 0;
-            page-break-before: always;
-            break-before: page;
-            display: flex !important;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
-            text-align: center;
-          }
-          
-          .print-footer h2 {
-            font-size: 26pt;
-            color: white !important;
-            margin-bottom: 14pt;
-          }
-          
-          .print-footer p {
-            font-size: 12pt;
-            color: rgba(255,255,255,0.8) !important;
-            line-height: 1.7;
-            max-width: 140mm;
-          }
-          
-          .print-footer .footer-brand {
-            margin-top: 25mm;
-            padding-top: 15mm;
-            border-top: 1px solid rgba(255,255,255,0.2);
-          }
-          
-          .print-footer .footer-brand p {
-            font-size: 11pt;
-            color: rgba(255,255,255,0.6) !important;
-          }
-          
-          /* ========== PLANO DE AÇÃO ========== */
-          .print-action-plan {
-            page-break-inside: avoid;
-            break-inside: avoid;
-            margin-bottom: 12pt;
-          }
-          
-          /* Evitar quebras ruins */
-          .avoid-break {
-            page-break-inside: avoid;
-            break-inside: avoid;
-          }
-        }
-        
-        /* Estilos de tela - esconder elementos de impressão */
         @media screen {
           .print-cover,
           .print-section,
           .print-footer,
           .print-index {
-            display: none;
+            display: none !important;
           }
         }
       `}</style>
       
-      {/* ========== VERSÃO PARA IMPRESSÃO ========== */}
-      
-      {/* Capa */}
-      <div className="print-cover">
-        <img src={logo} alt="Máxima iA" />
+      {/* ========== VERSÃO PARA IMPRESSÃO (Paged.js) ========== */}
+      <div id="print-content" style={{ display: 'none' }}>
+        {/* Capa */}
+        <div className="print-cover">
+          <img src={logo} alt="Máxima iA" />
         <div className="cover-title">Código de Cultura</div>
         <div className="cover-divider"></div>
         <h1>{doc.mvv_documents.company_name}</h1>
@@ -1049,14 +741,15 @@ export default function RelatorioCultura() {
       )}
 
       {/* Footer de impressão */}
-      <div className="print-footer">
-        <h2>Cultura é o que acontece quando ninguém está olhando.</h2>
-        <p>Este Código de Cultura foi construído com base nas melhores práticas de gestão cultural e adaptado à realidade única da {doc.mvv_documents.company_name}.</p>
-        <div className="footer-brand">
-          <p>Gerado por Máxima IA | essenciamaxima.lovable.app</p>
-          <p>📲 (11) 98082-3550 | 📸 @karinaalnunes</p>
+        <div className="print-footer">
+          <h2>Cultura é o que acontece quando ninguém está olhando.</h2>
+          <p>Este Código de Cultura foi construído com base nas melhores práticas de gestão cultural e adaptado à realidade única da {doc.mvv_documents.company_name}.</p>
+          <div className="footer-brand">
+            <p>Gerado por Máxima IA | essenciamaxima.lovable.app</p>
+            <p>📲 (11) 98082-3550 | 📸 @karinaalnunes</p>
+          </div>
         </div>
-      </div>
+      </div> {/* Fim do print-content */}
       
       {/* ========== VERSÃO PARA TELA ========== */}
       <div className="no-print">
@@ -1094,9 +787,13 @@ export default function RelatorioCultura() {
                 </Button>
               </div>
             )}
-            <Button onClick={handlePrint}>
-              <Download className="w-4 h-4 mr-2" />
-              Exportar PDF
+            <Button onClick={handleExportPDF} disabled={isPrinting}>
+              {isPrinting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4 mr-2" />
+              )}
+              {isPrinting ? "Preparando..." : "Exportar PDF"}
             </Button>
           </div>
         </header>
