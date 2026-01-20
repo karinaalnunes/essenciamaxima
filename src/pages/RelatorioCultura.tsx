@@ -228,240 +228,218 @@ export default function RelatorioCultura() {
   }
 
   const handleExportPDF = () => {
-    setIsPrinting(true);
-    setTimeout(() => {
-      window.print();
-      setIsPrinting(false);
-    }, 100);
+    window.print();
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* CSS de impressão profissional */}
+      {/* CSS de impressão - Padrão MVV (simples e elegante) */}
       <style>{`
-        /* ========== TELA ========== */
-        @media screen {
-          .print-only { display: none !important; }
-        }
-
-        /* ========== IMPRESSÃO ========== */
         @media print {
-          /* Reset e base */
-          *, *::before, *::after {
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+          
+          * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            color-adjust: exact !important;
           }
           
           html, body {
-            margin: 0 !important;
-            padding: 0 !important;
+            width: 210mm;
             background: white !important;
           }
           
-          /* Esconder elementos de UI */
-          .no-print,
-          header,
-          button,
-          .fixed,
-          nav {
+          .no-print {
             display: none !important;
           }
           
-          /* Mostrar conteúdo de impressão */
-          .print-only {
-            display: block !important;
-          }
-
-          /* ========== CONFIGURAÇÃO DE PÁGINA ========== */
-          @page {
-            size: A4;
-            margin: 15mm 18mm 20mm 18mm;
-          }
-          
-          /* Capa sem margens */
-          @page cover {
-            margin: 0;
-          }
-          
-          /* Footer sem margens */
-          @page footer {
-            margin: 0;
-          }
-
-          /* ========== CAPA ========== */
+          /* === CAPA === */
           .print-cover {
-            page: cover;
-            break-after: page;
-            width: 210mm;
-            height: 297mm;
-            margin: 0;
-            padding: 0;
+            min-height: 297mm;
             display: flex !important;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e3a5f 100%) !important;
-            color: white;
-            text-align: center;
-            position: relative;
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
+            page-break-after: always;
+            padding: 40mm 25mm;
             box-sizing: border-box;
           }
           
           .print-cover img {
-            width: 180px;
-            height: auto;
-            margin-bottom: 40px;
+            width: 80mm !important;
+            height: auto !important;
+            margin-bottom: 20mm;
           }
           
           .print-cover h1 {
-            font-size: 32pt;
-            font-weight: 800;
-            margin: 0 0 16px 0;
+            font-size: 32pt !important;
             color: white !important;
-            line-height: 1.2;
-          }
-          
-          .print-cover .cover-subtitle {
-            font-size: 14pt;
-            color: #a78bfa !important;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 30px;
-          }
-          
-          .print-cover .cover-divider {
-            width: 100px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
-            margin: 20px 0;
+            text-align: center;
+            margin-bottom: 8mm;
+            font-weight: 800;
           }
           
           .print-cover .cover-meta {
-            font-size: 12pt;
             color: rgba(255,255,255,0.8) !important;
-            line-height: 1.8;
-          }
-
-          /* ========== ÍNDICE ========== */
-          .print-index {
-            break-after: page;
-            padding: 20px 0;
-            counter-reset: page 0;
-          }
-          
-          .print-index h2 {
-            font-size: 22pt;
-            font-weight: 700;
-            color: #1e3a8a !important;
-            border-bottom: 3px solid #8b5cf6;
-            padding-bottom: 12px;
-            margin-bottom: 24px;
-          }
-          
-          .print-index-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-          }
-          
-          .print-index-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px dotted #d1d5db;
-            font-size: 11pt;
-            color: #374151 !important;
-          }
-          
-          .print-index-item .icon {
-            margin-right: 12px;
             font-size: 14pt;
+            text-align: center;
           }
-
-          /* ========== SEÇÕES DE CONTEÚDO ========== */
+          
+          .print-cover .cover-divider {
+            width: 60mm;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
+            margin: 15mm 0;
+          }
+          
+          .print-cover .cover-title {
+            font-size: 18pt;
+            color: #a78bfa !important;
+            text-transform: uppercase;
+            letter-spacing: 4pt;
+            font-weight: 600;
+          }
+          
+          /* === SEÇÕES DE CONTEÚDO === */
           .print-section {
-            break-before: page;
-            padding: 0;
+            page-break-before: always;
+            padding: 20mm 25mm;
+            min-height: 297mm;
+            box-sizing: border-box;
+            background: white !important;
           }
           
           .print-section-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
+            gap: 12pt;
+            margin-bottom: 16pt;
+            padding-bottom: 12pt;
             border-bottom: 3px solid #8b5cf6;
           }
           
           .print-section-header .icon {
-            font-size: 24pt;
+            font-size: 28pt;
           }
           
           .print-section-header h2 {
-            font-size: 20pt;
+            font-size: 24pt;
             font-weight: 700;
             color: #1e3a8a !important;
             margin: 0;
           }
           
+          .print-section p,
+          .print-section li {
+            font-size: 12pt;
+            line-height: 1.8;
+            color: #374151 !important;
+          }
+          
           .print-section h3 {
-            font-size: 13pt;
+            font-size: 14pt;
             font-weight: 600;
             color: #4c1d95 !important;
-            margin-top: 18px;
-            margin-bottom: 8px;
+            margin-top: 16pt;
+            margin-bottom: 8pt;
           }
           
           .print-section h4 {
             font-size: 11pt;
             font-weight: 600;
             color: #374151 !important;
-            margin-top: 12px;
-            margin-bottom: 6px;
-          }
-          
-          .print-section p,
-          .print-section li {
-            font-size: 10pt;
-            line-height: 1.7;
-            color: #1f2937 !important;
+            margin-top: 10pt;
+            margin-bottom: 6pt;
           }
           
           .print-section ul,
           .print-section ol {
-            padding-left: 20px;
-            margin: 8px 0;
+            padding-left: 20pt;
+            margin: 8pt 0;
           }
-
-          /* ========== CARDS/BLOCOS ========== */
+          
+          /* === HIGHLIGHT TEXT === */
+          .print-highlight {
+            font-size: 14pt;
+            font-style: italic;
+            line-height: 1.8;
+            color: #1f2937 !important;
+            padding: 16pt;
+            background: #f0f9ff !important;
+            border-left: 4px solid #8b5cf6;
+            margin-bottom: 16pt;
+          }
+          
+          /* === CARDS === */
           .print-card {
-            break-inside: avoid;
-            margin-bottom: 16px;
-            padding: 16px;
-            background: #f8fafc !important;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            page-break-inside: avoid;
+            margin-bottom: 16pt;
+            padding: 16pt;
+            background: #fafafa !important;
+            border: 1px solid #e5e7eb;
+            border-radius: 8pt;
           }
           
           .print-card h3 {
-            margin-top: 0 !important;
+            font-size: 14pt;
             color: #6d28d9 !important;
+            margin-top: 0;
+            margin-bottom: 8pt;
           }
-
-          /* ========== TABELAS ========== */
+          
+          /* === VALUE CARDS === */
+          .print-value-card {
+            page-break-inside: avoid;
+            margin-bottom: 20pt;
+            padding: 16pt;
+            background: #faf5ff !important;
+            border: 1px solid #ddd6fe;
+            border-radius: 8pt;
+          }
+          
+          .print-value-card h3 {
+            font-size: 16pt;
+            color: #6d28d9 !important;
+            margin: 0 0 12pt 0;
+          }
+          
+          .print-behavior-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16pt;
+            margin-bottom: 12pt;
+          }
+          
+          .print-behavior-list h4 {
+            font-size: 10pt;
+            margin: 0 0 6pt 0;
+          }
+          
+          .print-behavior-list.positive h4 { color: #16a34a !important; }
+          .print-behavior-list.negative h4 { color: #dc2626 !important; }
+          
+          .print-behavior-list ul {
+            margin: 0;
+            padding-left: 16pt;
+            font-size: 9pt;
+          }
+          
+          /* === TABELAS === */
           .print-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 12px 0;
+            margin: 12pt 0;
             font-size: 9pt;
-            break-inside: avoid;
+            page-break-inside: avoid;
           }
           
           .print-table th,
           .print-table td {
             border: 1px solid #d1d5db;
-            padding: 6px 8px;
+            padding: 6pt 8pt;
             text-align: left;
             vertical-align: top;
           }
@@ -475,624 +453,505 @@ export default function RelatorioCultura() {
           .print-table td {
             color: #374151 !important;
           }
-
-          /* ========== VALORES EM AÇÃO ========== */
-          .print-value-card {
-            break-inside: avoid;
-            margin-bottom: 20px;
-            padding: 16px;
-            background: #faf5ff !important;
-            border: 1px solid #ddd6fe;
-            border-radius: 8px;
-          }
           
-          .print-value-card h3 {
-            font-size: 14pt;
-            color: #6d28d9 !important;
-            margin: 0 0 12px 0;
-          }
-          
-          .print-behavior-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 12px;
-          }
-          
-          .print-behavior-list h4 {
-            font-size: 10pt;
-            margin: 0 0 6px 0;
-          }
-          
-          .print-behavior-list.positive h4 { color: #16a34a !important; }
-          .print-behavior-list.negative h4 { color: #dc2626 !important; }
-          
-          .print-behavior-list ul {
-            margin: 0;
-            padding-left: 16px;
-            font-size: 9pt;
-          }
-
-          /* ========== TEXTO DESTAQUE ========== */
-          .print-highlight {
-            font-size: 14pt;
-            font-style: italic;
-            line-height: 1.8;
-            color: #1f2937 !important;
-            padding: 20px;
-            background: linear-gradient(135deg, #faf5ff 0%, #f0e7fe 100%) !important;
-            border-left: 4px solid #8b5cf6;
-            margin: 16px 0;
-            border-radius: 0 8px 8px 0;
-          }
-
-          /* ========== FOOTER ========== */
+          /* === FOOTER === */
           .print-footer {
-            page: footer;
-            break-before: page;
-            width: 210mm;
-            height: 297mm;
-            margin: 0;
-            padding: 0;
+            page-break-before: always;
+            min-height: 297mm;
             display: flex !important;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e3a5f 100%) !important;
-            color: white;
-            text-align: center;
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
+            padding: 40mm 25mm;
             box-sizing: border-box;
+            text-align: center;
           }
           
           .print-footer h2 {
-            font-size: 20pt;
-            font-weight: 700;
-            margin-bottom: 20px;
+            font-size: 28pt;
             color: white !important;
-            max-width: 400px;
-            line-height: 1.4;
+            margin-bottom: 16pt;
           }
           
           .print-footer p {
-            font-size: 11pt;
-            color: rgba(255,255,255,0.85) !important;
+            font-size: 14pt;
+            color: rgba(255,255,255,0.8) !important;
             line-height: 1.8;
-            max-width: 350px;
+            max-width: 140mm;
           }
           
           .print-footer .footer-brand {
-            margin-top: 60px;
-            padding-top: 30px;
+            margin-top: 30mm;
+            padding-top: 20mm;
             border-top: 1px solid rgba(255,255,255,0.2);
           }
           
           .print-footer .footer-brand p {
-            font-size: 10pt;
+            font-size: 12pt;
             color: rgba(255,255,255,0.6) !important;
           }
-
-          /* ========== NUMERAÇÃO DE PÁGINA ========== */
-          .print-page-number {
-            position: fixed;
-            bottom: 10mm;
-            right: 15mm;
-            font-size: 10pt;
-            color: #6b7280;
-          }
-          
-          /* Evitar quebras ruins */
-          .avoid-break {
-            break-inside: avoid;
+        }
+        
+        /* Screen styles */
+        @media screen {
+          .print-cover,
+          .print-section,
+          .print-footer {
+            display: none;
           }
         }
       `}</style>
       
-      {/* ========== CONTEÚDO PARA IMPRESSÃO ========== */}
-      <div className="print-only">
-        {/* Capa */}
-        <div className="print-cover">
-          <img src={logo} alt="Máxima iA" />
-          <div className="cover-subtitle">Código de Cultura</div>
-          <div className="cover-divider"></div>
-          <h1>{doc.mvv_documents.company_name}</h1>
-          <div className="cover-meta">
-            {doc.mvv_documents.segment}
-            {doc.mvv_documents.company_size && ` • ${doc.mvv_documents.company_size}`}
-            <br /><br />
-            {new Date(doc.created_at).toLocaleDateString('pt-BR', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
+      {/* ========== VERSÃO PARA IMPRESSÃO (PDF) ========== */}
+      
+      {/* Capa */}
+      <div className="print-cover">
+        <img src={logo} alt="Máxima iA" />
+        <div className="cover-title">Código de Cultura</div>
+        <div className="cover-divider"></div>
+        <h1>{doc.mvv_documents.company_name}</h1>
+        <div className="cover-meta">
+          {doc.mvv_documents.segment}
+          {doc.mvv_documents.company_size && ` • ${doc.mvv_documents.company_size}`}
+          <br /><br />
+          {new Date(doc.created_at).toLocaleDateString('pt-BR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })}
+        </div>
+      </div>
+
+      {/* Fundação MVV */}
+      <div className="print-section">
+        <div className="print-section-header">
+          <span className="icon">📋</span>
+          <h2>Fundação: MVV</h2>
+        </div>
+        
+        {doc.mvv_documents.company_context && (
+          <div style={{ marginBottom: '20px' }}>
+            <h3>Contexto da Empresa</h3>
+            <p style={{ whiteSpace: 'pre-wrap' }}>{doc.mvv_documents.company_context}</p>
           </div>
-        </div>
+        )}
+        
+        {doc.mvv_documents.vision && (
+          <div style={{ marginBottom: '20px' }}>
+            <h3>Visão</h3>
+            <p className="print-highlight">{doc.mvv_documents.vision}</p>
+          </div>
+        )}
+        
+        {doc.mvv_documents.mission && (
+          <div style={{ marginBottom: '20px' }}>
+            <h3>Missão</h3>
+            <p style={{ whiteSpace: 'pre-wrap' }}>{doc.mvv_documents.mission}</p>
+            {doc.mvv_documents.mission_pocket && (
+              <p style={{ fontStyle: 'italic', marginTop: '8px' }}>
+                <strong>Versão Pocket:</strong> {doc.mvv_documents.mission_pocket}
+              </p>
+            )}
+          </div>
+        )}
+        
+        {doc.mvv_documents.values && doc.mvv_documents.values.length > 0 && (
+          <div>
+            <h3>Valores</h3>
+            {doc.mvv_documents.values.map((value, i) => (
+              <div key={i} className="print-card">
+                <h3>{value.name}</h3>
+                <p>{value.description}</p>
+                {value.mantra && (
+                  <p style={{ fontStyle: 'italic', color: '#7c3aed', marginTop: '8px' }}>
+                    "{value.mantra}"
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
-        {/* Índice */}
-        <div className="print-index">
-          <h2>📑 Índice</h2>
-          <ul className="print-index-list">
-            <li className="print-index-item"><span className="icon">📋</span> Fundação: MVV</li>
-            {doc.cultural_positioning && (
-              <li className="print-index-item"><span className="icon">🎯</span> Posicionamento Cultural</li>
-            )}
-            {doc.value_behaviors && doc.value_behaviors.length > 0 && (
-              <li className="print-index-item"><span className="icon">💎</span> Valores em Ação</li>
-            )}
-            {(doc.reputation_goal || doc.competitive_advantage || (doc.swot_strengths && doc.swot_strengths.length > 0)) && (
-              <li className="print-index-item"><span className="icon">🎯</span> Identidade e Diferenciação</li>
-            )}
-            {doc.guiding_principles && doc.guiding_principles.length > 0 && (
-              <li className="print-index-item"><span className="icon">⚖️</span> Princípios Norteadores</li>
-            )}
-            {(doc.growth_practices || doc.wellbeing_support || doc.psychological_safety_practices) && (
-              <li className="print-index-item"><span className="icon">🌱</span> Desenvolvimento de Pessoas</li>
-            )}
-            {doc.cultural_rituals && doc.cultural_rituals.length > 0 && (
-              <li className="print-index-item"><span className="icon">🎭</span> Rituais Culturais</li>
-            )}
-            {doc.stakeholder_guidelines && Object.keys(doc.stakeholder_guidelines).length > 0 && (
-              <li className="print-index-item"><span className="icon">🤝</span> Diretrizes de Relacionamento</li>
-            )}
-            {doc.governance && (doc.governance.guardian || doc.governance.committee?.length) && (
-              <li className="print-index-item"><span className="icon">🏛️</span> Governança da Cultura</li>
-            )}
-            {doc.stress_dilemmas && doc.stress_dilemmas.length > 0 && (
-              <li className="print-index-item"><span className="icon">⚡</span> Dilemas de Estresse</li>
-            )}
-            {doc.kill_criteria && doc.kill_criteria.length > 0 && (
-              <li className="print-index-item"><span className="icon">🚫</span> Decisões Limite</li>
-            )}
-            {doc.culture_indicators && doc.culture_indicators.length > 0 && (
-              <li className="print-index-item"><span className="icon">📊</span> Indicadores de Cultura</li>
-            )}
-            {(doc.action_plan_30?.length || doc.action_plan_60?.length || doc.action_plan_90?.length || doc.action_plan_120?.length) && (
-              <li className="print-index-item"><span className="icon">📅</span> Plano de Ação SMART</li>
-            )}
-            {(doc.report_version_inspirational || doc.cultural_essence) && (
-              <li className="print-index-item"><span className="icon">💡</span> Resumo Consultivo</li>
-            )}
-          </ul>
-        </div>
-
-        {/* Fundação MVV */}
+      {/* Posicionamento Cultural */}
+      {doc.cultural_positioning && (
         <div className="print-section">
           <div className="print-section-header">
-            <span className="icon">📋</span>
-            <h2>Fundação: MVV</h2>
+            <span className="icon">🎯</span>
+            <h2>Posicionamento Cultural</h2>
           </div>
-          
-          {doc.mvv_documents.company_context && (
-            <div style={{ marginBottom: '20px' }}>
-              <h3>Contexto da Empresa</h3>
-              <p style={{ whiteSpace: 'pre-wrap' }}>{doc.mvv_documents.company_context}</p>
-            </div>
-          )}
-          
-          {doc.mvv_documents.vision && (
-            <div style={{ marginBottom: '20px' }}>
-              <h3>Visão</h3>
-              <p className="print-highlight">{doc.mvv_documents.vision}</p>
-            </div>
-          )}
-          
-          {doc.mvv_documents.mission && (
-            <div style={{ marginBottom: '20px' }}>
-              <h3>Missão</h3>
-              <p style={{ whiteSpace: 'pre-wrap' }}>{doc.mvv_documents.mission}</p>
-              {doc.mvv_documents.mission_pocket && (
-                <p style={{ fontStyle: 'italic', marginTop: '8px' }}>
-                  <strong>Versão Pocket:</strong> {doc.mvv_documents.mission_pocket}
-                </p>
-              )}
-            </div>
-          )}
-          
-          {doc.mvv_documents.values && doc.mvv_documents.values.length > 0 && (
-            <div>
-              <h3>Valores</h3>
-              {doc.mvv_documents.values.map((value, i) => (
-                <div key={i} className="print-card">
-                  <h3>{value.name}</h3>
-                  <p>{value.description}</p>
-                  {value.mantra && (
-                    <p style={{ fontStyle: 'italic', color: '#7c3aed', marginTop: '8px' }}>
-                      "{value.mantra}"
-                    </p>
-                  )}
+          <p className="print-highlight">"{doc.cultural_positioning}"</p>
+        </div>
+      )}
+
+      {/* Valores em Ação */}
+      {doc.value_behaviors && doc.value_behaviors.length > 0 && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">💎</span>
+            <h2>Valores em Ação</h2>
+          </div>
+          {doc.value_behaviors.map((vb, i) => (
+            <div key={i} className="print-value-card">
+              <h3>{vb.value}</h3>
+              <div className="print-behavior-grid">
+                <div className="print-behavior-list positive">
+                  <h4>✅ Comportamentos Esperados</h4>
+                  <ul>
+                    {vb.expected_behaviors.map((b, j) => <li key={j}>{b}</li>)}
+                  </ul>
                 </div>
-              ))}
+                <div className="print-behavior-list negative">
+                  <h4>❌ Anti-Comportamentos</h4>
+                  <ul>
+                    {vb.anti_behaviors.map((b, j) => <li key={j}>{b}</li>)}
+                  </ul>
+                </div>
+              </div>
+              <div style={{ marginTop: '12pt' }}>
+                <h4>👁️ Sinais Observáveis</h4>
+                <p>{vb.observable_signs.join(' • ')}</p>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16pt', marginTop: '12pt', paddingTop: '12pt', borderTop: '1px solid #e5e7eb' }}>
+                <div>
+                  <h4>🎭 Ritual</h4>
+                  <p style={{ fontSize: '9pt' }}><strong>Nome:</strong> {vb.ritual.name}</p>
+                  <p style={{ fontSize: '9pt' }}><strong>Frequência:</strong> {vb.ritual.frequency}</p>
+                </div>
+                <div>
+                  <h4>📊 Métrica</h4>
+                  <p style={{ fontSize: '9pt' }}><strong>Baseline:</strong> {vb.metric.baseline}</p>
+                  <p style={{ fontSize: '9pt' }}><strong>Meta:</strong> {vb.metric.target}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Identidade e Diferenciação */}
+      {(doc.reputation_goal || doc.competitive_advantage || (doc.swot_strengths && doc.swot_strengths.length > 0) || (doc.swot_improvements && doc.swot_improvements.length > 0)) && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">🏆</span>
+            <h2>Identidade e Diferenciação</h2>
+          </div>
+          {doc.reputation_goal && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>Reputação Desejada</h3>
+              <p>{doc.reputation_goal}</p>
+            </div>
+          )}
+          {doc.competitive_advantage && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>Vantagem Competitiva</h3>
+              <p>{doc.competitive_advantage}</p>
+            </div>
+          )}
+          {doc.swot_strengths && doc.swot_strengths.length > 0 && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>💪 Pontos Fortes</h3>
+              <ul>
+                {doc.swot_strengths.map((s, i) => <li key={i}>{s}</li>)}
+              </ul>
+            </div>
+          )}
+          {doc.swot_improvements && doc.swot_improvements.length > 0 && (
+            <div>
+              <h3>🔧 Melhorias Necessárias</h3>
+              <ul>
+                {doc.swot_improvements.map((s, i) => <li key={i}>{s}</li>)}
+              </ul>
             </div>
           )}
         </div>
+      )}
 
-        {/* Posicionamento Cultural */}
-        {doc.cultural_positioning && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">🎯</span>
-              <h2>Posicionamento Cultural</h2>
-            </div>
-            <p className="print-highlight">"{doc.cultural_positioning}"</p>
+      {/* Princípios Norteadores */}
+      {doc.guiding_principles && doc.guiding_principles.length > 0 && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">⚖️</span>
+            <h2>Princípios Norteadores</h2>
           </div>
-        )}
-
-        {/* Valores em Ação */}
-        {doc.value_behaviors && doc.value_behaviors.length > 0 && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">💎</span>
-              <h2>Valores em Ação</h2>
-            </div>
-            {doc.value_behaviors.map((vb, i) => (
-              <div key={i} className="print-value-card">
-                <h3>{vb.value}</h3>
-                <div className="print-behavior-grid">
-                  <div className="print-behavior-list positive">
-                    <h4>✅ Comportamentos Esperados</h4>
-                    <ul>
-                      {vb.expected_behaviors.map((b, j) => <li key={j}>{b}</li>)}
-                    </ul>
-                  </div>
-                  <div className="print-behavior-list negative">
-                    <h4>❌ Anti-Comportamentos</h4>
-                    <ul>
-                      {vb.anti_behaviors.map((b, j) => <li key={j}>{b}</li>)}
-                    </ul>
-                  </div>
-                </div>
-                <div style={{ marginTop: '12px' }}>
-                  <h4>👁️ Sinais Observáveis</h4>
-                  <p>{vb.observable_signs.join(' • ')}</p>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
-                  <div>
-                    <h4>🎭 Ritual</h4>
-                    <p style={{ fontSize: '9pt' }}><strong>Nome:</strong> {vb.ritual.name}</p>
-                    <p style={{ fontSize: '9pt' }}><strong>Frequência:</strong> {vb.ritual.frequency}</p>
-                  </div>
-                  <div>
-                    <h4>📊 Métrica</h4>
-                    <p style={{ fontSize: '9pt' }}><strong>Baseline:</strong> {vb.metric.baseline}</p>
-                    <p style={{ fontSize: '9pt' }}><strong>Meta:</strong> {vb.metric.target}</p>
-                  </div>
-                </div>
-              </div>
+          <ol style={{ paddingLeft: '24pt' }}>
+            {doc.guiding_principles.map((p, i) => (
+              <li key={i} style={{ marginBottom: '10pt' }}>{p}</li>
             ))}
-          </div>
-        )}
+          </ol>
+        </div>
+      )}
 
-        {/* Identidade e Diferenciação */}
-        {(doc.reputation_goal || doc.competitive_advantage || (doc.swot_strengths && doc.swot_strengths.length > 0) || (doc.swot_improvements && doc.swot_improvements.length > 0)) && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">🎯</span>
-              <h2>Identidade e Diferenciação</h2>
-            </div>
-            {doc.reputation_goal && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3>Reputação Desejada</h3>
-                <p>{doc.reputation_goal}</p>
-              </div>
-            )}
-            {doc.competitive_advantage && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3>Vantagem Competitiva</h3>
-                <p>{doc.competitive_advantage}</p>
-              </div>
-            )}
-            {doc.swot_strengths && doc.swot_strengths.length > 0 && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3>💪 Pontos Fortes</h3>
-                <ul>
-                  {doc.swot_strengths.map((s, i) => <li key={i}>{s}</li>)}
-                </ul>
-              </div>
-            )}
-            {doc.swot_improvements && doc.swot_improvements.length > 0 && (
-              <div>
-                <h3>🔧 Melhorias Necessárias</h3>
-                <ul>
-                  {doc.swot_improvements.map((s, i) => <li key={i}>{s}</li>)}
-                </ul>
-              </div>
-            )}
+      {/* Desenvolvimento de Pessoas */}
+      {(doc.growth_practices || doc.wellbeing_support || doc.psychological_safety_practices) && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">🌱</span>
+            <h2>Desenvolvimento de Pessoas</h2>
           </div>
-        )}
-
-        {/* Princípios Norteadores */}
-        {doc.guiding_principles && doc.guiding_principles.length > 0 && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">⚖️</span>
-              <h2>Princípios Norteadores</h2>
+          {doc.growth_practices && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>Práticas de Crescimento</h3>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{doc.growth_practices}</p>
             </div>
-            <ol style={{ paddingLeft: '24px' }}>
-              {doc.guiding_principles.map((p, i) => (
-                <li key={i} style={{ marginBottom: '10px' }}>{p}</li>
-              ))}
-            </ol>
+          )}
+          {doc.wellbeing_support && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>Suporte ao Bem-Estar</h3>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{doc.wellbeing_support}</p>
+            </div>
+          )}
+          {doc.psychological_safety_practices && (
+            <div>
+              <h3>Segurança Psicológica (NR-1)</h3>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{doc.psychological_safety_practices}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Rituais Culturais */}
+      {doc.cultural_rituals && doc.cultural_rituals.length > 0 && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">🎭</span>
+            <h2>Rituais e Práticas Culturais</h2>
           </div>
-        )}
-
-        {/* Desenvolvimento de Pessoas */}
-        {(doc.growth_practices || doc.wellbeing_support || doc.psychological_safety_practices) && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">🌱</span>
-              <h2>Desenvolvimento Integral de Pessoas</h2>
+          {doc.cultural_rituals.map((ritual, i) => (
+            <div key={i} className="print-card">
+              <h3>{ritual.name}</h3>
+              <p>{ritual.description}</p>
             </div>
-            {doc.growth_practices && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3>Práticas de Crescimento</h3>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{doc.growth_practices}</p>
-              </div>
-            )}
-            {doc.wellbeing_support && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3>Suporte ao Bem-Estar</h3>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{doc.wellbeing_support}</p>
-              </div>
-            )}
-            {doc.psychological_safety_practices && (
-              <div>
-                <h3>Segurança Psicológica (NR-1)</h3>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{doc.psychological_safety_practices}</p>
-              </div>
-            )}
+          ))}
+        </div>
+      )}
+
+      {/* Stakeholder Guidelines */}
+      {doc.stakeholder_guidelines && Object.keys(doc.stakeholder_guidelines).length > 0 && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">🤝</span>
+            <h2>Diretrizes de Relacionamento</h2>
           </div>
-        )}
-
-        {/* Rituais Culturais */}
-        {doc.cultural_rituals && doc.cultural_rituals.length > 0 && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">🎭</span>
-              <h2>Rituais e Práticas Culturais</h2>
+          {Object.entries(doc.stakeholder_guidelines).map(([stakeholder, guideline]) => (
+            <div key={stakeholder} className="print-card">
+              <h3 style={{ textTransform: 'capitalize' }}>{stakeholder}</h3>
+              <p>{guideline}</p>
             </div>
-            {doc.cultural_rituals.map((ritual, i) => (
-              <div key={i} className="print-card">
-                <h3>{ritual.name}</h3>
-                <p>{ritual.description}</p>
-              </div>
-            ))}
+          ))}
+        </div>
+      )}
+
+      {/* Governança */}
+      {doc.governance && (doc.governance.guardian || doc.governance.committee?.length || doc.governance.annual_review) && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">🏛️</span>
+            <h2>Governança da Cultura</h2>
           </div>
-        )}
-
-        {/* Stakeholder Guidelines */}
-        {doc.stakeholder_guidelines && Object.keys(doc.stakeholder_guidelines).length > 0 && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">🤝</span>
-              <h2>Diretrizes de Relacionamento</h2>
+          {doc.governance.guardian && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>🛡️ Guardião da Cultura</h3>
+              <p>{doc.governance.guardian}</p>
             </div>
-            {Object.entries(doc.stakeholder_guidelines).map(([stakeholder, guideline]) => (
-              <div key={stakeholder} className="print-card">
-                <h3 style={{ textTransform: 'capitalize' }}>{stakeholder}</h3>
-                <p>{guideline}</p>
-              </div>
-            ))}
+          )}
+          {doc.governance.committee && doc.governance.committee.length > 0 && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>👥 Comitê de Cultura</h3>
+              <ul>
+                {doc.governance.committee.map((m, i) => <li key={i}>{m}</li>)}
+              </ul>
+            </div>
+          )}
+          {doc.governance.annual_review && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>📅 Revisão Anual</h3>
+              <p>{doc.governance.annual_review}</p>
+            </div>
+          )}
+          {doc.governance.consequences && (
+            <div>
+              <h3>⚠️ Consequências</h3>
+              <p>{doc.governance.consequences}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Dilemas de Estresse */}
+      {doc.stress_dilemmas && doc.stress_dilemmas.length > 0 && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">⚡</span>
+            <h2>Dilemas de Estresse</h2>
           </div>
-        )}
-
-        {/* Governança */}
-        {doc.governance && (doc.governance.guardian || doc.governance.committee?.length || doc.governance.annual_review) && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">🏛️</span>
-              <h2>Medição e Governança da Cultura</h2>
+          {doc.stress_dilemmas.map((d, i) => (
+            <div key={i} className="print-card">
+              <p><strong>🔥 Situação:</strong> {d.situation}</p>
+              <p><strong>Princípio Aplicado:</strong> {d.guiding_principle_applied}</p>
+              <p><strong>Decisão:</strong> {d.decision}</p>
+              <p><strong>Resultado:</strong> {d.outcome}</p>
             </div>
-            {doc.governance.guardian && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3>🛡️ Guardião da Cultura</h3>
-                <p>{doc.governance.guardian}</p>
-              </div>
-            )}
-            {doc.governance.committee && doc.governance.committee.length > 0 && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3>👥 Comitê de Cultura</h3>
-                <ul>
-                  {doc.governance.committee.map((m, i) => <li key={i}>{m}</li>)}
-                </ul>
-              </div>
-            )}
-            {doc.governance.annual_review && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3>📅 Revisão Anual</h3>
-                <p>{doc.governance.annual_review}</p>
-              </div>
-            )}
-            {doc.governance.consequences && (
-              <div>
-                <h3>⚠️ Consequências</h3>
-                <p>{doc.governance.consequences}</p>
-              </div>
-            )}
+          ))}
+        </div>
+      )}
+
+      {/* Kill Criteria */}
+      {doc.kill_criteria && doc.kill_criteria.length > 0 && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">🚫</span>
+            <h2>Decisões Limite (Kill Criteria)</h2>
           </div>
-        )}
-
-        {/* Dilemas de Estresse */}
-        {doc.stress_dilemmas && doc.stress_dilemmas.length > 0 && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">⚡</span>
-              <h2>Dilemas de Estresse</h2>
-            </div>
-            {doc.stress_dilemmas.map((d, i) => (
-              <div key={i} className="print-card">
-                <p><strong>🔥 Situação:</strong> {d.situation}</p>
-                <p><strong>Princípio Aplicado:</strong> {d.guiding_principle_applied}</p>
-                <p><strong>Decisão:</strong> {d.decision}</p>
-                <p><strong>Resultado:</strong> {d.outcome}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Kill Criteria */}
-        {doc.kill_criteria && doc.kill_criteria.length > 0 && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">🚫</span>
-              <h2>Decisões Limite (Kill Criteria)</h2>
-            </div>
-            <table className="print-table">
-              <thead>
-                <tr>
-                  <th>Stakeholder</th>
-                  <th>Critério</th>
-                  <th>Exceção</th>
-                  <th>Responsável</th>
+          <table className="print-table">
+            <thead>
+              <tr>
+                <th>Stakeholder</th>
+                <th>Critério</th>
+                <th>Exceção</th>
+                <th>Responsável</th>
+              </tr>
+            </thead>
+            <tbody>
+              {doc.kill_criteria.map((k, i) => (
+                <tr key={i}>
+                  <td>{k.stakeholder}</td>
+                  <td>{k.criterion}</td>
+                  <td>{k.exception}</td>
+                  <td>{k.owner}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {doc.kill_criteria.map((c, i) => (
-                  <tr key={i}>
-                    <td>{c.stakeholder}</td>
-                    <td>{c.criterion}</td>
-                    <td style={{ fontStyle: 'italic' }}>{c.exception}</td>
-                    <td>{c.owner}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Calendário de Rituais */}
-        {doc.rituals_calendar && doc.rituals_calendar.length > 0 && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">📅</span>
-              <h2>Calendário de Rituais</h2>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-              {doc.rituals_calendar.map((month, i) => (
-                <div key={i} className="print-card" style={{ padding: '12px' }}>
-                  <h4 style={{ margin: '0 0 8px 0', color: '#6d28d9' }}>{month.month}</h4>
-                  <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '9pt' }}>
-                    {month.rituals.map((r, j) => <li key={j}>{r}</li>)}
-                  </ul>
-                </div>
               ))}
-            </div>
-          </div>
-        )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-        {/* Indicadores de Cultura */}
-        {doc.culture_indicators && doc.culture_indicators.length > 0 && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">📊</span>
-              <h2>Indicadores de Cultura</h2>
-            </div>
-            {doc.culture_indicators.map((ind, i) => (
-              <div key={i} className="print-card">
-                <h3>{ind.name}</h3>
-                <p><strong>Métrica:</strong> {ind.metric}</p>
-                <p><strong>Meta:</strong> {ind.target}</p>
-              </div>
-            ))}
+      {/* Indicadores de Cultura */}
+      {doc.culture_indicators && doc.culture_indicators.length > 0 && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">📊</span>
+            <h2>Indicadores de Cultura</h2>
           </div>
-        )}
+          <table className="print-table">
+            <thead>
+              <tr>
+                <th>Indicador</th>
+                <th>Métrica</th>
+                <th>Meta</th>
+              </tr>
+            </thead>
+            <tbody>
+              {doc.culture_indicators.map((ind, i) => (
+                <tr key={i}>
+                  <td>{ind.name}</td>
+                  <td>{ind.metric}</td>
+                  <td>{ind.target}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-        {/* Plano de Ação */}
-        {(doc.action_plan_30?.length || doc.action_plan_60?.length || doc.action_plan_90?.length || doc.action_plan_120?.length) && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">📅</span>
-              <h2>Plano de Ação SMART (5W2H)</h2>
-            </div>
-            {[
-              { title: '30 Dias - Fundação Cultural', data: doc.action_plan_30 },
-              { title: '60 Dias - Rituais e Indicadores', data: doc.action_plan_60 },
-              { title: '90 Dias - Consolidação e Ajustes', data: doc.action_plan_90 },
-              { title: '120 Dias - Expansão e Inovação', data: doc.action_plan_120 },
-            ].map((plan, idx) => plan.data && plan.data.length > 0 && (
-              <div key={idx} style={{ marginBottom: '24px' }}>
-                <h3>{plan.title}</h3>
-                <table className="print-table">
-                  <thead>
-                    <tr>
-                      <th>O quê</th>
-                      <th>Por quê</th>
-                      <th>Quem</th>
-                      <th>Quando</th>
-                      <th>Onde</th>
-                      <th>Como</th>
-                      <th>Custo</th>
+      {/* Plano de Ação SMART */}
+      {(doc.action_plan_30?.length || doc.action_plan_60?.length || doc.action_plan_90?.length || doc.action_plan_120?.length) && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">📅</span>
+            <h2>Plano de Ação SMART (5W2H)</h2>
+          </div>
+          {[
+            { title: '30 Dias - Fundação Cultural', data: doc.action_plan_30 },
+            { title: '60 Dias - Rituais e Indicadores', data: doc.action_plan_60 },
+            { title: '90 Dias - Consolidação e Ajustes', data: doc.action_plan_90 },
+            { title: '120 Dias - Expansão e Inovação', data: doc.action_plan_120 },
+          ].map((plan, idx) => plan.data && plan.data.length > 0 && (
+            <div key={idx} style={{ marginBottom: '24pt' }}>
+              <h3>{plan.title}</h3>
+              <table className="print-table">
+                <thead>
+                  <tr>
+                    <th>O quê</th>
+                    <th>Por quê</th>
+                    <th>Quem</th>
+                    <th>Quando</th>
+                    <th>Onde</th>
+                    <th>Como</th>
+                    <th>Custo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {plan.data.map((a, i) => (
+                    <tr key={i}>
+                      <td>{a.what}</td>
+                      <td>{a.why}</td>
+                      <td>{a.who}</td>
+                      <td>{a.when}</td>
+                      <td>{a.where}</td>
+                      <td>{a.how}</td>
+                      <td>{a.how_much}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {plan.data.map((a, i) => (
-                      <tr key={i}>
-                        <td>{a.what}</td>
-                        <td>{a.why}</td>
-                        <td>{a.who}</td>
-                        <td>{a.when}</td>
-                        <td>{a.where}</td>
-                        <td>{a.how}</td>
-                        <td>{a.how_much}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Resumo Consultivo Final */}
-        {(doc.report_version_inspirational || doc.cultural_essence || (doc.cultural_strengths && doc.cultural_strengths.length > 0) || doc.strategic_focus || doc.closing_message) && (
-          <div className="print-section">
-            <div className="print-section-header">
-              <span className="icon">💡</span>
-              <h2>Resumo Consultivo Final</h2>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            {doc.report_version_inspirational && (
-              <div style={{ marginBottom: '16px' }}>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{doc.report_version_inspirational}</p>
-              </div>
-            )}
-            {doc.cultural_essence && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3>Essência Cultural</h3>
-                <p className="print-highlight">{doc.cultural_essence}</p>
-              </div>
-            )}
-            {doc.cultural_strengths && doc.cultural_strengths.length > 0 && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3>Pontos Fortes da Cultura</h3>
-                <ul>
-                  {doc.cultural_strengths.map((s, i) => <li key={i}>{s}</li>)}
-                </ul>
-              </div>
-            )}
-            {doc.strategic_focus && (
-              <div style={{ marginBottom: '16px' }}>
-                <h3>Foco Estratégico</h3>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{doc.strategic_focus}</p>
-              </div>
-            )}
-            {doc.closing_message && (
-              <div className="print-card" style={{ fontStyle: 'italic' }}>
-                <p>{doc.closing_message}</p>
-              </div>
-            )}
-          </div>
-        )}
+          ))}
+        </div>
+      )}
 
-        {/* Footer */}
-        <div className="print-footer">
-          <h2>Cultura é o que acontece quando ninguém está olhando.</h2>
-          <p>
-            Este Código de Cultura foi construído com base nas melhores práticas de gestão cultural 
-            e adaptado à realidade única da {doc.mvv_documents.company_name}.
-          </p>
-          <div className="footer-brand">
-            <p>Gerado por Máxima IA</p>
-            <p>essenciamaxima.lovable.app</p>
-            <p>📲 (11) 98082-3550 | 📸 @karinaalnunes</p>
+      {/* Resumo Consultivo Final */}
+      {(doc.report_version_inspirational || doc.cultural_essence || (doc.cultural_strengths && doc.cultural_strengths.length > 0) || doc.strategic_focus || doc.closing_message) && (
+        <div className="print-section">
+          <div className="print-section-header">
+            <span className="icon">💡</span>
+            <h2>Resumo Consultivo Final</h2>
           </div>
+          {doc.report_version_inspirational && (
+            <div style={{ marginBottom: '16pt' }}>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{doc.report_version_inspirational}</p>
+            </div>
+          )}
+          {doc.cultural_essence && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>Essência Cultural</h3>
+              <p className="print-highlight">{doc.cultural_essence}</p>
+            </div>
+          )}
+          {doc.cultural_strengths && doc.cultural_strengths.length > 0 && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>Pontos Fortes da Cultura</h3>
+              <ul>
+                {doc.cultural_strengths.map((s, i) => <li key={i}>{s}</li>)}
+              </ul>
+            </div>
+          )}
+          {doc.strategic_focus && (
+            <div style={{ marginBottom: '16pt' }}>
+              <h3>Foco Estratégico</h3>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{doc.strategic_focus}</p>
+            </div>
+          )}
+          {doc.closing_message && (
+            <div className="print-card" style={{ fontStyle: 'italic' }}>
+              <p>{doc.closing_message}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="print-footer">
+        <h2>Cultura é o que acontece quando ninguém está olhando.</h2>
+        <p>
+          Este Código de Cultura foi construído com base nas melhores práticas de gestão cultural 
+          e adaptado à realidade única da {doc.mvv_documents.company_name}.
+        </p>
+        <div className="footer-brand">
+          <p>Gerado por Máxima IA</p>
+          <p>essenciamaxima.lovable.app</p>
+          <p>📲 (11) 98082-3550 | 📸 @karinaalnunes</p>
         </div>
       </div>
 
@@ -1318,7 +1177,7 @@ export default function RelatorioCultura() {
           {(doc.reputation_goal || doc.competitive_advantage || (doc.swot_strengths && doc.swot_strengths.length > 0) || (doc.swot_improvements && doc.swot_improvements.length > 0)) && (
             <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
               <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
-                🎯 Identidade e Diferenciação
+                🏆 Identidade e Diferenciação
               </h2>
 
               {doc.reputation_goal && (
@@ -1423,7 +1282,7 @@ export default function RelatorioCultura() {
               <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 🎭 Rituais e Práticas Culturais
               </h2>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 {doc.cultural_rituals.map((ritual, i) => (
                   <div key={i} className="bg-slate-700/30 p-4 rounded-lg space-y-2">
                     <h4 className="text-lg font-bold text-purple-300">{ritual.name}</h4>
@@ -1442,9 +1301,9 @@ export default function RelatorioCultura() {
               </h2>
               <div className="space-y-4">
                 {Object.entries(doc.stakeholder_guidelines).map(([stakeholder, guideline]) => (
-                  <div key={stakeholder} className="bg-slate-700/30 p-4 rounded-lg">
+                  <div key={stakeholder} className="bg-slate-700/30 p-4 rounded-lg space-y-2">
                     <h4 className="text-lg font-bold text-purple-300 capitalize">{stakeholder}</h4>
-                    <p className="text-slate-300 mt-2">{guideline}</p>
+                    <p className="text-slate-300">{guideline}</p>
                   </div>
                 ))}
               </div>
@@ -1452,51 +1311,44 @@ export default function RelatorioCultura() {
           )}
 
           {/* Governança */}
-          {doc.governance && (
-            doc.governance.guardian ||
-            (doc.governance.committee && doc.governance.committee.length > 0) ||
-            doc.governance.annual_review ||
-            doc.governance.consequences
-          ) && (
+          {doc.governance && (doc.governance.guardian || doc.governance.committee?.length || doc.governance.annual_review) && (
             <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
               <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 🏛️ Medição e Governança da Cultura
               </h2>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {doc.governance.guardian && (
-                  <div className="bg-purple-900/20 p-4 rounded-lg border border-purple-500/30">
-                    <h3 className="text-xl font-semibold text-purple-300 mb-2">🛡️ Guardião da Cultura</h3>
-                    <p className="text-slate-200">{doc.governance.guardian}</p>
-                  </div>
-                )}
 
-                {doc.governance.committee && doc.governance.committee.length > 0 && (
-                  <div className="bg-blue-900/20 p-4 rounded-lg border border-blue-500/30">
-                    <h3 className="text-xl font-semibold text-blue-300 mb-2">👥 Comitê de Cultura</h3>
-                    <ul className="space-y-1">
-                      {doc.governance.committee.map((member, i) => (
-                        <li key={i} className="text-slate-300 flex items-start gap-2">
-                          <span className="text-blue-400">•</span>
-                          {member}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
+              {doc.governance.guardian && (
+                <div className="space-y-3">
+                  <h3 className="text-xl font-semibold text-purple-300">🛡️ Guardião da Cultura</h3>
+                  <p className="text-slate-200">{doc.governance.guardian}</p>
+                </div>
+              )}
+
+              {doc.governance.committee && doc.governance.committee.length > 0 && (
+                <div className="space-y-3 mt-6">
+                  <h3 className="text-xl font-semibold text-purple-300">👥 Comitê de Cultura</h3>
+                  <ul className="space-y-2">
+                    {doc.governance.committee.map((member, i) => (
+                      <li key={i} className="text-slate-200 flex items-start gap-2">
+                        <span className="text-purple-400">•</span>
+                        {member}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {doc.governance.annual_review && (
-                <div className="space-y-2 mt-6">
-                  <h3 className="text-lg font-semibold text-purple-300">📅 Revisão Anual</h3>
-                  <p className="text-slate-200 leading-relaxed">{doc.governance.annual_review}</p>
+                <div className="space-y-3 mt-6">
+                  <h3 className="text-xl font-semibold text-purple-300">📅 Revisão Anual</h3>
+                  <p className="text-slate-200">{doc.governance.annual_review}</p>
                 </div>
               )}
 
               {doc.governance.consequences && (
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold text-yellow-300">⚠️ Consequências</h3>
-                  <p className="text-slate-200 leading-relaxed">{doc.governance.consequences}</p>
+                <div className="space-y-3 mt-6">
+                  <h3 className="text-xl font-semibold text-yellow-300">⚠️ Consequências</h3>
+                  <p className="text-slate-200">{doc.governance.consequences}</p>
                 </div>
               )}
             </section>
@@ -1822,7 +1674,7 @@ export default function RelatorioCultura() {
 
             {doc.strategic_focus && (
               <div className="space-y-3 mt-6">
-                <h3 className="text-xl font-semibold text-purple-300">Foco Estratégico (Próximos 90 dias)</h3>
+                <h3 className="text-xl font-semibold text-purple-300">Foco Estratégico</h3>
                 <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">
                   {doc.strategic_focus}
                 </p>
@@ -1830,25 +1682,26 @@ export default function RelatorioCultura() {
             )}
 
             {doc.closing_message && (
-              <div className="mt-8 p-6 bg-purple-900/20 rounded-lg border border-purple-500/30">
-                <p className="text-slate-200 leading-relaxed whitespace-pre-wrap italic">
-                  {doc.closing_message}
-                </p>
+              <div className="mt-6 p-6 bg-slate-700/30 rounded-lg border border-purple-500/20">
+                <p className="text-slate-200 italic text-lg">{doc.closing_message}</p>
               </div>
             )}
           </section>
 
-          {/* Footer */}
-          {isComplete && (
-            <footer className="text-center text-slate-400 space-y-2 py-8 border-t border-slate-700">
-              <p className="text-sm">
-                Código de Cultura Máxima gerado por <strong className="text-white">Máxima IA</strong>
-              </p>
-              <p className="text-xs">
-                📲 (11) 98082-3550 | 📸 @karinaalnunes
-              </p>
-            </footer>
-          )}
+          {/* Footer na tela */}
+          <div className="text-center py-12 space-y-4">
+            <p className="text-2xl font-bold text-white">
+              🎉 Cultura é o que acontece quando ninguém está olhando.
+            </p>
+            <p className="text-slate-400">
+              Este Código de Cultura foi construído com base nas melhores práticas de gestão cultural.
+            </p>
+            <div className="flex items-center justify-center gap-6 text-sm text-slate-500 mt-8">
+              <span>Máxima IA</span>
+              <span>📲 (11) 98082-3550</span>
+              <span>📸 @karinaalnunes</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
