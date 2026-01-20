@@ -315,15 +315,13 @@ export default function RelatorioCultura() {
             font-weight: 600;
           }
           
-          /* === SEÇÕES DE CONTEÚDO (fundo branco - economiza tinta) === */
+          /* === SEÇÕES DE CONTEÚDO (sem background fixo - evita blocos escuros vazios) === */
           .print-section {
             width: 210mm !important;
-            min-height: 297mm !important;
             page-break-before: always;
             padding: 20mm 25mm;
             margin: 0 !important;
             box-sizing: border-box;
-            background: white !important;
           }
           
           .print-section-header {
@@ -471,7 +469,7 @@ export default function RelatorioCultura() {
             background: white !important;
           }
           
-          /* === FOOTER (branco - economiza tinta) === */
+          /* === FOOTER (escuro elegante - contracapa) === */
           .print-footer {
             width: 210mm !important;
             min-height: 297mm !important;
@@ -480,23 +478,22 @@ export default function RelatorioCultura() {
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: white !important;
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
             padding: 40mm 25mm;
             margin: 0 !important;
             box-sizing: border-box;
             text-align: center;
-            border-top: 10pt solid hsl(262 83% 58%);
           }
           
           .print-footer h2 {
             font-size: 28pt;
-            color: hsl(222 47% 11%) !important;
+            color: white !important;
             margin-bottom: 16pt;
           }
           
           .print-footer p {
             font-size: 14pt;
-            color: hsl(215 16% 47%) !important;
+            color: rgba(255,255,255,0.8) !important;
             line-height: 1.8;
             max-width: 140mm;
           }
@@ -504,12 +501,12 @@ export default function RelatorioCultura() {
           .print-footer .footer-brand {
             margin-top: 30mm;
             padding-top: 20mm;
-            border-top: 1px solid hsl(215 20% 88%);
+            border-top: 1px solid rgba(255,255,255,0.2);
           }
           
           .print-footer .footer-brand p {
             font-size: 12pt;
-            color: hsl(215 16% 47%) !important;
+            color: rgba(255,255,255,0.6) !important;
           }
         }
         
