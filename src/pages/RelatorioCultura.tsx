@@ -237,69 +237,67 @@ export default function RelatorioCultura() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Print Styles - Padronizado com MVV */}
+      {/* Print Styles - Corrigido para numeração de páginas físicas */}
       <style>{`
         @media print {
-          @page {
-            size: A4 portrait;
-            margin: 0;
-          }
-          
-          @page:first {
-            margin: 0;
-          }
-          
-          * {
+          /* Reset completo para impressão */
+          *, *::before, *::after {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            color-adjust: exact !important;
             box-sizing: border-box;
           }
           
-          html, body {
-            width: 210mm !important;
-            max-width: 210mm !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            counter-reset: page-counter -1;
+          /* Configuração da página A4 */
+          @page {
+            size: 210mm 297mm;
+            margin: 15mm 15mm 20mm 15mm;
           }
-
-          /* Evita páginas vazias com fundo escuro */
-          body > div {
-            background: white !important;
-            width: 210mm !important;
-            max-width: 210mm !important;
+          
+          /* Primeira página (capa) sem margens */
+          @page :first {
+            margin: 0;
+          }
+          
+          /* Reset do body e html */
+          html {
             margin: 0 !important;
             padding: 0 !important;
           }
           
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+          
+          /* Container principal */
+          body > div:first-child {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+          
+          /* Esconder elementos de tela */
           .no-print {
             display: none !important;
           }
           
-          .print-container {
-            padding: 0 !important;
-          }
-          
-          /* === CAPA === */
+          /* ========== CAPA ========== */
           .print-cover {
-            width: 210mm !important;
-            max-width: 210mm !important;
-            min-height: 297mm;
-            margin: 0 !important;
+            position: relative;
+            width: 210mm;
+            height: 297mm;
+            margin: 0;
+            padding: 0;
             display: flex !important;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
             page-break-after: always;
-            padding: 40mm 20mm;
-            box-sizing: border-box;
-          }
-          
-          /* Capa não tem numeração de página */
-          .print-cover::after {
-            display: none !important;
+            break-after: page;
+            overflow: hidden;
           }
           
           .print-cover img {
@@ -337,27 +335,21 @@ export default function RelatorioCultura() {
             font-weight: 600;
           }
           
-          /* === ÍNDICE === */
+          /* ========== ÍNDICE ========== */
           .print-index {
-            width: 210mm !important;
-            max-width: 210mm !important;
-            page-break-before: auto;
+            padding: 0 5mm;
             page-break-after: always;
+            break-after: page;
             page-break-inside: avoid;
-            padding: 15mm 20mm;
-            min-height: auto;
-            max-height: 297mm;
-            box-sizing: border-box;
+            break-inside: avoid;
             background: white !important;
-            position: relative;
-            margin: 0 !important;
           }
           
           .print-index h2 {
-            font-size: 22pt;
+            font-size: 20pt;
             font-weight: 700;
             color: #1e3a8a !important;
-            margin-bottom: 12pt;
+            margin-bottom: 10pt;
             padding-bottom: 6pt;
             border-bottom: 3px solid #3b82f6;
           }
@@ -372,9 +364,9 @@ export default function RelatorioCultura() {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            padding: 5pt 0;
+            padding: 4pt 0;
             border-bottom: 1px dotted #d1d5db;
-            font-size: 11pt;
+            font-size: 10pt;
             color: #374151 !important;
           }
           
@@ -382,101 +374,78 @@ export default function RelatorioCultura() {
             margin-right: 6pt;
           }
           
-          /* === SEÇÕES DE CONTEÚDO === */
+          /* ========== SEÇÕES DE CONTEÚDO ========== */
           .print-section {
-            width: 210mm !important;
-            max-width: 210mm !important;
+            padding: 0 5mm;
             page-break-before: always;
-            padding: 15mm 20mm;
-            min-height: 297mm;
-            box-sizing: border-box;
+            break-before: page;
             background: white !important;
-            position: relative;
-            margin: 0 !important;
-          }
-          
-          /* Seções vazias não devem ser exibidas */
-          .print-section:empty {
-            display: none !important;
-            page-break-before: avoid !important;
-            min-height: 0 !important;
-          }
-          
-          /* Numeração de páginas */
-          .print-section::after,
-          .print-index::after {
-            counter-increment: page-counter;
-            content: counter(page-counter);
-            position: absolute;
-            bottom: 10mm;
-            right: 20mm;
-            font-size: 10pt;
-            color: #9ca3af !important;
           }
           
           .print-section-header {
             display: flex;
             align-items: center;
-            gap: 12pt;
-            margin-bottom: 16pt;
-            padding-bottom: 12pt;
+            gap: 10pt;
+            margin-bottom: 14pt;
+            padding-bottom: 10pt;
             border-bottom: 3px solid #3b82f6;
           }
           
           .print-section-header .icon {
-            font-size: 28pt;
+            font-size: 24pt;
           }
           
           .print-section-header h2 {
-            font-size: 24pt;
+            font-size: 20pt;
             font-weight: 700;
             color: #1e3a8a !important;
             margin: 0;
           }
           
           .print-section h2 {
-            font-size: 18pt;
+            font-size: 16pt;
             font-weight: 700;
             color: #1e3a8a !important;
             border-bottom: 3px solid #3b82f6;
-            padding-bottom: 8pt;
-            margin-bottom: 12pt;
+            padding-bottom: 6pt;
+            margin-bottom: 10pt;
           }
           
           .print-section h3 {
-            font-size: 14pt;
+            font-size: 12pt;
             font-weight: 600;
             color: #1e40af !important;
-            margin-top: 12pt;
-            margin-bottom: 6pt;
+            margin-top: 10pt;
+            margin-bottom: 5pt;
           }
           
           .print-section h4 {
-            font-size: 11pt;
+            font-size: 10pt;
             font-weight: 600;
             color: #374151 !important;
-            margin-top: 8pt;
-            margin-bottom: 4pt;
+            margin-top: 6pt;
+            margin-bottom: 3pt;
           }
           
           .print-section p,
           .print-section li,
           .print-section td {
-            font-size: 10pt;
-            line-height: 1.6;
+            font-size: 9pt;
+            line-height: 1.5;
             color: #374151 !important;
           }
           
           .print-section table {
             width: 100%;
             border-collapse: collapse;
-            margin: 8pt 0;
+            margin: 6pt 0;
           }
           
           .print-section th,
           .print-section td {
             border: 1px solid #d1d5db;
-            padding: 6pt;
+            padding: 5pt;
+            font-size: 8pt;
           }
           
           .print-section th {
@@ -485,116 +454,107 @@ export default function RelatorioCultura() {
             color: #1e3a8a !important;
           }
           
-          /* === VALORES === */
+          /* ========== VALORES ========== */
           .print-value {
             page-break-inside: avoid;
-            margin-bottom: 12pt;
-            padding: 12pt;
+            break-inside: avoid;
+            margin-bottom: 10pt;
+            padding: 10pt;
             background: #fafafa !important;
             border: 1px solid #e5e7eb;
-            border-radius: 6pt;
-          }
-          
-          .print-value:first-of-type {
-            margin-top: 0 !important;
+            border-radius: 4pt;
           }
           
           .print-value h3 {
-            font-size: 13pt;
+            font-size: 11pt;
             color: #1e3a8a !important;
             margin-top: 0 !important;
-            margin-bottom: 6pt;
+            margin-bottom: 5pt;
           }
           
           .print-value-description {
-            font-size: 10pt;
+            font-size: 9pt;
             color: #4b5563 !important;
-            margin-bottom: 12pt;
+            margin-bottom: 10pt;
           }
           
           .print-value-mantra {
-            font-size: 11pt;
+            font-size: 10pt;
             font-style: italic;
             color: #3b82f6 !important;
-            padding: 10pt;
+            padding: 8pt;
             background: white !important;
             border-left: 3px solid #3b82f6;
             margin: 0;
           }
           
           .print-vision-text {
-            font-size: 14pt;
-            line-height: 1.8;
+            font-size: 12pt;
+            line-height: 1.7;
             color: #1f2937 !important;
             font-style: italic;
-            padding: 16pt;
+            padding: 14pt;
             background: #f0f9ff !important;
             border-left: 4px solid #3b82f6;
-            margin-bottom: 20pt;
+            margin-bottom: 16pt;
           }
           
-          #printable-area {
-            padding: 0 !important;
-          }
-          
-          #printable-area > section {
-            page-break-inside: avoid;
-            margin: 0 !important;
-            border-radius: 0 !important;
-          }
-          
-          .print-break {
-            page-break-before: always;
-          }
-          
-          /* === FOOTER === */
+          /* ========== FOOTER ========== */
           .print-footer {
-            width: 210mm !important;
-            max-width: 210mm !important;
+            position: relative;
+            width: 210mm;
+            height: 297mm;
+            margin: 0;
+            padding: 0;
             page-break-before: always;
-            min-height: 297mm;
-            margin: 0 !important;
+            break-before: page;
             display: flex !important;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
-            padding: 40mm 20mm;
-            box-sizing: border-box;
             text-align: center;
           }
           
-          /* Footer não tem numeração de página */
-          .print-footer::after {
-            display: none !important;
-          }
-          
           .print-footer h2 {
-            font-size: 28pt;
+            font-size: 26pt;
             color: white !important;
-            margin-bottom: 16pt;
+            margin-bottom: 14pt;
           }
           
           .print-footer p {
-            font-size: 14pt;
+            font-size: 12pt;
             color: rgba(255,255,255,0.8) !important;
-            line-height: 1.8;
+            line-height: 1.7;
             max-width: 140mm;
           }
           
           .print-footer .footer-brand {
-            margin-top: 30mm;
-            padding-top: 20mm;
+            margin-top: 25mm;
+            padding-top: 15mm;
             border-top: 1px solid rgba(255,255,255,0.2);
           }
           
           .print-footer .footer-brand p {
-            font-size: 12pt;
+            font-size: 11pt;
             color: rgba(255,255,255,0.6) !important;
+          }
+          
+          /* ========== PLANO DE AÇÃO ========== */
+          .print-action-plan {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 12pt;
+          }
+          
+          /* Evitar quebras ruins */
+          .avoid-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
           }
         }
         
-        /* Screen styles */
+        /* Estilos de tela - esconder elementos de impressão */
         @media screen {
           .print-cover,
           .print-section,
