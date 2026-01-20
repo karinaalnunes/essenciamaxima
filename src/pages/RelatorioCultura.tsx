@@ -315,10 +315,15 @@ export default function RelatorioCultura() {
             font-weight: 600;
           }
           
-          /* === SEÇÕES DE CONTEÚDO (sem background fixo - evita blocos escuros vazios) === */
+          /* === SEÇÕES DE CONTEÚDO (página branca completa - evita blocos escuros) === */
           .print-section {
             width: 210mm !important;
-            page-break-before: always;
+            min-height: 297mm !important;
+            background: white !important;
+
+            /* Evita páginas em branco entre capa/seções (break AFTER em vez de BEFORE) */
+            page-break-after: always;
+            break-after: page;
             padding: 20mm 25mm;
             margin: 0 !important;
             box-sizing: border-box;
@@ -473,7 +478,7 @@ export default function RelatorioCultura() {
           .print-footer {
             width: 210mm !important;
             min-height: 297mm !important;
-            page-break-before: always;
+            /* A página anterior já força quebra; evitar dupla quebra (página vazia) */
             display: flex !important;
             flex-direction: column;
             justify-content: center;
