@@ -237,17 +237,27 @@ export default function RelatorioCultura() {
       <style>{`
         @media print {
           @page {
-            size: A4 portrait;
-            margin: 0;
+            size: 210mm 297mm;
+            margin: 0 !important;
           }
           
           * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            color-adjust: exact !important;
           }
           
-          html, body {
-            width: 210mm;
+          html {
+            width: 210mm !important;
+            height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          
+          body {
+            width: 210mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
             background: white !important;
           }
           
@@ -255,9 +265,10 @@ export default function RelatorioCultura() {
             display: none !important;
           }
           
-          /* === CAPA === */
+          /* === CAPA (escura elegante) === */
           .print-cover {
-            min-height: 297mm;
+            width: 210mm !important;
+            min-height: 297mm !important;
             display: flex !important;
             flex-direction: column;
             justify-content: center;
@@ -265,6 +276,7 @@ export default function RelatorioCultura() {
             background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
             page-break-after: always;
             padding: 40mm 25mm;
+            margin: 0 !important;
             box-sizing: border-box;
           }
           
@@ -303,11 +315,13 @@ export default function RelatorioCultura() {
             font-weight: 600;
           }
           
-          /* === SEÇÕES DE CONTEÚDO === */
+          /* === SEÇÕES DE CONTEÚDO (fundo branco - economiza tinta) === */
           .print-section {
+            width: 210mm !important;
+            min-height: 297mm !important;
             page-break-before: always;
             padding: 20mm 25mm;
-            min-height: 297mm;
+            margin: 0 !important;
             box-sizing: border-box;
             background: white !important;
           }
@@ -368,19 +382,20 @@ export default function RelatorioCultura() {
             line-height: 1.8;
             color: #1f2937 !important;
             padding: 16pt;
-            background: #f0f9ff !important;
+            background: #f8fafc !important;
             border-left: 4px solid #8b5cf6;
             margin-bottom: 16pt;
           }
           
-          /* === CARDS === */
+          /* === CARDS (fundo branco com borda colorida - economiza tinta) === */
           .print-card {
             page-break-inside: avoid;
             margin-bottom: 16pt;
             padding: 16pt;
-            background: #fafafa !important;
+            background: white !important;
             border: 1px solid #e5e7eb;
-            border-radius: 8pt;
+            border-left: 4px solid #8b5cf6;
+            border-radius: 4pt;
           }
           
           .print-card h3 {
@@ -390,14 +405,15 @@ export default function RelatorioCultura() {
             margin-bottom: 8pt;
           }
           
-          /* === VALUE CARDS === */
+          /* === VALUE CARDS (fundo branco com borda roxa - economiza tinta) === */
           .print-value-card {
             page-break-inside: avoid;
             margin-bottom: 20pt;
             padding: 16pt;
-            background: #faf5ff !important;
+            background: white !important;
             border: 1px solid #ddd6fe;
-            border-radius: 8pt;
+            border-left: 4px solid #6d28d9;
+            border-radius: 4pt;
           }
           
           .print-value-card h3 {
@@ -445,25 +461,28 @@ export default function RelatorioCultura() {
           }
           
           .print-table th {
-            background: #f3e8ff !important;
+            background: #f3f4f6 !important;
             font-weight: 600;
             color: #4c1d95 !important;
           }
           
           .print-table td {
             color: #374151 !important;
+            background: white !important;
           }
           
-          /* === FOOTER === */
+          /* === FOOTER (escuro elegante - igual à capa) === */
           .print-footer {
+            width: 210mm !important;
+            min-height: 297mm !important;
             page-break-before: always;
-            min-height: 297mm;
             display: flex !important;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
             padding: 40mm 25mm;
+            margin: 0 !important;
             box-sizing: border-box;
             text-align: center;
           }
