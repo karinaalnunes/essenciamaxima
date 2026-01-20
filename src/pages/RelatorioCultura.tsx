@@ -252,17 +252,25 @@ export default function RelatorioCultura() {
           * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            box-sizing: border-box;
           }
           
           html, body {
-            width: 210mm;
+            width: 210mm !important;
+            max-width: 210mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
             background: white !important;
-            counter-reset: page-counter;
+            counter-reset: page-counter -1;
           }
 
-          /* Evita páginas vazias com fundo escuro (container da tela) */
+          /* Evita páginas vazias com fundo escuro */
           body > div {
             background: white !important;
+            width: 210mm !important;
+            max-width: 210mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
           
           .no-print {
@@ -275,15 +283,23 @@ export default function RelatorioCultura() {
           
           /* === CAPA === */
           .print-cover {
+            width: 210mm !important;
+            max-width: 210mm !important;
             min-height: 297mm;
+            margin: 0 !important;
             display: flex !important;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
             page-break-after: always;
-            padding: 40mm 25mm;
+            padding: 40mm 20mm;
             box-sizing: border-box;
+          }
+          
+          /* Capa não tem numeração de página */
+          .print-cover::after {
+            display: none !important;
           }
           
           .print-cover img {
@@ -323,22 +339,26 @@ export default function RelatorioCultura() {
           
           /* === ÍNDICE === */
           .print-index {
-            /* A capa já força quebra de página; evitamos dupla quebra */
+            width: 210mm !important;
+            max-width: 210mm !important;
             page-break-before: auto;
-            padding: 20mm 25mm;
-            min-height: 297mm;
+            page-break-after: always;
+            page-break-inside: avoid;
+            padding: 15mm 20mm;
+            min-height: auto;
+            max-height: 297mm;
             box-sizing: border-box;
             background: white !important;
             position: relative;
+            margin: 0 !important;
           }
-
           
           .print-index h2 {
-            font-size: 24pt;
+            font-size: 22pt;
             font-weight: 700;
             color: #1e3a8a !important;
-            margin-bottom: 16pt;
-            padding-bottom: 8pt;
+            margin-bottom: 12pt;
+            padding-bottom: 6pt;
             border-bottom: 3px solid #3b82f6;
           }
           
@@ -352,24 +372,34 @@ export default function RelatorioCultura() {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            padding: 8pt 0;
+            padding: 5pt 0;
             border-bottom: 1px dotted #d1d5db;
-            font-size: 12pt;
+            font-size: 11pt;
             color: #374151 !important;
           }
           
           .print-index-item .section-icon {
-            margin-right: 8pt;
+            margin-right: 6pt;
           }
           
           /* === SEÇÕES DE CONTEÚDO === */
           .print-section {
+            width: 210mm !important;
+            max-width: 210mm !important;
             page-break-before: always;
-            padding: 20mm 25mm;
+            padding: 15mm 20mm;
             min-height: 297mm;
             box-sizing: border-box;
             background: white !important;
             position: relative;
+            margin: 0 !important;
+          }
+          
+          /* Seções vazias não devem ser exibidas */
+          .print-section:empty {
+            display: none !important;
+            page-break-before: avoid !important;
+            min-height: 0 !important;
           }
           
           /* Numeração de páginas */
@@ -379,7 +409,7 @@ export default function RelatorioCultura() {
             content: counter(page-counter);
             position: absolute;
             bottom: 10mm;
-            right: 25mm;
+            right: 20mm;
             font-size: 10pt;
             color: #9ca3af !important;
           }
@@ -458,18 +488,22 @@ export default function RelatorioCultura() {
           /* === VALORES === */
           .print-value {
             page-break-inside: avoid;
-            margin-bottom: 16pt;
-            padding: 16pt;
+            margin-bottom: 12pt;
+            padding: 12pt;
             background: #fafafa !important;
             border: 1px solid #e5e7eb;
-            border-radius: 8pt;
+            border-radius: 6pt;
+          }
+          
+          .print-value:first-of-type {
+            margin-top: 0 !important;
           }
           
           .print-value h3 {
-            font-size: 14pt;
+            font-size: 13pt;
             color: #1e3a8a !important;
-            margin-top: 0;
-            margin-bottom: 8pt;
+            margin-top: 0 !important;
+            margin-bottom: 6pt;
           }
           
           .print-value-description {
@@ -515,16 +549,24 @@ export default function RelatorioCultura() {
           
           /* === FOOTER === */
           .print-footer {
+            width: 210mm !important;
+            max-width: 210mm !important;
             page-break-before: always;
             min-height: 297mm;
+            margin: 0 !important;
             display: flex !important;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
-            padding: 40mm 25mm;
+            padding: 40mm 20mm;
             box-sizing: border-box;
             text-align: center;
+          }
+          
+          /* Footer não tem numeração de página */
+          .print-footer::after {
+            display: none !important;
           }
           
           .print-footer h2 {
@@ -1574,55 +1616,57 @@ export default function RelatorioCultura() {
           <div className="print-break" />
 
           {/* Identidade e Diferenciação */}
-          <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-            <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
-              🎯 Identidade e Diferenciação
-            </h2>
+          {(doc.reputation_goal || doc.competitive_advantage || (doc.swot_strengths && doc.swot_strengths.length > 0) || (doc.swot_improvements && doc.swot_improvements.length > 0)) && (
+            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
+              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+                🎯 Identidade e Diferenciação
+              </h2>
 
-            {doc.reputation_goal && (
-              <div className="space-y-3">
-                <h3 className="text-xl font-semibold text-purple-300">Reputação Desejada</h3>
-                <p className="text-slate-200 leading-relaxed">{doc.reputation_goal}</p>
-              </div>
-            )}
-
-            {doc.competitive_advantage && (
-              <div className="space-y-3 mt-6">
-                <h3 className="text-xl font-semibold text-purple-300">Vantagem Competitiva</h3>
-                <p className="text-slate-200 leading-relaxed">{doc.competitive_advantage}</p>
-              </div>
-            )}
-
-            <div className="grid md:grid-cols-2 gap-6 mt-6">
-              {doc.swot_strengths && doc.swot_strengths.length > 0 && (
+              {doc.reputation_goal && (
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-green-300">💪 Pontos Fortes</h3>
-                  <ul className="space-y-2">
-                    {doc.swot_strengths.map((strength, i) => (
-                      <li key={i} className="text-slate-300 flex items-start gap-2">
-                        <span className="text-green-400">✓</span>
-                        {strength}
-                      </li>
-                    ))}
-                  </ul>
+                  <h3 className="text-xl font-semibold text-purple-300">Reputação Desejada</h3>
+                  <p className="text-slate-200 leading-relaxed">{doc.reputation_goal}</p>
                 </div>
               )}
 
-              {doc.swot_improvements && doc.swot_improvements.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-yellow-300">🔧 Melhorias Necessárias</h3>
-                  <ul className="space-y-2">
-                    {doc.swot_improvements.map((improvement, i) => (
-                      <li key={i} className="text-slate-300 flex items-start gap-2">
-                        <span className="text-yellow-400">→</span>
-                        {improvement}
-                      </li>
-                    ))}
-                  </ul>
+              {doc.competitive_advantage && (
+                <div className="space-y-3 mt-6">
+                  <h3 className="text-xl font-semibold text-purple-300">Vantagem Competitiva</h3>
+                  <p className="text-slate-200 leading-relaxed">{doc.competitive_advantage}</p>
                 </div>
               )}
-            </div>
-          </section>
+
+              <div className="grid md:grid-cols-2 gap-6 mt-6">
+                {doc.swot_strengths && doc.swot_strengths.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold text-green-300">💪 Pontos Fortes</h3>
+                    <ul className="space-y-2">
+                      {doc.swot_strengths.map((strength, i) => (
+                        <li key={i} className="text-slate-300 flex items-start gap-2">
+                          <span className="text-green-400">✓</span>
+                          {strength}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {doc.swot_improvements && doc.swot_improvements.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold text-yellow-300">🔧 Melhorias Necessárias</h3>
+                    <ul className="space-y-2">
+                      {doc.swot_improvements.map((improvement, i) => (
+                        <li key={i} className="text-slate-300 flex items-start gap-2">
+                          <span className="text-yellow-400">→</span>
+                          {improvement}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
 
           <div className="print-break" />
 
@@ -1648,42 +1692,44 @@ export default function RelatorioCultura() {
           <div className="print-break" />
 
           {/* Desenvolvimento Integral de Pessoas */}
-          <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-            <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
-              🌱 Desenvolvimento Integral de Pessoas
-            </h2>
+          {(doc.growth_practices || doc.wellbeing_support || doc.psychological_safety_practices) && (
+            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
+              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+                🌱 Desenvolvimento Integral de Pessoas
+              </h2>
 
-            {doc.growth_practices && (
-              <div className="space-y-3">
-                <h3 className="text-xl font-semibold text-purple-300">Práticas de Crescimento</h3>
-                <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">
-                  {doc.growth_practices}
-                </p>
-              </div>
-            )}
+              {doc.growth_practices && (
+                <div className="space-y-3">
+                  <h3 className="text-xl font-semibold text-purple-300">Práticas de Crescimento</h3>
+                  <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">
+                    {doc.growth_practices}
+                  </p>
+                </div>
+              )}
 
-            {doc.wellbeing_support && (
-              <div className="space-y-3 mt-6">
-                <h3 className="text-xl font-semibold text-purple-300">
-                  Suporte ao Bem-Estar (Físico, Mental, Emocional, Espiritual)
-                </h3>
-                <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">
-                  {doc.wellbeing_support}
-                </p>
-              </div>
-            )}
+              {doc.wellbeing_support && (
+                <div className="space-y-3 mt-6">
+                  <h3 className="text-xl font-semibold text-purple-300">
+                    Suporte ao Bem-Estar (Físico, Mental, Emocional, Espiritual)
+                  </h3>
+                  <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">
+                    {doc.wellbeing_support}
+                  </p>
+                </div>
+              )}
 
-            {doc.psychological_safety_practices && (
-              <div className="space-y-3 mt-6">
-                <h3 className="text-xl font-semibold text-purple-300">
-                  Segurança Psicológica (NR-1)
-                </h3>
-                <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">
-                  {doc.psychological_safety_practices}
-                </p>
-              </div>
-            )}
-          </section>
+              {doc.psychological_safety_practices && (
+                <div className="space-y-3 mt-6">
+                  <h3 className="text-xl font-semibold text-purple-300">
+                    Segurança Psicológica (NR-1)
+                  </h3>
+                  <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">
+                    {doc.psychological_safety_practices}
+                  </p>
+                </div>
+              )}
+            </section>
+          )}
 
           <div className="print-break" />
 
