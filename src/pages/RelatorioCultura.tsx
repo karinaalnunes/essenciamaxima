@@ -456,11 +456,29 @@ export default function RelatorioCultura() {
           /* === TABELAS === */
           .print-table {
             width: 100%;
+            max-width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
             margin: 12pt 0;
             font-size: 9pt;
-            page-break-inside: avoid;
+            /* IMPORTANTE: permitir que a tabela quebre entre páginas (evita “escala”/páginas irregulares) */
+            page-break-inside: auto;
+            break-inside: auto;
           }
+
+           /* Repetir cabeçalho quando a tabela quebrar de página */
+           .print-table thead {
+             display: table-header-group;
+           }
+           .print-table tfoot {
+             display: table-footer-group;
+           }
+
+           /* Evitar cortar uma linha no meio (mas permitir quebrar a tabela como um todo) */
+           .print-table tr {
+             page-break-inside: avoid;
+             break-inside: avoid;
+           }
           
           .print-table th,
           .print-table td {
@@ -468,6 +486,9 @@ export default function RelatorioCultura() {
             padding: 6pt 8pt;
             text-align: left;
             vertical-align: top;
+             overflow-wrap: anywhere;
+             word-break: break-word;
+             hyphens: auto;
           }
           
           .print-table th {
@@ -838,6 +859,12 @@ export default function RelatorioCultura() {
             <h2>Decisões Limite (Kill Criteria)</h2>
           </div>
           <table className="print-table">
+             <colgroup>
+               <col style={{ width: "18%" }} />
+               <col style={{ width: "44%" }} />
+               <col style={{ width: "23%" }} />
+               <col style={{ width: "15%" }} />
+             </colgroup>
             <thead>
               <tr>
                 <th>Stakeholder</th>
@@ -868,6 +895,11 @@ export default function RelatorioCultura() {
             <h2>Indicadores de Cultura</h2>
           </div>
           <table className="print-table">
+             <colgroup>
+               <col style={{ width: "26%" }} />
+               <col style={{ width: "49%" }} />
+               <col style={{ width: "25%" }} />
+             </colgroup>
             <thead>
               <tr>
                 <th>Indicador</th>
@@ -904,6 +936,15 @@ export default function RelatorioCultura() {
             <div key={idx} style={{ marginBottom: '24pt' }}>
               <h3>{plan.title}</h3>
               <table className="print-table">
+                 <colgroup>
+                   <col style={{ width: "14%" }} />
+                   <col style={{ width: "16%" }} />
+                   <col style={{ width: "10%" }} />
+                   <col style={{ width: "10%" }} />
+                   <col style={{ width: "10%" }} />
+                   <col style={{ width: "26%" }} />
+                   <col style={{ width: "14%" }} />
+                 </colgroup>
                 <thead>
                   <tr>
                     <th>O quê</th>
