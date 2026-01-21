@@ -232,8 +232,8 @@ export default function RelatorioCultura() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* CSS de impressão - Padrão MVV (simples e elegante) */}
+    <div className="report-shell min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* CSS de impressão - Reorganizado para eliminar blocos escuros */}
       <style>{`
         @media print {
           @page {
@@ -247,22 +247,29 @@ export default function RelatorioCultura() {
             color-adjust: exact !important;
           }
           
-          html {
-            width: 210mm !important;
-            height: 297mm !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-          
-          body {
+          /* FASE 2: Neutralizar fundo escuro do wrapper principal durante impressão */
+          html, body {
             width: 210mm !important;
             margin: 0 !important;
             padding: 0 !important;
             background: white !important;
           }
           
-          .no-print {
+          .report-shell {
+            background: white !important;
+            min-height: auto !important;
+          }
+          
+          /* Esconde versão de tela */
+          .no-print,
+          .screen-only {
             display: none !important;
+          }
+          
+          /* Container de impressão: ambiente 100% branco */
+          .print-document {
+            background: white !important;
+            width: 210mm !important;
           }
           
           /* === CAPA (escura elegante) === */
@@ -274,10 +281,12 @@ export default function RelatorioCultura() {
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e3a5f 100%) !important;
-            page-break-after: always;
             padding: 40mm 25mm;
             margin: 0 !important;
             box-sizing: border-box;
+            /* FASE 3: Quebra APÓS a capa */
+            page-break-after: always;
+            break-after: page;
           }
           
           .print-cover img {
@@ -315,18 +324,16 @@ export default function RelatorioCultura() {
             font-weight: 600;
           }
           
-          /* === SEÇÕES DE CONTEÚDO (página branca completa - evita blocos escuros) === */
+          /* === SEÇÕES DE CONTEÚDO (fundo branco, quebra ANTES) === */
           .print-section {
             width: 210mm !important;
-            min-height: 297mm !important;
             background: white !important;
-
-            /* Evita páginas em branco entre capa/seções (break AFTER em vez de BEFORE) */
-            page-break-after: always;
-            break-after: page;
             padding: 20mm 25mm;
             margin: 0 !important;
             box-sizing: border-box;
+            /* FASE 3: Quebra ANTES de cada seção */
+            page-break-before: always;
+            break-before: page;
           }
           
           .print-section-header {
@@ -390,7 +397,7 @@ export default function RelatorioCultura() {
             margin-bottom: 16pt;
           }
           
-          /* === CARDS (fundo branco com borda colorida - economiza tinta) === */
+          /* === CARDS === */
           .print-card {
             page-break-inside: avoid;
             margin-bottom: 16pt;
@@ -408,7 +415,7 @@ export default function RelatorioCultura() {
             margin-bottom: 8pt;
           }
           
-          /* === VALUE CARDS (fundo branco com borda roxa - economiza tinta) === */
+          /* === VALUE CARDS === */
           .print-value-card {
             page-break-inside: avoid;
             margin-bottom: 20pt;
@@ -474,11 +481,10 @@ export default function RelatorioCultura() {
             background: white !important;
           }
           
-          /* === FOOTER (escuro elegante - contracapa) === */
+          /* === FOOTER / CONTRACAPA (escura elegante) === */
           .print-footer {
             width: 210mm !important;
             min-height: 297mm !important;
-            /* A página anterior já força quebra; evitar dupla quebra (página vazia) */
             display: flex !important;
             flex-direction: column;
             justify-content: center;
@@ -488,6 +494,9 @@ export default function RelatorioCultura() {
             margin: 0 !important;
             box-sizing: border-box;
             text-align: center;
+            /* FASE 3: Quebra ANTES da contracapa */
+            page-break-before: always;
+            break-before: page;
           }
           
           .print-footer h2 {
@@ -515,20 +524,22 @@ export default function RelatorioCultura() {
           }
         }
         
-        /* Screen styles */
+        /* === Estilos de TELA: esconde elementos de print === */
         @media screen {
-          .print-cover,
-          .print-section,
-          .print-footer {
-            display: none;
+          .print-document {
+            display: none !important;
+          }
+          
+          .screen-only {
+            display: block;
           }
         }
       `}</style>
       
-      {/* ========== VERSÃO PARA IMPRESSÃO (PDF) ========== */}
-      
-      {/* Capa */}
-      <div className="print-cover">
+      {/* ========== VERSÃO PARA IMPRESSÃO (PDF) - Container isolado ========== */}
+      <div className="print-document">
+        {/* Capa */}
+        <div className="print-cover">
         <img src={logo} alt="Máxima iA" />
         <div className="cover-title">Código de Cultura</div>
         <div className="cover-divider"></div>
@@ -976,9 +987,10 @@ export default function RelatorioCultura() {
           <p>📲 (11) 98082-3550 | 📸 @karinaalnunes</p>
         </div>
       </div>
+      </div>{/* Fecha print-document */}
 
       {/* ========== VERSÃO PARA TELA ========== */}
-      <div className="no-print">
+      <div className="screen-only">
         <header className="p-6 border-b border-slate-700/50 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
@@ -1013,14 +1025,19 @@ export default function RelatorioCultura() {
                 </Button>
               </div>
             )}
-            <Button onClick={handleExportPDF} disabled={isPrinting}>
-              {isPrinting ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Download className="w-4 h-4 mr-2" />
-              )}
-              {isPrinting ? "Preparando..." : "Exportar PDF"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button onClick={handleExportPDF} disabled={isPrinting}>
+                {isPrinting ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                {isPrinting ? "Preparando..." : "Exportar PDF"}
+              </Button>
+              <span className="text-xs text-slate-400 max-w-[180px]">
+                💡 Margens: Nenhuma, Escala: 100%, Gráficos de fundo: Ativado
+              </span>
+            </div>
           </div>
         </header>
 
