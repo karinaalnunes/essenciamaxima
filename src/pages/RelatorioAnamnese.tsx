@@ -19,6 +19,51 @@ interface AnamnesisReport {
   completed_at: string | null;
 }
 
+// Função para converter Markdown para HTML
+const parseMarkdownToHtml = (markdown: string): string => {
+  if (!markdown) return '';
+  
+  let html = markdown;
+  
+  // Escapar HTML existente
+  html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  
+  // Headers
+  html = html.replace(/^### (.+)$/gm, '<h3 class="text-lg font-semibold text-blue-400 mt-6 mb-2">$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-purple-400 mt-8 mb-3">$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-white mt-8 mb-4">$1</h1>');
+  
+  // Bold
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
+  
+  // Listas com asterisco ou hífen
+  html = html.replace(/^\* (.+)$/gm, '<li class="ml-4 text-slate-300">• $1</li>');
+  html = html.replace(/^- (.+)$/gm, '<li class="ml-4 text-slate-300">• $1</li>');
+  
+  // Agrupar listas consecutivas
+  html = html.replace(/(<li[^>]*>.*<\/li>\n?)+/g, (match) => {
+    return `<ul class="space-y-1 my-3">${match}</ul>`;
+  });
+  
+  // Parágrafos (linhas que não são headers, listas ou vazias)
+  const lines = html.split('\n');
+  const processedLines = lines.map(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return '<br/>';
+    if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') || trimmed.startsWith('<li') || trimmed.startsWith('</')) {
+      return line;
+    }
+    return `<p class="text-slate-300 leading-relaxed my-2">${line}</p>`;
+  });
+  
+  html = processedLines.join('\n');
+  
+  // Limpar <br/> excessivos
+  html = html.replace(/(<br\/>){3,}/g, '<br/><br/>');
+  
+  return html;
+};
+
 export default function RelatorioAnamnese() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -323,7 +368,7 @@ export default function RelatorioAnamnese() {
           </div>
           <div 
             className="print-diagnostic"
-            dangerouslySetInnerHTML={{ __html: report.diagnostic_report }}
+            dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(report.diagnostic_report) }}
           />
         </div>
       )}
@@ -437,14 +482,14 @@ export default function RelatorioAnamnese() {
 
           {/* Diagnóstico - Tela */}
           {isComplete && report.diagnostic_report ? (
-            <Card className="bg-slate-800/50 border-slate-700 p-8 mb-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <span className="text-3xl">📊</span>
+            <Card className="bg-slate-800/50 border-slate-700 p-4 md:p-8 mb-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6 flex items-center gap-3">
+                <span className="text-2xl md:text-3xl">📊</span>
                 Diagnóstico e Insights
               </h3>
               <div 
-                className="prose prose-invert max-w-none text-slate-200"
-                dangerouslySetInnerHTML={{ __html: report.diagnostic_report }}
+                className="max-w-none overflow-x-hidden break-words"
+                dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(report.diagnostic_report) }}
               />
             </Card>
           ) : (

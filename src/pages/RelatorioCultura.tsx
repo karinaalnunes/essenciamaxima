@@ -1090,7 +1090,7 @@ export default function RelatorioCultura() {
 
       {/* ========== VERSÃO PARA TELA ========== */}
       <div className="screen-only">
-        <header className="p-6 border-b border-slate-700/50 flex items-center justify-between">
+        <header className="p-4 md:p-6 border-b border-slate-700/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -1101,60 +1101,63 @@ export default function RelatorioCultura() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Dashboard
             </Button>
-            <img src={logo} alt="Máxima iA" width="150" height="75" />
+            <img src={logo} alt="Máxima iA" width="120" height="60" className="hidden md:block" />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 w-full md:w-auto">
             {(doc?.report_version_inspirational || doc?.report_version_technical) && (
-              <div className="flex gap-2 bg-slate-800 p-1 rounded-lg">
+              <div className="flex gap-1 md:gap-2 bg-slate-800 p-1 rounded-lg">
                 <Button
                   size="sm"
                   variant={!showTechnical ? "default" : "ghost"}
                   onClick={() => setShowTechnical(false)}
-                  className="text-xs"
+                  className="text-xs px-2 md:px-3"
                 >
-                  📖 Inspiradora
+                  📖 <span className="hidden sm:inline ml-1">Inspiradora</span>
                 </Button>
                 <Button
                   size="sm"
                   variant={showTechnical ? "default" : "ghost"}
                   onClick={() => setShowTechnical(true)}
-                  className="text-xs"
+                  className="text-xs px-2 md:px-3"
                 >
-                  📊 Técnica
+                  📊 <span className="hidden sm:inline ml-1">Técnica</span>
                 </Button>
               </div>
             )}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button 
                 variant="outline" 
+                size="sm"
                 onClick={handleSyncTasksToKanban} 
                 disabled={isSyncingTasks || !isComplete}
-                className="border-primary/50 text-primary hover:bg-primary/10"
+                className="border-primary/50 text-primary hover:bg-primary/10 text-xs md:text-sm"
               >
                 {isSyncingTasks ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 mr-1 md:mr-2 animate-spin" />
                 ) : (
-                  <ClipboardList className="w-4 h-4 mr-2" />
+                  <ClipboardList className="w-4 h-4 mr-1 md:mr-2" />
                 )}
-                {isSyncingTasks ? "Importando..." : "Importar para Kanban"}
+                <span className="hidden sm:inline">{isSyncingTasks ? "Importando..." : "Importar Kanban"}</span>
+                <span className="sm:hidden">Kanban</span>
               </Button>
-              <Button onClick={handleExportPDF} disabled={isPrinting}>
+              <Button size="sm" onClick={handleExportPDF} disabled={isPrinting} className="text-xs md:text-sm">
                 {isPrinting ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 mr-1 md:mr-2 animate-spin" />
                 ) : (
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-4 h-4 mr-1 md:mr-2" />
                 )}
-                {isPrinting ? "Preparando..." : "Exportar PDF"}
+                <span className="hidden sm:inline">{isPrinting ? "Preparando..." : "Exportar PDF"}</span>
+                <span className="sm:hidden">PDF</span>
               </Button>
-              <span className="text-xs text-slate-400 max-w-[180px]">
-                💡 Margens: Nenhuma, Escala: 100%, Gráficos de fundo: Ativado
+              <span className="hidden lg:inline text-xs text-slate-400 max-w-[180px]">
+                💡 Margens: Nenhuma, Escala: 100%
               </span>
             </div>
           </div>
         </header>
 
         {!isComplete && (
-          <div className="max-w-4xl mx-auto p-6">
+          <div className="max-w-4xl mx-auto p-4 md:p-6">
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
@@ -1164,7 +1167,7 @@ export default function RelatorioCultura() {
           </div>
         )}
 
-        <div className="max-w-4xl mx-auto p-8 space-y-12">
+        <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-8 md:space-y-12 overflow-x-hidden">
           {/* Capa */}
           <div className="text-center space-y-6 py-12">
             <img src={logo} alt="Máxima iA" width="150" height="75" className="mx-auto" />
