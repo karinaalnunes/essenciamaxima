@@ -292,9 +292,9 @@ export default function Dashboard() {
                           className={cn(
                             "text-xs px-2 py-0.5 rounded-md",
                             isCompleted 
-                              ? "bg-primary/10 text-primary" 
+                              ? "bg-success/20 text-success-foreground" 
                               : module.isAvailable 
-                                ? "bg-secondary text-secondary-foreground"
+                                ? "bg-secondary text-foreground/80"
                                 : "bg-muted/50 text-muted-foreground"
                           )}
                         >

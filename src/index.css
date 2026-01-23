@@ -53,11 +53,9 @@ All colors MUST be HSL.
     --slate-300: 214.3 31.8% 71.4%;
     --slate-200: 214.3 31.8% 81.4%;
     
-    /* Pillar colors */
-    --pillar-essencia: 262 83% 58%;
-    --pillar-estrutura: 217 91% 60%;
-    --pillar-governanca: 160 84% 39%;
-    --pillar-conselho: 38 92% 50%;
+    /* Semantic success color */
+    --success: 158 64% 52%;
+    --success-foreground: 158 64% 85%;
   }
 }
 
