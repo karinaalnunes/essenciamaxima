@@ -3,8 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Download, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, Download, AlertCircle, Loader2, ClipboardList } from "lucide-react";
 import { useConfetti } from "@/hooks/useConfetti";
+import { useToast } from "@/hooks/use-toast";
+import { syncActionPlanToKanban } from "@/lib/syncActionPlanTasks";
 import logo from "@/assets/logo-maxima-ia-negativo.png";
 
 interface Value {
@@ -146,10 +148,12 @@ export default function RelatorioCultura() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { fireConfetti } = useConfetti();
+  const { toast } = useToast();
   const [doc, setDoc] = useState<CultureDocument | null>(null);
   const [loading, setLoading] = useState(true);
   const [showTechnical, setShowTechnical] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isSyncingTasks, setIsSyncingTasks] = useState(false);
 
   useEffect(() => {
     const checkAuthAndLoad = async () => {
@@ -229,6 +233,60 @@ export default function RelatorioCultura() {
 
   const handleExportPDF = () => {
     window.print();
+  };
+
+  const handleSyncTasksToKanban = async () => {
+    if (!doc || !id) return;
+    
+    setIsSyncingTasks(true);
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Sessão expirada",
+          description: "Faça login novamente.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const syncResult = await syncActionPlanToKanban(
+        session.user.id,
+        id,
+        doc.action_plan_30 || [],
+        doc.action_plan_60 || [],
+        doc.action_plan_90 || [],
+        doc.action_plan_120 || []
+      );
+
+      if (syncResult.tasksCreated > 0) {
+        toast({
+          title: "Tarefas importadas! 📋",
+          description: `${syncResult.tasksCreated} tarefas adicionadas ao seu Kanban.`,
+        });
+      } else if (syncResult.errors.length > 0) {
+        toast({
+          title: "Erro ao importar",
+          description: syncResult.errors[0],
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Nada a importar",
+          description: "As tarefas do plano de ação já estão no seu Kanban.",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao sincronizar tarefas:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível importar as tarefas. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncingTasks(false);
+    }
   };
 
   return (
@@ -1067,6 +1125,19 @@ export default function RelatorioCultura() {
               </div>
             )}
             <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                onClick={handleSyncTasksToKanban} 
+                disabled={isSyncingTasks || !isComplete}
+                className="border-primary/50 text-primary hover:bg-primary/10"
+              >
+                {isSyncingTasks ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <ClipboardList className="w-4 h-4 mr-2" />
+                )}
+                {isSyncingTasks ? "Importando..." : "Importar para Kanban"}
+              </Button>
               <Button onClick={handleExportPDF} disabled={isPrinting}>
                 {isPrinting ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
