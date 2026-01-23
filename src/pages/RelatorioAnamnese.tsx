@@ -19,7 +19,7 @@ interface AnamnesisReport {
   completed_at: string | null;
 }
 
-// Função para converter Markdown para HTML
+// Função para converter Markdown para HTML com melhor UX
 const parseMarkdownToHtml = (markdown: string): string => {
   if (!markdown) return '';
   
@@ -28,38 +28,38 @@ const parseMarkdownToHtml = (markdown: string): string => {
   // Escapar HTML existente
   html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   
-  // Headers
-  html = html.replace(/^### (.+)$/gm, '<h3 class="text-lg font-semibold text-blue-400 mt-6 mb-2">$1</h3>');
-  html = html.replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-purple-400 mt-8 mb-3">$1</h2>');
-  html = html.replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-white mt-8 mb-4">$1</h1>');
+  // Headers com melhor visual hierarchy e ícones contextuais
+  html = html.replace(/^### (.+)$/gm, '<h3 class="text-lg font-semibold text-blue-300 mt-6 mb-3 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-purple-300 mt-8 mb-4 pb-2 border-b border-purple-500/30">$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-white mt-10 mb-5 pb-3 border-b border-slate-600">$1</h1>');
   
-  // Bold
+  // Bold com destaque
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
   
-  // Listas com asterisco ou hífen
-  html = html.replace(/^\* (.+)$/gm, '<li class="ml-4 text-slate-300">• $1</li>');
-  html = html.replace(/^- (.+)$/gm, '<li class="ml-4 text-slate-300">• $1</li>');
+  // Listas com visual melhorado
+  html = html.replace(/^\* (.+)$/gm, '<li class="ml-4 text-slate-300 flex items-start gap-2"><span class="text-purple-400 mt-1">•</span><span>$1</span></li>');
+  html = html.replace(/^- (.+)$/gm, '<li class="ml-4 text-slate-300 flex items-start gap-2"><span class="text-purple-400 mt-1">•</span><span>$1</span></li>');
   
   // Agrupar listas consecutivas
   html = html.replace(/(<li[^>]*>.*<\/li>\n?)+/g, (match) => {
-    return `<ul class="space-y-1 my-3">${match}</ul>`;
+    return `<ul class="space-y-2 my-4 pl-2">${match}</ul>`;
   });
   
-  // Parágrafos (linhas que não são headers, listas ou vazias)
+  // Parágrafos com melhor espaçamento
   const lines = html.split('\n');
   const processedLines = lines.map(line => {
     const trimmed = line.trim();
-    if (!trimmed) return '<br/>';
-    if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') || trimmed.startsWith('<li') || trimmed.startsWith('</')) {
+    if (!trimmed) return '<div class="h-3"></div>';
+    if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') || trimmed.startsWith('<li') || trimmed.startsWith('</') || trimmed.startsWith('<div')) {
       return line;
     }
-    return `<p class="text-slate-300 leading-relaxed my-2">${line}</p>`;
+    return `<p class="text-slate-300 leading-relaxed my-3">${line}</p>`;
   });
   
   html = processedLines.join('\n');
   
-  // Limpar <br/> excessivos
-  html = html.replace(/(<br\/>){3,}/g, '<br/><br/>');
+  // Limpar espaços excessivos
+  html = html.replace(/(<div class="h-3"><\/div>){3,}/g, '<div class="h-6"></div>');
   
   return html;
 };
@@ -448,16 +448,16 @@ export default function RelatorioAnamnese() {
           </div>
 
           {/* Capa - Tela */}
-          <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700 p-10 mb-8 animate-fade-in">
+          <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700 p-6 md:p-10 mb-8 animate-fade-in">
             <div className="flex justify-center mb-6">
               <img src={logo} alt="Máxima iA" width="150" height="75" />
             </div>
             
-            <h2 className="text-4xl font-black text-center text-white mb-8 tracking-tight">
+            <h2 className="text-2xl md:text-4xl font-black text-center text-white mb-8 tracking-tight">
               {report.company_name}
             </h2>
             
-            <div className="grid md:grid-cols-3 gap-6 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-center">
               <div className="bg-slate-800/50 rounded-lg p-4">
                 <div className="text-3xl mb-2">🏢</div>
                 <div className="text-xs text-slate-400 uppercase mb-1">Segmento</div>
@@ -480,6 +480,21 @@ export default function RelatorioAnamnese() {
             </div>
           </Card>
 
+          {/* Resumo Executivo */}
+          {isComplete && (
+            <Card className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border-blue-500/30 p-4 md:p-6 mb-8 animate-fade-in" style={{ animationDelay: '0.05s' }}>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-3xl">📋</span>
+                <h3 className="text-lg md:text-xl font-bold text-white">Resumo Executivo</h3>
+              </div>
+              <p className="text-slate-300 leading-relaxed text-sm md:text-base">
+                Este diagnóstico foi gerado com base nas respostas fornecidas durante a <strong className="text-white">Anamnese Máxima</strong>.
+                Abaixo você encontra os principais insights identificados para <strong className="text-purple-300">{report.company_name}</strong>, 
+                organizados em seções que cobrem desde pontos fortes até oportunidades de melhoria.
+              </p>
+            </Card>
+          )}
+
           {/* Diagnóstico - Tela */}
           {isComplete && report.diagnostic_report ? (
             <Card className="bg-slate-800/50 border-slate-700 p-4 md:p-8 mb-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
@@ -488,7 +503,7 @@ export default function RelatorioAnamnese() {
                 Diagnóstico e Insights
               </h3>
               <div 
-                className="max-w-none overflow-x-hidden break-words"
+                className="max-w-none overflow-x-hidden break-words prose-sm md:prose"
                 dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(report.diagnostic_report) }}
               />
             </Card>
@@ -509,41 +524,35 @@ export default function RelatorioAnamnese() {
 
           {/* Próximos Passos - Tela */}
           {isComplete && (
-            <Card className="bg-slate-800/50 border-slate-700 p-8 mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <span className="text-3xl">🎯</span>
+            <Card className="bg-slate-800/50 border-slate-700 p-4 md:p-8 mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <span className="text-2xl md:text-3xl">🎯</span>
                 Próximos Passos
               </h3>
-              <div className="space-y-4">
-                <div className="flex items-start gap-4 p-4 bg-slate-900/50 rounded-lg">
-                  <span className="text-2xl font-bold text-purple-400">1</span>
-                  <div>
-                    <strong className="text-white">Iniciar Cultura Máxima:</strong>
-                    <p className="text-slate-300 mt-1">Use este diagnóstico como base para criar seu Código de Cultura completo</p>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-500/30 rounded-xl p-4 md:p-5 text-center">
+                  <div className="text-4xl mb-3">1️⃣</div>
+                  <h4 className="font-bold text-green-300 mb-2">Cultura Máxima</h4>
+                  <p className="text-sm text-slate-300">Use este diagnóstico para criar seu Código de Cultura</p>
                 </div>
-                <div className="flex items-start gap-4 p-4 bg-slate-900/50 rounded-lg">
-                  <span className="text-2xl font-bold text-purple-400">2</span>
-                  <div>
-                    <strong className="text-white">Compartilhar com liderança:</strong>
-                    <p className="text-slate-300 mt-1">Apresente os insights para alinhar expectativas e prioridades</p>
-                  </div>
+                <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/20 border border-blue-500/30 rounded-xl p-4 md:p-5 text-center">
+                  <div className="text-4xl mb-3">2️⃣</div>
+                  <h4 className="font-bold text-blue-300 mb-2">Compartilhar</h4>
+                  <p className="text-sm text-slate-300">Apresente os insights para alinhar a liderança</p>
                 </div>
-                <div className="flex items-start gap-4 p-4 bg-slate-900/50 rounded-lg">
-                  <span className="text-2xl font-bold text-purple-400">3</span>
-                  <div>
-                    <strong className="text-white">Planejar ações:</strong>
-                    <p className="text-slate-300 mt-1">Transforme os gaps identificados em planos concretos na consultoria de Cultura</p>
-                  </div>
+                <div className="bg-gradient-to-br from-purple-900/30 to-purple-800/20 border border-purple-500/30 rounded-xl p-4 md:p-5 text-center">
+                  <div className="text-4xl mb-3">3️⃣</div>
+                  <h4 className="font-bold text-purple-300 mb-2">Planejar</h4>
+                  <p className="text-sm text-slate-300">Transforme gaps em planos de ação concretos</p>
                 </div>
               </div>
               
               <Button 
                 onClick={() => navigate("/novo-cultura")}
-                className="w-full mt-6"
+                className="w-full"
                 size="lg"
               >
-                Iniciar Cultura Máxima
+                🚀 Iniciar Cultura Máxima
               </Button>
             </Card>
           )}
