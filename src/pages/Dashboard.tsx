@@ -91,7 +91,7 @@ export default function Dashboard() {
   const { fireConfetti } = useConfetti();
 
   const [user, setUser] = useState<any>(null);
-  const [previousCultureStatus, setPreviousCultureStatus] = useState<string | null>(null);
+  // Não usamos mais previousCultureStatus - confete é disparado via sessionStorage flag
   const [isAdmin, setIsAdmin] = useState(false);
   const [document, setDocument] = useState<any>(null);
   const [cultureDocument, setCultureDocument] = useState<any>(null);
@@ -231,16 +231,17 @@ export default function Dashboard() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Confetti quando desbloquear Cadeia de Valor
+  // Confetti quando desbloquear Cadeia de Valor - só dispara via flag de sessionStorage
   useEffect(() => {
-    if (previousCultureStatus !== null && previousCultureStatus !== "complete" && cultureStatus === "complete") {
+    const justCompletedCulture = sessionStorage.getItem("just_completed_culture");
+    if (justCompletedCulture === "true" && cultureStatus === "complete") {
+      sessionStorage.removeItem("just_completed_culture");
       fireConfetti("intense");
       toast({
         title: "🎉 Novo módulo desbloqueado!",
         description: "A Cadeia de Valor Máxima agora está disponível!",
       });
     }
-    setPreviousCultureStatus(cultureStatus);
   }, [cultureStatus, fireConfetti, toast]);
 
   const handleLogout = async () => {

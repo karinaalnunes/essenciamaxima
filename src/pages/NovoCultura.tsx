@@ -656,6 +656,9 @@ export default function NovoCultura() {
         description: "Código de Cultura gerado com sucesso!",
       });
 
+      // Flag para disparar confete no dashboard ao voltar
+      sessionStorage.setItem("just_completed_culture", "true");
+
       navigate(`/relatorio-cultura/${documentId}`);
     } catch (error) {
       console.error("Erro ao gerar cultura:", error);
