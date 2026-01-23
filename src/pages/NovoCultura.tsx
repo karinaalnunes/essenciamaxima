@@ -94,6 +94,13 @@ export default function NovoCultura() {
 
       if (cultureDocs && cultureDocs.length > 0) {
         const cultureDoc = cultureDocs[0];
+        
+        // Se já tem relatório gerado (cultural_essence preenchido), redirecionar
+        if (cultureDoc.cultural_essence) {
+          navigate(`/relatorio-cultura/${cultureDoc.id}`);
+          return;
+        }
+        
         setDocumentId(cultureDoc.id);
         await loadExistingConversation(cultureDoc.id);
       } else {
