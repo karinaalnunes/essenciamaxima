@@ -53,13 +53,13 @@ All colors MUST be HSL.
     --slate-300: 214.3 31.8% 71.4%;
     --slate-200: 214.3 31.8% 81.4%;
     
-    /* Premium gold accent */
-    --gold: 45 55% 62%;
-    --gold-foreground: 45 60% 92%;
+    /* Premium gold accent - Champagne suave */
+    --gold: 45 35% 65%;
+    --gold-foreground: 45 40% 20%;
     
     /* Semantic success color (gold-based for premium feel) */
-    --success: 45 55% 62%;
-    --success-foreground: 45 60% 92%;
+    --success: 45 35% 65%;
+    --success-foreground: 45 40% 20%;
   }
 }
 
