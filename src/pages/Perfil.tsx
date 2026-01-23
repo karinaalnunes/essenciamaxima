@@ -305,7 +305,8 @@ export default function Perfil() {
 
   const mvvComplete = documents.mvv?.mission && documents.mvv?.vision;
   const cultureComplete = documents.culture?.cultural_essence;
-  const isPaidPlan = profile?.subscription_plan && profile.subscription_plan !== 'trial';
+  // Mostrar Cultura se: tem plano pago OU já completou o documento de cultura
+  const hasCultureAccess = (profile?.subscription_plan && profile.subscription_plan !== 'trial') || cultureComplete;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
@@ -428,7 +429,7 @@ export default function Perfil() {
             </div>
           </Card>
 
-          {isPaidPlan ? (
+          {hasCultureAccess ? (
             <Card className="p-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
