@@ -62,6 +62,12 @@ export default {
           300: "hsl(var(--slate-300))",
           200: "hsl(var(--slate-200))",
         },
+        pillar: {
+          essencia: "hsl(var(--pillar-essencia))",
+          estrutura: "hsl(var(--pillar-estrutura))",
+          governanca: "hsl(var(--pillar-governanca))",
+          conselho: "hsl(var(--pillar-conselho))",
+        },
       },
       backgroundImage: {
         'gradient-hero': 'var(--gradient-hero)',

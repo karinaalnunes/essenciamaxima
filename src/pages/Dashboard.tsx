@@ -2,87 +2,19 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import {
-  FileText,
-  LogOut,
+  ArrowRight,
+  Lock,
   CheckCircle,
   Clock,
-  TrendingUp,
-  Network,
-  Users,
-  GitBranch,
-  Workflow,
-  BarChart3,
-  Heart,
-  ArrowRight,
-  Loader2,
-  Lock,
+  Sparkles,
 } from "lucide-react";
-import logo from "@/assets/logo-maxima-ia-negativo.png";
 import { useToast } from "@/hooks/use-toast";
 import { useConfetti } from "@/hooks/useConfetti";
-import { ModuleCard } from "@/components/ModuleCard";
-import { AchievementBadge } from "@/components/AchievementBadge";
-import { MODULE_GAINS, getModuleStatus } from "@/config/moduleGains";
-
-// Módulos futuros (inclui Cultura e Cadeia de Valor com status dinâmico)
-const getFutureModules = (mvvStatus: string, cultureStatus: string, valueChainStatus: string) => [
-  {
-    id: "cultura",
-    title: "Cultura Máxima",
-    description: "Código de Cultura",
-    icon: Heart,
-    locked: mvvStatus !== "complete",
-    status: cultureStatus,
-  },
-  {
-    id: "valorChain",
-    title: "Cadeia de Valor Máxima 2.0",
-    description: "Mapeamento Estratégico",
-    icon: TrendingUp,
-    locked: cultureStatus !== "complete",
-    status: valueChainStatus,
-  },
-  {
-    id: "processos",
-    title: "Processos Máxima",
-    description: "Fluxos Detalhados",
-    icon: Workflow,
-    locked: true,
-  },
-  {
-    id: "estrutura",
-    title: "Estrutura Máxima",
-    description: "Organograma",
-    icon: Network,
-    locked: true,
-  },
-  {
-    id: "funcoes",
-    title: "Funções Máxima",
-    description: "Descrição de Funções",
-    icon: Users,
-    locked: true,
-  },
-  {
-    id: "fluxo",
-    title: "Fluxo Máxima",
-    description: "Macrofluxo",
-    icon: GitBranch,
-    locked: true,
-  },
-  {
-    id: "indicadores",
-    title: "Indicadores Máxima",
-    description: "Dashboard da Empresa",
-    icon: BarChart3,
-    locked: true,
-  },
-];
-
-type MVVStatus = "none" | "incomplete" | "complete";
-type CultureStatus = "none" | "incomplete" | "complete";
+import { PILLARS, getPillarsArray, isPillarUnlocked, getPillarProgress } from "@/config/pillars";
+import { cn } from "@/lib/utils";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -90,23 +22,15 @@ export default function Dashboard() {
   const { fireConfetti } = useConfetti();
 
   const [user, setUser] = useState<any>(null);
-  // Não usamos mais previousCultureStatus - confete é disparado via sessionStorage flag
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [document, setDocument] = useState<any>(null);
-  const [cultureDocument, setCultureDocument] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [mvvStatus, setMvvStatus] = useState<MVVStatus>("none");
-  const [cultureStatus, setCultureStatus] = useState<CultureStatus>("none");
-  const [hasCulturaPurchase, setHasCulturaPurchase] = useState(false);
-  const [hasCompletedAnamnesis, setHasCompletedAnamnesis] = useState(false);
-  const [valueChainStatus, setValueChainStatus] = useState<"none" | "incomplete" | "complete">("none");
-  const [valueChainDoc, setValueChainDoc] = useState<any>(null);
+  const [completedModules, setCompletedModules] = useState<string[]>([]);
+  const [essenciaComplete, setEssenciaComplete] = useState(false);
+  const [companyName, setCompanyName] = useState<string>("");
+  const [nextActions, setNextActions] = useState<{ title: string; route: string; pillar: string }[]>([]);
 
   useEffect(() => {
     const checkAuth = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
         navigate("/auth");
@@ -115,113 +39,106 @@ export default function Dashboard() {
 
       setUser(session.user);
 
-      // Check admin status using has_role function
-      const { data: hasAdminRole } = await supabase.rpc("has_role", {
-        _user_id: session.user.id,
-        _role: "admin",
-      });
+      // Load completed modules
+      const completed: string[] = [];
+      let company = "";
 
-      if (hasAdminRole) {
-        setIsAdmin(true);
-      }
-
-      // Buscar documento MVV do usuário
-      const { data: docs } = await supabase
+      // Check MVV
+      const { data: mvvDocs } = await supabase
         .from("mvv_documents")
         .select("*")
         .eq("user_id", session.user.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-      if (!docs || docs.length === 0) {
-        setMvvStatus("none");
-      } else {
-        const doc = docs[0];
-        setDocument(doc);
-        const isComplete = doc.mission && doc.vision && doc.values;
-        setMvvStatus(isComplete ? "complete" : "incomplete");
-
-        // Verificar compra do Cultura Máxima se MVV completo
-        if (isComplete) {
-          // TEMPORÁRIO: Cultura Máxima liberado para testes
-          // Para reverter, descomente o bloco abaixo e remova setHasCulturaPurchase(true)
-          setHasCulturaPurchase(true);
-
-          /* CÓDIGO ORIGINAL - COMENTADO TEMPORARIAMENTE
-          const { data: purchases } = await supabase
-            .from("purchases")
-            .select("*")
-            .eq("user_id", session.user.id)
-            .eq("product_type", "cultura_maxima")
-            .in("status", ["completed", "succeeded"])
-            .limit(1);
-
-          const hasPurchase = purchases && purchases.length > 0;
-          setHasCulturaPurchase(hasPurchase);
-          */
-
-          // Verificar anamnese (agora sempre executa, pois hasCulturaPurchase = true)
-          {
-            const { data: anamnesis } = await supabase
-              .from("organizational_anamnesis")
-              .select("*")
-              .eq("user_id", session.user.id)
-              .order("created_at", { ascending: false })
-              .limit(1);
-
-            const hasAnamnesis = anamnesis && anamnesis.length > 0 && !!anamnesis[0].completed_at;
-            setHasCompletedAnamnesis(hasAnamnesis);
-
-            // Se completou anamnese, buscar documento de cultura
-            if (hasAnamnesis) {
-              const { data: cultureDocs } = await supabase
-                .from("culture_documents")
-                .select("*")
-                .eq("user_id", session.user.id)
-                .eq("mvv_document_id", doc.id)
-                .order("created_at", { ascending: false });
-
-              if (!cultureDocs || cultureDocs.length === 0) {
-                setCultureStatus("none");
-              } else {
-                const cultureDoc = cultureDocs[0];
-                setCultureDocument(cultureDoc);
-                const principles = Array.isArray(cultureDoc.guiding_principles) ? cultureDoc.guiding_principles : [];
-                const cultureComplete = cultureDoc.reputation_goal && principles.length > 0;
-                setCultureStatus(cultureComplete ? "complete" : "incomplete");
-              }
-
-              // Check value chain documents
-              const { data: valueChainDocs } = await supabase
-                .from("value_chain_documents")
-                .select("*")
-                .eq("user_id", session.user.id)
-                .order("created_at", { ascending: false });
-
-              if (!valueChainDocs || valueChainDocs.length === 0) {
-                setValueChainStatus("none");
-              } else {
-                const vcDoc = valueChainDocs[0] as any;
-                setValueChainDoc(vcDoc);
-                const isComplete =
-                  vcDoc.status === "completed" &&
-                  vcDoc.activities &&
-                  Array.isArray(vcDoc.activities) &&
-                  vcDoc.activities.length > 0;
-                setValueChainStatus(isComplete ? "complete" : "incomplete");
-              }
-            }
-          }
+      if (mvvDocs && mvvDocs[0]) {
+        company = mvvDocs[0].company_name || "";
+        if (mvvDocs[0].mission && mvvDocs[0].vision && mvvDocs[0].values) {
+          completed.push("mvv");
         }
       }
+
+      // Check Anamnese
+      const { data: anamnesisDocs } = await supabase
+        .from("organizational_anamnesis")
+        .select("completed_at")
+        .eq("user_id", session.user.id)
+        .not("completed_at", "is", null)
+        .limit(1);
+
+      if (anamnesisDocs && anamnesisDocs.length > 0) {
+        completed.push("anamnese");
+      }
+
+      // Check Culture
+      const { data: cultureDocs } = await supabase
+        .from("culture_documents")
+        .select("cultural_essence, guiding_principles")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (cultureDocs && cultureDocs[0]?.cultural_essence) {
+        completed.push("cultura");
+      }
+
+      // Check Value Chain
+      const { data: valueChainDocs } = await supabase
+        .from("value_chain_documents")
+        .select("status")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (valueChainDocs && valueChainDocs[0]?.status === "completed") {
+        completed.push("valorChain");
+      }
+
+      // Check Process
+      const { data: processDocs } = await supabase
+        .from("process_documents")
+        .select("status")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (processDocs && processDocs[0]?.status === "completed") {
+        completed.push("processos");
+      }
+
+      setCompletedModules(completed);
+      setCompanyName(company);
+
+      // Essência is complete if MVV and Cultura are done
+      const essenciaIsDone = completed.includes("mvv") && completed.includes("cultura");
+      setEssenciaComplete(essenciaIsDone);
+
+      // Build next actions
+      const actions: { title: string; route: string; pillar: string }[] = [];
+      
+      if (!completed.includes("mvv")) {
+        actions.push({ title: "Iniciar Essência Máxima (MVV)", route: "/essencia/mvv", pillar: "essencia" });
+      } else if (!completed.includes("anamnese")) {
+        actions.push({ title: "Completar Anamnese Organizacional", route: "/essencia/anamnese", pillar: "essencia" });
+      } else if (!completed.includes("cultura")) {
+        actions.push({ title: "Criar Código de Cultura", route: "/essencia/cultura", pillar: "essencia" });
+      }
+      
+      if (essenciaIsDone && !completed.includes("valorChain")) {
+        actions.push({ title: "Mapear Cadeia de Valor", route: "/estrutura/cadeia-valor", pillar: "estrutura" });
+      }
+      if (essenciaIsDone && !completed.includes("processos")) {
+        actions.push({ title: "Documentar Processos", route: "/estrutura/processos", pillar: "estrutura" });
+      }
+
+      setNextActions(actions.slice(0, 3));
 
       setLoading(false);
     };
 
     checkAuth();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
         navigate("/auth");
       }
@@ -230,332 +147,264 @@ export default function Dashboard() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Confetti quando desbloquear Cadeia de Valor - só dispara via flag de sessionStorage
+  // Confetti when unlocking new pillars
   useEffect(() => {
     const justCompletedCulture = sessionStorage.getItem("just_completed_culture");
-    if (justCompletedCulture === "true" && cultureStatus === "complete") {
+    if (justCompletedCulture === "true" && completedModules.includes("cultura")) {
       sessionStorage.removeItem("just_completed_culture");
       fireConfetti("intense");
       toast({
-        title: "🎉 Novo módulo desbloqueado!",
-        description: "A Cadeia de Valor Máxima agora está disponível!",
+        title: "🎉 Novos pilares desbloqueados!",
+        description: "Estrutura, Governança e Conselho agora estão disponíveis!",
       });
     }
-  }, [cultureStatus, fireConfetti, toast]);
+  }, [completedModules, fireConfetti, toast]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    localStorage.clear();
-    sessionStorage.clear();
-    navigate("/");
+  const pillars = getPillarsArray();
+
+  const getPillarStatus = (pillarId: string) => {
+    const progress = getPillarProgress(pillarId, completedModules);
+    if (progress.percentage === 100) return "complete";
+    if (progress.completed > 0) return "in-progress";
+    return "not-started";
+  };
+
+  const getPillarCTA = (pillarId: string) => {
+    const pillar = PILLARS[pillarId];
+    const progress = getPillarProgress(pillarId, completedModules);
+    
+    if (progress.percentage === 100) {
+      return { label: "Ver Conquistas", action: () => navigate("/vitorias") };
+    }
+    
+    // Find next incomplete module
+    const nextModule = pillar.modules.find(m => 
+      m.isAvailable && !completedModules.includes(m.id)
+    );
+    
+    if (nextModule) {
+      return { 
+        label: progress.completed > 0 ? "Continuar" : "Iniciar", 
+        action: () => navigate(nextModule.route) 
+      };
+    }
+    
+    return { label: "Em breve", action: () => {} };
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
-        <p className="text-white">Carregando...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Carregando...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-hero p-8 antialiased">
-      <header className="max-w-6xl mx-auto flex justify-between items-center mb-12">
-        <div className="flex items-center gap-4">
-          <img src={logo} alt="Máxima iA" width="150" height="75" />
+    <div className="p-6 lg:p-8 space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold">
+          {companyName ? `Olá, ${companyName}!` : "Bem-vindo!"}
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Acompanhe sua jornada de transformação organizacional
+        </p>
+      </div>
 
-          {user && (
-            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-800/70 rounded-full border border-slate-600/50">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-sm text-slate-300">{user.email}</span>
-            </div>
-          )}
-        </div>
+      {/* Pillar Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {pillars.map((pillar) => {
+          const isUnlocked = isPillarUnlocked(pillar.id, essenciaComplete);
+          const progress = getPillarProgress(pillar.id, completedModules);
+          const status = getPillarStatus(pillar.id);
+          const cta = getPillarCTA(pillar.id);
 
-        <div className="flex items-center gap-4">
-          {isAdmin && (
-            <Button variant="default" size="sm" onClick={() => navigate("/admin")}>
-              Admin Dashboard
-            </Button>
-          )}
-          <Link to="/perfil">
-            <Button variant="outline" size="sm">
-              Perfil
-            </Button>
-          </Link>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={async () => {
-              await supabase.auth.signOut();
-              localStorage.clear();
-              sessionStorage.clear();
-              navigate("/auth");
-            }}
-          >
-            Trocar de Conta
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            <LogOut className="w-4 h-4" />
-            Sair
-          </Button>
-        </div>
-      </header>
+          return (
+            <Card 
+              key={pillar.id}
+              className={cn(
+                "relative overflow-hidden transition-all duration-300",
+                isUnlocked 
+                  ? "hover:shadow-lg hover:scale-[1.01] cursor-pointer" 
+                  : "opacity-60"
+              )}
+              onClick={() => isUnlocked && cta.action()}
+            >
+              {/* Color accent bar */}
+              <div 
+                className="absolute top-0 left-0 right-0 h-1"
+                style={{ backgroundColor: pillar.color }}
+              />
 
-      <main className="max-w-6xl mx-auto space-y-8">
-        <div>
-          <h1 className="text-4xl font-bold text-white mb-2">🎯 Trilha de Consultoria Estratégica</h1>
-          <p className="text-slate-300 text-lg">Acompanhe sua jornada de transformação organizacional</p>
-        </div>
-
-        {/* Seção: Conquistas - MOVIDA PARA O TOPO */}
-        <div>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white">🏆 Suas Conquistas</h2>
-            <Button variant="outline" onClick={() => navigate("/vitorias")} className="gap-2">
-              Ver Todas as Vitórias
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <AchievementBadge
-              emoji={MODULE_GAINS.mvv.emoji}
-              name={MODULE_GAINS.mvv.name}
-              status={getModuleStatus("mvv", mvvStatus, cultureStatus, valueChainStatus, "none")}
-              color={MODULE_GAINS.mvv.color}
-              mainGain={MODULE_GAINS.mvv.gains[0]?.title}
-            />
-            <AchievementBadge
-              emoji={MODULE_GAINS.cultura.emoji}
-              name={MODULE_GAINS.cultura.name}
-              status={getModuleStatus("cultura", mvvStatus, cultureStatus, valueChainStatus, "none")}
-              color={MODULE_GAINS.cultura.color}
-              mainGain={MODULE_GAINS.cultura.gains[0]?.title}
-            />
-            <AchievementBadge
-              emoji={MODULE_GAINS.valorChain.emoji}
-              name={MODULE_GAINS.valorChain.name}
-              status={getModuleStatus("valorChain", mvvStatus, cultureStatus, valueChainStatus, "none")}
-              color={MODULE_GAINS.valorChain.color}
-              mainGain={MODULE_GAINS.valorChain.gains[0]?.title}
-            />
-            <AchievementBadge
-              emoji={MODULE_GAINS.processos.emoji}
-              name={MODULE_GAINS.processos.name}
-              status={getModuleStatus("processos", mvvStatus, cultureStatus, valueChainStatus, "none")}
-              color={MODULE_GAINS.processos.color}
-              mainGain={MODULE_GAINS.processos.gains[0]?.title}
-            />
-          </div>
-        </div>
-
-        {/* Seção: Sua Trilha de Consultoria - RENOMEADA */}
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-4">📋 Sua Trilha de Consultoria</h2>
-
-          {mvvStatus === "none" && (
-            <Card className="bg-slate-800/50 border-slate-700/50 p-12 text-center space-y-4">
-              <FileText className="w-16 h-16 mx-auto text-slate-500" />
-              <h3 className="text-2xl font-bold text-white">Nenhum documento ainda</h3>
-              <p className="text-slate-300">Comece criando seu documento MVV</p>
-              <Link to="/novo-mvv">
-                <Button className="mt-4">Criar MVV</Button>
-              </Link>
-            </Card>
-          )}
-
-          {mvvStatus === "incomplete" && (
-            <Card className="bg-slate-800/50 border-yellow-500/50 p-6">
-              <div className="flex items-start gap-4">
-                <Clock className="text-yellow-400 w-8 h-8 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white">🔄 Essência Máxima (MVV)</h3>
-                  <p className="text-slate-400 mb-2">Em andamento</p>
-                  {document && (
-                    <p className="text-sm text-slate-400">
-                      {document.company_name} • {document.segment}
-                    </p>
-                  )}
+              {/* Hybrid badge */}
+              {pillar.isHybrid && (
+                <div className="absolute top-3 right-3">
+                  <span className="px-2 py-1 text-xs rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                    <Sparkles className="w-3 h-3 inline mr-1" />
+                    Híbrido
+                  </span>
                 </div>
-                <Button onClick={() => navigate(`/novo-mvv?doc=${document.id}`)}>Continuar Consultoria</Button>
-              </div>
-            </Card>
-          )}
+              )}
 
-          {mvvStatus === "complete" && document && (
-            <Card className="bg-slate-800/50 border-green-500/50 p-6">
-              <div className="flex items-start gap-4">
-                <CheckCircle className="text-green-400 w-8 h-8 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white">✅ Essência Máxima (MVV)</h3>
-                  <p className="text-slate-400 mb-2">
-                    Completo em {new Date(document.created_at).toLocaleDateString("pt-BR")}
-                  </p>
-                  <p className="text-sm text-slate-400 mb-4">
-                    {document.company_name} • {document.segment}
-                  </p>
-
-                  {/* Micro-mentoring tip */}
-                  <div className="mt-4 p-3 bg-blue-950/30 rounded-lg border border-blue-500/30">
-                    <p className="text-sm text-slate-300">
-                      💡 <strong className="text-blue-300">Próximo passo recomendado:</strong> Compartilhe seu MVV com a
-                      equipe em uma reunião de alinhamento.
-                    </p>
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-3">
+                  <div 
+                    className={cn(
+                      "w-12 h-12 rounded-xl flex items-center justify-center text-2xl",
+                      pillar.bgColor,
+                      "text-white shadow-lg"
+                    )}
+                  >
+                    {pillar.emoji}
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="flex items-center gap-2">
+                      {pillar.name}
+                      {!isUnlocked && <Lock className="w-4 h-4 text-muted-foreground" />}
+                      {status === "complete" && <CheckCircle className="w-4 h-4 text-green-500" />}
+                      {status === "in-progress" && <Clock className="w-4 h-4 text-yellow-500" />}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">{pillar.description}</p>
                   </div>
                 </div>
+              </CardHeader>
 
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => navigate(`/relatorio/${document.id}`)}>
-                    Ver Relatório
+              <CardContent className="space-y-4">
+                {/* Progress */}
+                {isUnlocked && progress.total > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Progresso</span>
+                      <span className="font-medium">{progress.completed}/{progress.total} módulos</span>
+                    </div>
+                    <Progress 
+                      value={progress.percentage} 
+                      className="h-2"
+                    />
+                  </div>
+                )}
+
+                {/* Module list preview */}
+                {isUnlocked && (
+                  <div className="flex flex-wrap gap-2">
+                    {pillar.modules.slice(0, 4).map((module) => {
+                      const isCompleted = completedModules.includes(module.id);
+                      return (
+                        <span 
+                          key={module.id}
+                          className={cn(
+                            "text-xs px-2 py-1 rounded-full",
+                            isCompleted 
+                              ? "bg-green-500/20 text-green-400" 
+                              : module.isAvailable 
+                                ? "bg-secondary text-secondary-foreground"
+                                : "bg-muted text-muted-foreground"
+                          )}
+                        >
+                          {isCompleted && "✓ "}
+                          {module.name.replace(" Máxima", "").replace(" Máximo", "")}
+                        </span>
+                      );
+                    })}
+                    {pillar.modules.length > 4 && (
+                      <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                        +{pillar.modules.length - 4}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* CTA */}
+                {isUnlocked ? (
+                  <Button 
+                    className="w-full gap-2"
+                    style={{ 
+                      backgroundColor: status === "complete" ? undefined : pillar.color,
+                    }}
+                    variant={status === "complete" ? "outline" : "default"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      cta.action();
+                    }}
+                  >
+                    {cta.label}
+                    <ArrowRight className="w-4 h-4" />
                   </Button>
-                </div>
-              </div>
+                ) : (
+                  <div className="text-center py-2 text-sm text-muted-foreground">
+                    <Lock className="w-4 h-4 inline mr-2" />
+                    Complete o Pilar Essência para desbloquear
+                  </div>
+                )}
+              </CardContent>
             </Card>
-          )}
+          );
+        })}
+      </div>
 
-          {/* Card Cultura Máxima - fluxo com checkout e anamnese */}
-          {mvvStatus === "complete" && !hasCulturaPurchase && (
-            <Card className="bg-slate-800/50 border-purple-500/50 p-6 mt-4">
-              <div className="flex items-start gap-4">
-                <Heart className="text-purple-400 w-8 h-8 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white">💜 Cultura Máxima</h3>
-                  <p className="text-slate-400 mb-2">Código de Cultura Completo</p>
-                  <p className="text-sm text-slate-400">
-                    Expanda seu MVV com um Código de Cultura completo: diagnóstico organizacional, princípios
-                    norteadores, rituais e plano de ação 30/60/90/120 dias.
-                  </p>
-                </div>
-                <Button onClick={() => navigate("/checkout-cultura")}>
-                  Adquirir <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-            </Card>
-          )}
+      {/* Next Actions */}
+      {nextActions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">📋 Próximos Passos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {nextActions.map((action, index) => {
+                const pillar = PILLARS[action.pillar];
+                return (
+                  <div 
+                    key={index}
+                    className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer transition-colors"
+                    onClick={() => navigate(action.route)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span 
+                        className={cn(
+                          "w-8 h-8 rounded-md flex items-center justify-center text-sm",
+                          pillar.bgColor,
+                          "text-white"
+                        )}
+                      >
+                        {pillar.emoji}
+                      </span>
+                      <span>{action.title}</span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-          {mvvStatus === "complete" && hasCulturaPurchase && !hasCompletedAnamnesis && (
-            <Card className="bg-slate-800/50 border-yellow-500/50 p-6 mt-4">
-              <div className="flex items-start gap-4">
-                <Heart className="text-yellow-400 w-8 h-8 flex-shrink-0 animate-pulse" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white">🔄 Complete sua Anamnese Máxima</h3>
-                  <p className="text-slate-400 mb-2">Diagnóstico Organizacional Pendente</p>
-                  <p className="text-sm text-slate-400">
-                    Antes de criar seu Código de Cultura, complete o diagnóstico organizacional para personalizar as
-                    recomendações.
-                  </p>
-                </div>
-                <Button onClick={() => navigate("/anamnese-cultura")}>
-                  Continuar Anamnese <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-            </Card>
-          )}
-
-          {mvvStatus === "complete" && hasCulturaPurchase && hasCompletedAnamnesis && cultureStatus === "none" && (
-            <Card className="bg-slate-800/50 border-green-500/50 p-6 mt-4">
-              <div className="flex items-start gap-4">
-                <Heart className="text-green-400 w-8 h-8 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white">✅ Anamnese Completa - Iniciar Cultura</h3>
-                  <p className="text-slate-400 mb-2">Código de Cultura Personalizado</p>
-                  <p className="text-sm text-slate-400">
-                    Diagnóstico concluído! Agora crie seu Código de Cultura baseado no contexto real da sua empresa.
-                  </p>
-                </div>
-                <Button onClick={() => navigate("/novo-cultura")}>
-                  Iniciar Cultura <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-            </Card>
-          )}
-
-          {mvvStatus === "complete" && cultureStatus === "incomplete" && cultureDocument && (
-            <Card className="bg-slate-800/50 border-yellow-500/50 p-6 mt-4">
-              <div className="flex items-start gap-4">
-                <Clock className="text-yellow-400 w-8 h-8 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white">🔄 Cultura Máxima</h3>
-                  <p className="text-slate-400 mb-2">Em andamento</p>
-                  <p className="text-sm text-slate-400">Continue estruturando o Código de Cultura da sua empresa</p>
-                </div>
-                <Button onClick={() => navigate("/novo-cultura")}>Continuar Consultoria</Button>
-              </div>
-            </Card>
-          )}
-
-          {mvvStatus === "complete" && cultureStatus === "complete" && cultureDocument && (
-            <Card className="bg-slate-800/50 border-green-500/50 p-6 mt-4">
-              <div className="flex items-start gap-4">
-                <CheckCircle className="text-green-400 w-8 h-8 flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white">✅ Cultura Máxima</h3>
-                  <p className="text-slate-400 mb-2">
-                    Completo em {new Date(cultureDocument.created_at).toLocaleDateString("pt-BR")}
-                  </p>
-                  <p className="text-sm text-slate-400">
-                    Código de Cultura Completo com Plano de Ação 30/60/90/120 dias
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => navigate(`/relatorio-cultura/${cultureDocument.id}`)}>
-                    Ver Relatório
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          {/* Cards de Cadeia de Valor removidos - agora exibido em Próximos Módulos */}
-        </div>
-
-        {/* Seção: Próximos Módulos */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-white mb-6">Próximos Módulos da Trilha</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {getFutureModules(mvvStatus, cultureStatus, valueChainStatus).map((module) => (
-              <ModuleCard
-                key={module.id}
-                title={module.title}
-                description={module.description}
-                icon={module.icon}
-                locked={module.locked}
-                status={
-                  module.id === "cultura" ? cultureStatus : module.id === "valorChain" ? valueChainStatus : undefined
-                }
-                onClick={
-                  !module.locked
-                    ? () => {
-                        if (module.id === "cultura") {
-                          if (cultureStatus === "complete" && cultureDocument) {
-                            navigate(`/relatorio-cultura/${cultureDocument.id}`);
-                          } else if (cultureStatus === "incomplete" && cultureDocument) {
-                            navigate(`/novo-cultura?doc=${cultureDocument.id}`);
-                          } else if (hasCulturaPurchase && hasCompletedAnamnesis) {
-                            navigate("/novo-cultura");
-                          } else if (hasCulturaPurchase && !hasCompletedAnamnesis) {
-                            navigate("/anamneses-cultura");
-                          } else {
-                            navigate("/checkout-cultura");
-                          }
-                        } else if (module.id === "valorChain") {
-                          if (valueChainStatus === "complete" && valueChainDoc) {
-                            navigate(`/relatorio-valor-cadeia/${valueChainDoc.id}`);
-                          } else {
-                            navigate("/novo-valor-cadeia");
-                          }
-                        }
-                      }
-                    : undefined
-                }
-              />
-            ))}
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="p-4 text-center">
+          <div className="text-3xl font-bold text-primary">{completedModules.length}</div>
+          <div className="text-sm text-muted-foreground">Módulos Completos</div>
+        </Card>
+        <Card className="p-4 text-center">
+          <div className="text-3xl font-bold text-green-500">
+            {pillars.filter(p => getPillarStatus(p.id) === "complete").length}
           </div>
-        </div>
-
-        {/* Card de Upsell Essência Máxima - TEMPORARIAMENTE REMOVIDO */}
-        {/* TODO: Reativar quando o produto/fluxo estiver definido */}
-      </main>
+          <div className="text-sm text-muted-foreground">Pilares Completos</div>
+        </Card>
+        <Card className="p-4 text-center">
+          <div className="text-3xl font-bold text-yellow-500">
+            {pillars.filter(p => getPillarStatus(p.id) === "in-progress").length}
+          </div>
+          <div className="text-sm text-muted-foreground">Em Andamento</div>
+        </Card>
+        <Card className="p-4 text-center">
+          <div className="text-3xl font-bold text-blue-500">
+            {pillars.filter(p => isPillarUnlocked(p.id, essenciaComplete)).length}
+          </div>
+          <div className="text-sm text-muted-foreground">Desbloqueados</div>
+        </Card>
+      </div>
     </div>
   );
 }
