@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   ArrowRight,
   Lock,
-  CheckCircle,
+  CheckCircle2,
   Clock,
   Sparkles,
 } from "lucide-react";
@@ -154,8 +154,8 @@ export default function Dashboard() {
       sessionStorage.removeItem("just_completed_culture");
       fireConfetti("intense");
       toast({
-        title: "🎉 Novos pilares desbloqueados!",
-        description: "Estrutura, Governança e Conselho agora estão disponíveis!",
+        title: "Novos pilares desbloqueados",
+        description: "Estrutura, Governança e Conselho agora estão disponíveis.",
       });
     }
   }, [completedModules, fireConfetti, toast]);
@@ -200,72 +200,68 @@ export default function Dashboard() {
     );
   }
 
+  const totalModules = pillars.reduce((acc, p) => acc + p.modules.filter(m => m.isAvailable).length, 0);
+  const completedCount = completedModules.length;
+  const inProgressCount = pillars.filter(p => getPillarStatus(p.id) === "in-progress").length;
+  const unlockedCount = pillars.filter(p => isPillarUnlocked(p.id, essenciaComplete)).length;
+
   return (
-    <div className="p-6 lg:p-8 space-y-8">
+    <div className="p-6 lg:p-8 space-y-10 max-w-6xl mx-auto">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">
-          {companyName ? `Olá, ${companyName}!` : "Bem-vindo!"}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {companyName ? `Olá, ${companyName}` : "Bem-vindo"}
         </h1>
-        <p className="text-muted-foreground mt-1">
-          Acompanhe sua jornada de transformação organizacional
+        <p className="text-muted-foreground">
+          Sua jornada de transformação organizacional
         </p>
       </div>
 
       {/* Pillar Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {pillars.map((pillar) => {
           const isUnlocked = isPillarUnlocked(pillar.id, essenciaComplete);
           const progress = getPillarProgress(pillar.id, completedModules);
           const status = getPillarStatus(pillar.id);
           const cta = getPillarCTA(pillar.id);
+          const PillarIcon = pillar.icon;
 
           return (
             <Card 
               key={pillar.id}
               className={cn(
-                "relative overflow-hidden transition-all duration-300",
+                "relative transition-all duration-200 border-border/50",
                 isUnlocked 
-                  ? "hover:shadow-lg hover:scale-[1.01] cursor-pointer" 
-                  : "opacity-60"
+                  ? "hover:border-primary/30 hover:shadow-sm cursor-pointer" 
+                  : "opacity-50"
               )}
               onClick={() => isUnlocked && cta.action()}
             >
-              {/* Color accent bar */}
-              <div 
-                className="absolute top-0 left-0 right-0 h-1"
-                style={{ backgroundColor: pillar.color }}
-              />
-
               {/* Hybrid badge */}
               {pillar.isHybrid && (
-                <div className="absolute top-3 right-3">
-                  <span className="px-2 py-1 text-xs rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                    <Sparkles className="w-3 h-3 inline mr-1" />
+                <div className="absolute top-4 right-4">
+                  <span className="px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3" />
                     Híbrido
                   </span>
                 </div>
               )}
 
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-3">
-                  <div 
-                    className={cn(
-                      "w-12 h-12 rounded-xl flex items-center justify-center text-2xl",
-                      pillar.bgColor,
-                      "text-white shadow-lg"
-                    )}
-                  >
-                    {pillar.emoji}
-                  </div>
-                  <div className="flex-1">
-                    <CardTitle className="flex items-center gap-2">
+              <CardHeader className="pb-3">
+                <div className="flex items-start gap-4">
+                  <PillarIcon className="w-5 h-5 text-primary/70 mt-0.5 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-base font-medium flex items-center gap-2">
                       {pillar.name}
-                      {!isUnlocked && <Lock className="w-4 h-4 text-muted-foreground" />}
-                      {status === "complete" && <CheckCircle className="w-4 h-4 text-green-500" />}
-                      {status === "in-progress" && <Clock className="w-4 h-4 text-yellow-500" />}
+                      {!isUnlocked && <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
+                      {status === "complete" && (
+                        <span className="w-2 h-2 rounded-full bg-primary" />
+                      )}
+                      {status === "in-progress" && (
+                        <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                      )}
                     </CardTitle>
-                    <p className="text-sm text-muted-foreground">{pillar.description}</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">{pillar.description}</p>
                   </div>
                 </div>
               </CardHeader>
@@ -274,41 +270,41 @@ export default function Dashboard() {
                 {/* Progress */}
                 {isUnlocked && progress.total > 0 && (
                   <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Progresso</span>
-                      <span className="font-medium">{progress.completed}/{progress.total} módulos</span>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Progresso</span>
+                      <span>{progress.completed}/{progress.total}</span>
                     </div>
                     <Progress 
                       value={progress.percentage} 
-                      className="h-2"
+                      className="h-1"
                     />
                   </div>
                 )}
 
                 {/* Module list preview */}
                 {isUnlocked && (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {pillar.modules.slice(0, 4).map((module) => {
                       const isCompleted = completedModules.includes(module.id);
                       return (
                         <span 
                           key={module.id}
                           className={cn(
-                            "text-xs px-2 py-1 rounded-full",
+                            "text-xs px-2 py-0.5 rounded-md",
                             isCompleted 
-                              ? "bg-green-500/20 text-green-400" 
+                              ? "bg-primary/10 text-primary" 
                               : module.isAvailable 
                                 ? "bg-secondary text-secondary-foreground"
-                                : "bg-muted text-muted-foreground"
+                                : "bg-muted/50 text-muted-foreground"
                           )}
                         >
-                          {isCompleted && "✓ "}
-                          {module.name.replace(" Máxima", "").replace(" Máximo", "")}
+                          {isCompleted && <CheckCircle2 className="w-3 h-3 inline mr-1" />}
+                          {module.name}
                         </span>
                       );
                     })}
                     {pillar.modules.length > 4 && (
-                      <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                      <span className="text-xs px-2 py-0.5 rounded-md bg-muted/50 text-muted-foreground">
                         +{pillar.modules.length - 4}
                       </span>
                     )}
@@ -318,23 +314,21 @@ export default function Dashboard() {
                 {/* CTA */}
                 {isUnlocked ? (
                   <Button 
-                    className="w-full gap-2"
-                    style={{ 
-                      backgroundColor: status === "complete" ? undefined : pillar.color,
-                    }}
+                    className="w-full"
                     variant={status === "complete" ? "outline" : "default"}
+                    size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
                       cta.action();
                     }}
                   >
                     {cta.label}
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 ) : (
-                  <div className="text-center py-2 text-sm text-muted-foreground">
-                    <Lock className="w-4 h-4 inline mr-2" />
-                    Complete o Pilar Essência para desbloquear
+                  <div className="text-center py-2 text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+                    <Lock className="w-3 h-3" />
+                    Complete Essência para desbloquear
                   </div>
                 )}
               </CardContent>
@@ -345,65 +339,52 @@ export default function Dashboard() {
 
       {/* Next Actions */}
       {nextActions.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">📋 Próximos Passos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {nextActions.map((action, index) => {
-                const pillar = PILLARS[action.pillar];
-                return (
-                  <div 
-                    key={index}
-                    className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer transition-colors"
-                    onClick={() => navigate(action.route)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span 
-                        className={cn(
-                          "w-8 h-8 rounded-md flex items-center justify-center text-sm",
-                          pillar.bgColor,
-                          "text-white"
-                        )}
-                      >
-                        {pillar.emoji}
-                      </span>
-                      <span>{action.title}</span>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-3">
+          <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            Próximo Passo
+          </h2>
+          <div className="space-y-2">
+            {nextActions.slice(0, 1).map((action, index) => (
+              <div 
+                key={index}
+                className="flex items-center justify-between p-4 rounded-lg border border-border/50 hover:border-primary/30 cursor-pointer transition-colors"
+                onClick={() => navigate(action.route)}
+              >
+                <div className="flex items-center gap-3">
+                  <ArrowRight className="w-4 h-4 text-primary" />
+                  <span className="font-medium">{action.title}</span>
+                </div>
+                <span className="text-xs text-muted-foreground capitalize">
+                  {action.pillar}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4 text-center">
-          <div className="text-3xl font-bold text-primary">{completedModules.length}</div>
-          <div className="text-sm text-muted-foreground">Módulos Completos</div>
-        </Card>
-        <Card className="p-4 text-center">
-          <div className="text-3xl font-bold text-green-500">
-            {pillars.filter(p => getPillarStatus(p.id) === "complete").length}
+      {/* Stats - Minimal */}
+      <div className="pt-6 border-t border-border/50">
+        <div className="grid grid-cols-4 gap-4 text-center">
+          <div>
+            <div className="text-2xl font-light text-foreground">{completedCount}</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Módulos</div>
           </div>
-          <div className="text-sm text-muted-foreground">Pilares Completos</div>
-        </Card>
-        <Card className="p-4 text-center">
-          <div className="text-3xl font-bold text-yellow-500">
-            {pillars.filter(p => getPillarStatus(p.id) === "in-progress").length}
+          <div>
+            <div className="text-2xl font-light text-foreground">
+              {pillars.filter(p => getPillarStatus(p.id) === "complete").length}
+            </div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Pilares</div>
           </div>
-          <div className="text-sm text-muted-foreground">Em Andamento</div>
-        </Card>
-        <Card className="p-4 text-center">
-          <div className="text-3xl font-bold text-blue-500">
-            {pillars.filter(p => isPillarUnlocked(p.id, essenciaComplete)).length}
+          <div>
+            <div className="text-2xl font-light text-foreground">{inProgressCount}</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Em Andamento</div>
           </div>
-          <div className="text-sm text-muted-foreground">Desbloqueados</div>
-        </Card>
+          <div>
+            <div className="text-2xl font-light text-foreground">{unlockedCount}</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Desbloqueados</div>
+          </div>
+        </div>
       </div>
     </div>
   );

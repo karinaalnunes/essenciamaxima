@@ -137,15 +137,10 @@ export function AppSidebar({
                 onClick={() => isUnlocked && togglePillar(pillar.id)}
               >
                 <div className="flex items-center gap-2">
-                  <span 
-                    className={cn(
-                      "w-6 h-6 rounded-md flex items-center justify-center text-sm",
-                      pillar.bgColor,
-                      "text-white"
-                    )}
-                  >
-                    {pillar.emoji}
-                  </span>
+                  {(() => {
+                    const PillarIcon = pillar.icon;
+                    return <PillarIcon className="h-4 w-4 text-primary/70" />;
+                  })()}
                   {!collapsed && (
                     <span className="font-medium text-sm">{pillar.name}</span>
                   )}
@@ -177,9 +172,6 @@ export function AppSidebar({
                       <Progress 
                         value={progress.percentage} 
                         className="h-1"
-                        style={{ 
-                          ['--progress-color' as string]: pillar.color 
-                        }}
                       />
                     </div>
                   )}
@@ -199,14 +191,14 @@ export function AppSidebar({
                             className={cn(
                               "pl-8",
                               !module.isAvailable && "opacity-50 cursor-not-allowed",
-                              isCompleted && "text-green-400"
+                              isCompleted && "text-primary"
                             )}
                             tooltip={module.name}
                           >
                             <ModuleIcon className="h-4 w-4" />
                             <span className="truncate">{module.name}</span>
                             {isCompleted && (
-                              <span className="ml-auto text-green-400">✓</span>
+                              <span className="ml-auto text-primary">✓</span>
                             )}
                             {!module.isAvailable && (
                               <span className="ml-auto text-xs text-muted-foreground">Em breve</span>
@@ -267,7 +259,7 @@ export function AppSidebar({
             <SidebarMenuButton 
               onClick={handleLogout}
               tooltip="Sair"
-              className="text-red-500 hover:text-red-400"
+              className="text-destructive hover:text-destructive/80"
             >
               <LogOut className="h-4 w-4" />
               {!collapsed && <span>Sair</span>}
