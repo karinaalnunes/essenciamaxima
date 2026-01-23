@@ -20,6 +20,7 @@ import { VoiceInput } from "@/components/VoiceInput";
 import { MessageFormatter } from "@/components/MessageFormatter";
 import { FeedbackForm } from "@/components/FeedbackForm";
 import { useToast } from "@/hooks/use-toast";
+import { syncActionPlanToKanban } from "@/lib/syncActionPlanTasks";
 
 interface Message {
   role: "user" | "assistant";
@@ -637,10 +638,27 @@ export default function NovoCultura() {
 
       if (updateError) throw updateError;
 
-      // Enviar notificação de relatório pronto
+      // Sincronizar tarefas do plano de ação para o Kanban
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
+        const syncResult = await syncActionPlanToKanban(
+          user.id,
+          documentId,
+          cultureData.action_plan_30 || [],
+          cultureData.action_plan_60 || [],
+          cultureData.action_plan_90 || [],
+          cultureData.action_plan_120 || []
+        );
+
+        if (syncResult.tasksCreated > 0) {
+          toast({
+            title: "Tarefas criadas! 📋",
+            description: `${syncResult.tasksCreated} tarefas do Plano de Ação adicionadas ao seu Kanban.`,
+          });
+        }
+
+        // Enviar notificação de relatório pronto
         await supabase.functions.invoke("send-report-notification", {
           body: {
             userId: user.id,
