@@ -240,7 +240,7 @@ export default function Dashboard() {
               {/* Hybrid badge */}
               {pillar.isHybrid && (
                 <div className="absolute top-4 right-4">
-                  <span className="px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
+                  <span className="px-2 py-0.5 text-xs rounded-full bg-gold/20 text-gold-foreground border border-gold/30 flex items-center gap-1">
                     <Sparkles className="w-3 h-3" />
                     Híbrido
                   </span>
@@ -255,7 +255,7 @@ export default function Dashboard() {
                       {pillar.name}
                       {!isUnlocked && <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
                       {status === "complete" && (
-                        <span className="w-2 h-2 rounded-full bg-primary" />
+                        <span className="w-2 h-2 rounded-full bg-gold" />
                       )}
                       {status === "in-progress" && (
                         <Clock className="w-3.5 h-3.5 text-muted-foreground" />
@@ -292,7 +292,7 @@ export default function Dashboard() {
                           className={cn(
                             "text-xs px-2 py-0.5 rounded-md",
                             isCompleted 
-                              ? "bg-success/20 text-success-foreground" 
+                              ? "bg-gold/20 text-gold-foreground" 
                               : module.isAvailable 
                                 ? "bg-secondary text-foreground/80"
                                 : "bg-muted/50 text-muted-foreground"
