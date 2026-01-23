@@ -56,6 +56,14 @@ const App = () => (
           <Route path="/termos" element={<Termos />} />
           <Route path="/privacidade" element={<Privacidade />} />
 
+          {/* Standalone Report Routes (without sidebar) */}
+          <Route path="/relatorio/:id" element={<RelatorioMVV />} />
+          <Route path="/relatorio-mvv/:id" element={<RelatorioMVV />} />
+          <Route path="/relatorio-anamnese/:id" element={<RelatorioAnamnese />} />
+          <Route path="/relatorio-cultura/:id" element={<RelatorioCultura />} />
+          <Route path="/relatorio-valor-cadeia/:id" element={<RelatorioValorCadeia />} />
+          <Route path="/relatorio-processo/:id" element={<RelatorioProcesso />} />
+
           {/* Authenticated Routes with AppLayout */}
           <Route element={<AppLayout />}>
             {/* Dashboard */}
@@ -70,14 +78,6 @@ const App = () => (
             {/* Estrutura Pillar */}
             <Route path="/estrutura/cadeia-valor" element={<NovoValorCadeia />} />
             <Route path="/estrutura/processos" element={<NovoProcesso />} />
-            
-            {/* Reports (accessible from any pillar) */}
-            <Route path="/relatorio/:id" element={<RelatorioMVV />} />
-            <Route path="/relatorio-mvv/:id" element={<RelatorioMVV />} />
-            <Route path="/relatorio-anamnese/:id" element={<RelatorioAnamnese />} />
-            <Route path="/relatorio-cultura/:id" element={<RelatorioCultura />} />
-            <Route path="/relatorio-valor-cadeia/:id" element={<RelatorioValorCadeia />} />
-            <Route path="/relatorio-processo/:id" element={<RelatorioProcesso />} />
             
             {/* Profile & Utilities */}
             <Route path="/perfil" element={<Perfil />} />
