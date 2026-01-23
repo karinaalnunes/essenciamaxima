@@ -98,7 +98,21 @@ export default function AnamnesesCultura() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Buscar anamnese existente
+      // Verificar se já existe anamnese COMPLETADA - redirecionar para relatório
+      const { data: completedAnamnesis } = await supabase
+        .from("organizational_anamnesis")
+        .select("id, completed_at, report_generated_at")
+        .eq("user_id", user.id)
+        .not("completed_at", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (completedAnamnesis && completedAnamnesis.length > 0) {
+        navigate(`/relatorio-anamnese/${completedAnamnesis[0].id}`);
+        return;
+      }
+
+      // Buscar anamnese em rascunho
       const { data, error } = await supabase
         .from("organizational_anamnesis")
         .select("*")
