@@ -23,7 +23,6 @@ import logo from "@/assets/logo-maxima-ia-negativo.png";
 import { useToast } from "@/hooks/use-toast";
 import { useConfetti } from "@/hooks/useConfetti";
 import { ModuleCard } from "@/components/ModuleCard";
-import { UpsellEssenciaMaxima } from "@/components/UpsellEssenciaMaxima";
 import { AchievementBadge } from "@/components/AchievementBadge";
 import { MODULE_GAINS, getModuleStatus } from "@/config/moduleGains";
 
@@ -554,12 +553,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Card de Upsell Essência Máxima (apenas se MVV completo) */}
-        {mvvStatus === "complete" && (
-          <div className="mt-12">
-            <UpsellEssenciaMaxima />
-          </div>
-        )}
+        {/* Card de Upsell Essência Máxima - TEMPORARIAMENTE REMOVIDO */}
+        {/* TODO: Reativar quando o produto/fluxo estiver definido */}
       </main>
     </div>
   );
