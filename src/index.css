@@ -55,11 +55,11 @@ All colors MUST be HSL.
     
     /* Premium gold accent - Champagne suave */
     --gold: 45 35% 65%;
-    --gold-foreground: 45 40% 20%;
+    --gold-foreground: 45 50% 90%;
     
     /* Semantic success color (gold-based for premium feel) */
     --success: 45 35% 65%;
-    --success-foreground: 45 40% 20%;
+    --success-foreground: 45 50% 90%;
   }
 }
 
