@@ -1171,7 +1171,7 @@ export default function RelatorioCultura() {
           {/* Capa */}
           <div className="text-center space-y-6 py-12">
             <img src={logo} alt="Máxima iA" width="150" height="75" className="mx-auto" />
-            <h1 className="text-5xl font-bold text-white">
+            <h1 className="text-3xl md:text-5xl font-bold text-white">
               Código de Cultura Máxima
             </h1>
             <div className="text-2xl text-slate-300 space-y-2">
@@ -1189,8 +1189,8 @@ export default function RelatorioCultura() {
           </div>
 
           {/* MVV */}
-          <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-            <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+          <section className="space-y-6 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+            <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
               📋 Fundação: MVV (Missão, Visão, Valores)
             </h2>
 
@@ -1244,7 +1244,7 @@ export default function RelatorioCultura() {
 
           {/* Posicionamento Cultural */}
           {doc.cultural_positioning && (
-            <section className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 p-8 rounded-xl border-2 border-purple-500/50">
+            <section className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 p-4 md:p-8 rounded-xl border-2 border-purple-500/50 break-words">
               <div className="text-center space-y-4">
                 <h2 className="text-2xl font-bold text-purple-300">🎯 Posicionamento Cultural</h2>
                 <p className="text-2xl md:text-3xl font-bold text-white leading-relaxed italic">
@@ -1256,8 +1256,8 @@ export default function RelatorioCultura() {
 
           {/* Valores em Ação */}
           {doc.value_behaviors && doc.value_behaviors.length > 0 && (
-            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+            <section className="space-y-6 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+              <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 💎 Valores em Ação
               </h2>
               <div className="space-y-8">
@@ -1265,7 +1265,7 @@ export default function RelatorioCultura() {
                   <div key={index} className="bg-slate-700/30 p-6 rounded-lg space-y-4">
                     <h3 className="text-2xl font-bold text-purple-300">{vb.value}</h3>
                     
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <h4 className="text-lg font-semibold text-green-300">✅ Comportamentos Esperados</h4>
                         <ul className="space-y-1 text-sm">
@@ -1302,7 +1302,7 @@ export default function RelatorioCultura() {
                       </div>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-600">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-600">
                       <div className="space-y-2">
                         <h4 className="text-lg font-semibold text-yellow-300">🎭 Ritual Associado</h4>
                         <div className="text-sm space-y-1 text-slate-300">
@@ -1329,8 +1329,8 @@ export default function RelatorioCultura() {
 
           {/* Identidade e Diferenciação */}
           {(doc.reputation_goal || doc.competitive_advantage || (doc.swot_strengths && doc.swot_strengths.length > 0) || (doc.swot_improvements && doc.swot_improvements.length > 0)) && (
-            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+            <section className="space-y-6 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+              <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 🏆 Identidade e Diferenciação
               </h2>
 
@@ -1380,8 +1380,8 @@ export default function RelatorioCultura() {
 
           {/* Princípios Norteadores */}
           {doc.guiding_principles && doc.guiding_principles.length > 0 && (
-            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+            <section className="space-y-6 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+              <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 ⚖️ Princípios Norteadores
               </h2>
               <ol className="space-y-3 list-decimal list-inside">
@@ -1396,8 +1396,8 @@ export default function RelatorioCultura() {
 
           {/* Desenvolvimento de Pessoas */}
           {(doc.growth_practices || doc.wellbeing_support || doc.psychological_safety_practices) && (
-            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+            <section className="space-y-6 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+              <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 🌱 Desenvolvimento Integral de Pessoas
               </h2>
 
@@ -1432,8 +1432,8 @@ export default function RelatorioCultura() {
 
           {/* Rituais Culturais */}
           {doc.cultural_rituals && doc.cultural_rituals.length > 0 && (
-            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+            <section className="space-y-6 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+              <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 🎭 Rituais e Práticas Culturais
               </h2>
               <div className="space-y-4">
@@ -1449,8 +1449,8 @@ export default function RelatorioCultura() {
 
           {/* Stakeholder Guidelines */}
           {doc.stakeholder_guidelines && Object.keys(doc.stakeholder_guidelines).length > 0 && (
-            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+            <section className="space-y-6 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+              <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 🤝 Diretrizes de Relacionamento
               </h2>
               <div className="space-y-4">
@@ -1466,8 +1466,8 @@ export default function RelatorioCultura() {
 
           {/* Governança */}
           {doc.governance && (doc.governance.guardian || doc.governance.committee?.length || doc.governance.annual_review) && (
-            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+            <section className="space-y-6 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+              <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 🏛️ Medição e Governança da Cultura
               </h2>
 
@@ -1510,8 +1510,8 @@ export default function RelatorioCultura() {
 
           {/* Dilemas de Estresse */}
           {doc.stress_dilemmas && doc.stress_dilemmas.length > 0 && (
-            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+            <section className="space-y-6 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+              <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 ⚡ Dilemas de Estresse: Cultura na Prática
               </h2>
               <div className="space-y-6">
@@ -1546,8 +1546,8 @@ export default function RelatorioCultura() {
 
           {/* Kill Criteria */}
           {doc.kill_criteria && doc.kill_criteria.length > 0 && (
-            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+            <section className="space-y-6 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+              <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 🚫 Decisões Limite (Kill Criteria)
               </h2>
               <div className="overflow-x-auto">
@@ -1585,11 +1585,11 @@ export default function RelatorioCultura() {
 
           {/* Calendário de Rituais */}
           {doc.rituals_calendar && doc.rituals_calendar.length > 0 && (
-            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+            <section className="space-y-6 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+              <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 📅 Calendário de Rituais
               </h2>
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {doc.rituals_calendar.map((month, i) => (
                   <div key={i} className="bg-slate-700/30 p-4 rounded-lg">
                     <h4 className="text-lg font-bold text-purple-300 mb-2">{month.month}</h4>
@@ -1606,11 +1606,11 @@ export default function RelatorioCultura() {
 
           {/* Indicadores de Cultura */}
           {doc.culture_indicators && doc.culture_indicators.length > 0 && (
-            <section className="space-y-6 bg-slate-800/30 p-8 rounded-xl">
-              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+            <section className="space-y-6 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+              <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 📊 Indicadores de Cultura
               </h2>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {doc.culture_indicators.map((indicator, i) => (
                   <div key={i} className="bg-slate-700/30 p-4 rounded-lg space-y-2">
                     <h4 className="text-lg font-bold text-purple-300">{indicator.name}</h4>
@@ -1624,8 +1624,8 @@ export default function RelatorioCultura() {
 
           {/* Plano de Ação SMART */}
           {(doc.action_plan_30?.length || doc.action_plan_60?.length || doc.action_plan_90?.length || doc.action_plan_120?.length) && (
-            <section className="space-y-8 bg-slate-800/30 p-8 rounded-xl">
-              <h2 className="text-3xl font-bold text-white border-b border-slate-600 pb-3">
+            <section className="space-y-8 bg-slate-800/30 p-4 md:p-8 rounded-xl break-words">
+              <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-slate-600 pb-3">
                 📅 Plano de Ação SMART (5W2H)
               </h2>
 
@@ -1768,8 +1768,8 @@ export default function RelatorioCultura() {
           )}
 
           {/* Resumo Consultivo Final */}
-          <section className="space-y-6 bg-gradient-to-br from-purple-900/30 to-slate-800/30 p-8 rounded-xl border border-purple-500/30">
-            <h2 className="text-3xl font-bold text-white border-b border-purple-600 pb-3">
+          <section className="space-y-6 bg-gradient-to-br from-purple-900/30 to-slate-800/30 p-4 md:p-8 rounded-xl border border-purple-500/30 break-words">
+            <h2 className="text-2xl md:text-3xl font-bold text-white border-b border-purple-600 pb-3">
               💡 Resumo Consultivo Final
             </h2>
 
