@@ -95,8 +95,8 @@ export function AppSidebar({
           <img 
             src={collapsed ? logoIcon : logo} 
             alt="Máxima iA" 
-            width={collapsed ? 40 : 150}
-            height={collapsed ? 40 : 75}
+            width={collapsed ? 40 : 120}
+            height={collapsed ? 40 : 60}
             className="transition-all duration-200 object-contain"
           />
         </div>
