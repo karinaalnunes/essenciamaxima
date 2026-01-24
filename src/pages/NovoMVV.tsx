@@ -8,7 +8,7 @@ import { VoiceInput } from "@/components/VoiceInput";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageFormatter } from "@/components/MessageFormatter";
 import { FeedbackForm } from "@/components/FeedbackForm";
-import { useTypingEffect } from "@/hooks/useTypingEffect";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,7 +54,7 @@ export default function NovoMVV() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout>();
-  const { displayedText, startTyping, isTyping } = useTypingEffect(20);
+  
 
   // Condição para mostrar botão manual de fallback
   const showManualGenerateButton = 
@@ -492,19 +492,14 @@ Pode compartilhar essas informações?`,
               if (content) {
                 assistantContent += content;
 
-                // Keep state in sync so the message doesn't "disappear" if typing finishes
-                // before the stream ends (or if the stream is interrupted).
-                setMessages((prev) => {
-                  const newMessages = [...prev];
-                  const lastMsg = newMessages[newMessages.length - 1];
-                  if (lastMsg?.role === "assistant") {
-                    lastMsg.content = assistantContent;
-                  }
-                  return newMessages;
-                });
-
-                // Typing effect is only for display while streaming
-                startTyping(assistantContent);
+                // Update state immutably
+                setMessages((prev) =>
+                  prev.map((msg, i) =>
+                    i === prev.length - 1 && msg.role === 'assistant'
+                      ? { ...msg, content: assistantContent }
+                      : msg
+                  )
+                );
               }
             } catch (e) {
               // Incomplete JSON, put it back
@@ -526,14 +521,13 @@ Pode compartilhar essas informações?`,
               const content = parsed.choices?.[0]?.delta?.content as string | undefined;
               if (content) {
                 assistantContent += content;
-                setMessages(prev => {
-                  const newMessages = [...prev];
-                  const lastMsg = newMessages[newMessages.length - 1];
-                  if (lastMsg?.role === 'assistant') {
-                    lastMsg.content = assistantContent;
-                  }
-                  return newMessages;
-                });
+                setMessages((prev) =>
+                  prev.map((msg, i) =>
+                    i === prev.length - 1 && msg.role === 'assistant'
+                      ? { ...msg, content: assistantContent }
+                      : msg
+                  )
+                );
               }
             } catch {
               /* ignore */
@@ -707,21 +701,15 @@ Pode compartilhar essas informações?`,
           className="flex-1 bg-slate-900/30 border-x border-slate-800 p-3 md:p-6"
         >
           <div className="space-y-3 md:space-y-6 max-w-3xl mx-auto">
-            {messages.map((msg, index) => {
-              const isLastAssistant = 
-                index === messages.length - 1 && 
-                msg.role === 'assistant' && 
-                isTyping;
-              
-              return (
+            {messages.map((msg, index) => (
                 <div
                   key={index}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div className={msg.role === 'user' ? 'max-w-[90%] md:max-w-[85%]' : 'max-w-[90%] md:max-w-[85%]'}>
                     <MessageFormatter 
-                      content={isLastAssistant ? displayedText : msg.content} 
-                      role={msg.role} 
+                      content={msg.content} 
+                      role={msg.role}
                     />
                     <p className="text-xs text-slate-500 mt-1 px-1">
                       {msg.timestamp.toLocaleTimeString('pt-BR', { 
@@ -731,8 +719,7 @@ Pode compartilhar essas informações?`,
                     </p>
                   </div>
                 </div>
-              );
-            })}
+            ))}
             
             {messageSending && (
               <div className="flex justify-end">
